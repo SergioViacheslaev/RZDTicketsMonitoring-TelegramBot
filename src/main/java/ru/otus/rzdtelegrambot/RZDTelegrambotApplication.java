@@ -14,7 +14,7 @@ public class RZDTelegrambotApplication implements CommandLineRunner {
     private RZDTelegramBotInitializer rzdTelegramBotInitializer;
 
     public static void main(String[] args) {
-        ApiContextInitializer.init();
+        RZDTelegramBotInitializer.initTelegramBotApiContext();
         SpringApplication.run(RZDTelegrambotApplication.class, args);
     }
 

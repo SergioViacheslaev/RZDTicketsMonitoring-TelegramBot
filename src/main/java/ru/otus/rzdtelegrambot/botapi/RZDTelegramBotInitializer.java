@@ -20,8 +20,6 @@ public class RZDTelegramBotInitializer {
 
 
     public void initBot() {
-//        ApiContextInitializer.init();
-
         TelegramBotsApi telegramBotsApi = new TelegramBotsApi();
 
         try {
@@ -29,5 +27,9 @@ public class RZDTelegramBotInitializer {
         } catch (TelegramApiRequestException e) {
             e.printStackTrace();
         }
+    }
+
+    public static void initTelegramBotApiContext() {
+        ApiContextInitializer.init();
     }
 }

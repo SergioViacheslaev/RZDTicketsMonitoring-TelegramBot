@@ -25,16 +25,14 @@ public class AppConfig {
     }
 
     @Bean
-    public RZDTelegramBot RZDTelegramBot() {
+    public RZDTelegramBot RZDTelegramBot(RZDTelegramBotConfig botConfig) {
         DefaultBotOptions options = ApiContext
                 .getInstance(DefaultBotOptions.class);
         options.setProxyHost(botConfig.getProxyHost());
         options.setProxyPort(botConfig.getProxyPort());
+        options.setProxyType(botConfig.getProxyType());
 
-        //Select proxy type: [HTTP|SOCKS4|SOCKS5] (default: NO_PROXY)
-        options.setProxyType(DefaultBotOptions.ProxyType.SOCKS5);
-
-        RZDTelegramBot rzdTelegramBot = new RZDTelegramBot(options);
+        RZDTelegramBot rzdTelegramBot = new RZDTelegramBot(options,botConfig);
 
         return rzdTelegramBot;
     }

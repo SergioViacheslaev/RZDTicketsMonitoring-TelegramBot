@@ -6,14 +6,14 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import ru.otus.rzdtelegrambot.botconfig.RZDTelegramBotConfig;
 
 public class RZDTelegramBot extends TelegramLongPollingBot {
-    private static final String BOT_USERNAME = "@RZDTicketsMonitoringBot";
-    private static final String BOT_TOKEN = "XXXXX";
+    private RZDTelegramBotConfig botConfig;
 
-
-    public RZDTelegramBot(DefaultBotOptions options) {
+    public RZDTelegramBot(DefaultBotOptions options, RZDTelegramBotConfig botConfig) {
         super(options);
+        this.botConfig = botConfig;
     }
 
 
@@ -28,12 +28,12 @@ public class RZDTelegramBot extends TelegramLongPollingBot {
 
 
     public String getBotUsername() {
-        return BOT_USERNAME;
+        return botConfig.getUserName();
     }
 
 
     public String getBotToken() {
-        return BOT_TOKEN;
+        return botConfig.getToken();
     }
 
 
