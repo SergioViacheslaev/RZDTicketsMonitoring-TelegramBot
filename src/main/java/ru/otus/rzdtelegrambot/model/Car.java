@@ -15,7 +15,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class Car {
-    //типа вагона- Плацкарт, Купе, СВ
     private CarType type;
     private int freeSeats;
     //минимальная цена для данного типа вагона

@@ -1,7 +1,9 @@
 package ru.otus.rzdtelegrambot.model;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
+
+import java.util.Locale;
+import java.util.ResourceBundle;
 
 /**
  * Тип вагона
@@ -9,12 +11,22 @@ import lombok.Getter;
  * @author Sergei Viacheslaev
  */
 @Getter
-@AllArgsConstructor
 public enum CarType {
-    PLACKART("Плацкарт"),
-    KUPE("Купе"),
-    SV("СВ");
+    ECONOMY_CLASS_SITTING,
+    ECONOMY_CLASS_SLEEPING,
+    FIRST_CLASS_SLEEPING,
+    SECOND_CLASS_SLEEPING;
 
-    private String carType;
+    private static ResourceBundle resourceBundle = ResourceBundle.getBundle("messages/carTypes",
+            Locale.forLanguageTag("ru"));
 
+
+    @Override
+    public String toString() {
+
+        String carType = resourceBundle.getString("carType."
+                + name());
+
+        return carType;
+    }
 }
