@@ -23,22 +23,16 @@ public class Train {
     private String brand;
     private String carrier;
     //код станции отправления
-    private String route0;
+    private int departureStationCode;
     //код станции прибытия
-    private String route1;
+    private int arrivalStationCode;
 
-    //дата отправления
-    private Date date0;
-    //время отправления
-    private Date time0;
-    //дата прибытия
-    private Date date1;
-    //время прибытия
-    private Date time1;
-    //время в пути
+    private Date dateDepart;
+    private Date timeDepart;
+    private Date dateArrival;
+    private Date timeArrival;
     private Date timeInWay;
 
-    //Вагоны с доступными для покупки местами
-    private List<Car> cars;
+    private List<Car> availableCars;
 
 }

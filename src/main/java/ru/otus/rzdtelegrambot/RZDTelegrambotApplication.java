@@ -8,6 +8,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import ru.otus.rzdtelegrambot.botapi.RZDTelegramBotInitializer;
 import ru.otus.rzdtelegrambot.model.CarType;
+import ru.otus.rzdtelegrambot.service.CarTypeLocalizationService;
 
 @SpringBootApplication
 public class RZDTelegrambotApplication implements CommandLineRunner {
@@ -16,6 +17,8 @@ public class RZDTelegrambotApplication implements CommandLineRunner {
     @Autowired
     private RZDTelegramBotInitializer rzdTelegramBotInitializer;
 
+    @Autowired
+    private CarTypeLocalizationService carTypeLocalizationService;
 
 
     public static void main(String[] args) {
@@ -25,13 +28,13 @@ public class RZDTelegrambotApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
+
+        for (CarType carType : CarType.values()) {
+            System.out.println(carTypeLocalizationService.getLocalizedCarTypeName(carType));
+        }
+
+
         rzdTelegramBotInitializer.initBot();
-
-        logger.info("CARTYPE IS {}",
-                CarType.ECONOMY_CLASS_SITTING);
-
-        logger.info("CARTYPE IS {}",
-                CarType.SECOND_CLASS_SLEEPING);
 
     }
 }

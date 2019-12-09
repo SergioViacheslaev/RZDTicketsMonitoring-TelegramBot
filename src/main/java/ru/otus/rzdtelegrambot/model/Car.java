@@ -15,9 +15,8 @@ import lombok.Setter;
 @Getter
 @Setter
 public class Car {
-    private CarType type;
+    private CarType carType;
     private int freeSeats;
-    //минимальная цена для данного типа вагона
-    private int tariff;
+    private int minimalPrice;
 
 }

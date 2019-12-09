@@ -16,11 +16,6 @@ import ru.otus.rzdtelegrambot.botconfig.RZDTelegramBotConfig;
 @EnableConfigurationProperties(RZDTelegramBotConfig.class)
 public class AppConfig {
 
-    private RZDTelegramBotConfig botConfig;
-
-    public AppConfig(RZDTelegramBotConfig botConfig) {
-        this.botConfig = botConfig;
-    }
 
     @Bean
     public RZDTelegramBot RZDTelegramBot(RZDTelegramBotConfig botConfig) {
@@ -34,5 +29,14 @@ public class AppConfig {
 
         return rzdTelegramBot;
     }
+
+
+ /*   @Bean
+    public Locale currentLocale(@Value() String currentLocale) {
+      //  Locale.setDefault(new Locale("en_US"));
+        return new Locale("ru_RU");
+    }
+*/
+
 
 }
