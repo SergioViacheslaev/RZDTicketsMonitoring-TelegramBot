@@ -34,7 +34,7 @@ public class CarTypeLocalizationService {
 
 
     public String getLocalizedCarTypeName(CarType carType) {
-        if (carType == null) throw new RuntimeException("CarType is NULL !");
+        if (carType == null) throw new RuntimeException("CarType value is NULL !");
 
         String localizedCarType = "";
         switch (carType) {

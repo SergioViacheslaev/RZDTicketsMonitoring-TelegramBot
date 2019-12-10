@@ -1,6 +1,5 @@
 package ru.otus.rzdtelegrambot.appconfig;
 
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.telegram.telegrambots.bots.DefaultBotOptions;
@@ -13,7 +12,6 @@ import ru.otus.rzdtelegrambot.botconfig.RZDTelegramBotConfig;
  */
 
 @Configuration
-@EnableConfigurationProperties(RZDTelegramBotConfig.class)
 public class AppConfig {
 
 
