@@ -2,9 +2,6 @@ package ru.otus.rzdtelegrambot.sheduledtasks;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.EnableAsync;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import ru.otus.rzdtelegrambot.botapi.RZDTelegramBot;
 
@@ -14,7 +11,7 @@ import java.util.Date;
 /**
  * @author Sergei Viacheslaev
  */
-@EnableAsync
+//@EnableAsync
 @Component
 public class TimeInfoTask {
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
@@ -26,14 +23,10 @@ public class TimeInfoTask {
         this.rzdTelegramBot = rzdTelegramBot;
     }
 
-    @Async
-    @Scheduled(fixedRate = 5000)
+//    @Async
+//    @Scheduled(fixedRate = 5000)
     public void reportCurrentTime() {
         logger.info("The time is now {}", dateFormat.format(new Date()));
     }
 
- /*   @PostConstruct
-    public void post() {
-        reportCurrentTime();
-    }*/
 }

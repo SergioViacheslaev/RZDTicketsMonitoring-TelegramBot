@@ -23,16 +23,21 @@ repositories {
 }
 
 dependencies {
+    //region Spring
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
-    compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
-    annotationProcessor 'org.projectlombok:lombok'
-    testCompile group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
-
-    compile group: 'org.telegram', name: 'telegrambots-spring-boot-starter', version: '4.4.0.2'
-
     compile('org.springframework.boot:spring-boot-configuration-processor:2.2.1.RELEASE')
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: '2.2.1.RELEASE'
+    //endregion
+
+    //region Lombok
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    //endregion
+
+    testCompile group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
+    compile group: 'org.telegram', name: 'telegrambots-spring-boot-starter', version: '4.4.0.2'
+
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
         exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
         exclude group: "com.vaadin.external.google", module:"android-json"
