@@ -7,10 +7,11 @@ import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.otus.rzdtelegrambot.botapi.RZDTelegramBot;
+import ru.otus.rzdtelegrambot.model.UserTrainSearchRequestData;
 import ru.otus.rzdtelegrambot.service.MainMenuService;
 import ru.otus.rzdtelegrambot.service.TrainSearchService;
 import ru.otus.rzdtelegrambot.session.UserState;
-import ru.otus.rzdtelegrambot.session.UsersSession;
+import ru.otus.rzdtelegrambot.session.UsersSessionManager;
 
 /**
  * @author UnAfraid
@@ -27,7 +28,7 @@ public class MessageController {
     private MainMenuService mainMenuService;
 
     @Autowired
-    private UsersSession usersSession;
+    private UsersSessionManager usersSession;
 
     public MessageController(RZDTelegramBot telegramBot) {
         this.telegramBot = telegramBot;
@@ -57,10 +58,11 @@ public class MessageController {
 
             switch (message.getText()) {
                 case "Найти поезда":
-                    usersSession.setUserStateByID(message.getFrom().getId(), UserState.ASK_STATION_DEPART);
+                    usersSession.setUserStateByID(message.getFrom().getId(), UserState.TRAIN_SEARCH_STARTED);
                     break;
                 case "Помощь":
-                    telegramBot.sendMessageToChat(userId, "Открыт раздел Помощь");
+                    UserTrainSearchRequestData requestData = usersSession.getUserTrainSearchRequestDataById(userId);
+                    telegramBot.sendMessageToChat(userId, "Запрос пользователя \n" + requestData);
                     return;
             }
 
@@ -88,9 +90,9 @@ public class MessageController {
         }
 
 
-        if (userState.equals(UserState.ASK_STATION_DEPART) ||
-                userState.equals(UserState.ASK_STATION_ARRIVAL) ||
-                userState.equals(UserState.ASK_DATE_DEPART)) {
+        if (userState.equals(UserState.STATION_DEPART_RECIEVED) ||
+                userState.equals(UserState.STATION_ARRIVAL_RECIEVED) ||
+                userState.equals(UserState.DATE_DEPART_RECIEVED) || userState.equals(UserState.TRAIN_SEARCH_STARTED)) {
 
             trainSearchService.createUsersSearchRequest(message);
             return;

@@ -11,7 +11,7 @@ import java.util.Date;
  */
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class TrainTicketsSearchRequest {
+public class UserTrainSearchRequestData {
     String departureStation;
     String arrivalStation;
     Date dateDepart;
