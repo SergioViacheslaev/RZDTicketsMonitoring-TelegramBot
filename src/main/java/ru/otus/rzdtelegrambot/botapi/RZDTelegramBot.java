@@ -37,7 +37,7 @@ public class RZDTelegramBot extends TelegramWebhookBot {
         log.info("Text to be processed {}", text);
 
 
-        return new SendMessage(message.getChatId(), "webhook echo: " + message.getText());
+        return null;
     }
 
 
@@ -63,6 +63,21 @@ public class RZDTelegramBot extends TelegramWebhookBot {
             e.printStackTrace();
         }
 
+    }
+
+    public void sendMessageToChat(long chatId, String textMessage) {
+        SendMessage sendMessage = new SendMessage();
+        sendMessage.enableMarkdown(true);
+
+        sendMessage.setChatId(chatId);
+
+        sendMessage.setText(textMessage);
+        try {
+            execute(sendMessage);
+
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
     }
 
 
