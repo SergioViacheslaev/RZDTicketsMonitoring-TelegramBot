@@ -12,12 +12,10 @@ import org.telegram.telegrambots.ApiContextInitializer;
 public class RZDTelegrambotApplication {
     private static final Logger logger = LoggerFactory.getLogger(RZDTelegrambotApplication.class);
 
-
     public static void main(String[] args) {
         ApiContextInitializer.init();
 
         SpringApplication.run(RZDTelegrambotApplication.class, args);
     }
-
 
 }

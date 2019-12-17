@@ -32,7 +32,6 @@ public class RZDTelegramBotConfig {
     String proxyHost;
     int proxyPort;
 
-
     @Bean
     public RZDTelegramBot RZDTelegramBot() {
         DefaultBotOptions options = ApiContext
@@ -45,7 +44,6 @@ public class RZDTelegramBotConfig {
         rzdTelegramBot.setBotUsername(userName);
         rzdTelegramBot.setBotToken(botToken);
         rzdTelegramBot.setBotPath(webHookPath);
-
 
         return rzdTelegramBot;
     }

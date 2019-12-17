@@ -31,7 +31,7 @@ public class MainMenuService {
         rzdBot.sendMessage(msg);
     }
 
-    public SendMessage sendMainMenuMessage(final Message request) {
+    public SendMessage getMainMenuMessage(final Message request) {
         final ReplyKeyboardMarkup replyKeyboardMarkup = getMainMenuKeyboard();
         final SendMessage mainMenuMessage =
                 createMessageWithKeyboard(request.getChatId().toString(), request.getMessageId(), replyKeyboardMarkup);

@@ -5,13 +5,13 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.telegram.telegrambots.bots.DefaultBotOptions;
 import org.telegram.telegrambots.bots.TelegramWebhookBot;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 @Slf4j
@@ -23,21 +23,21 @@ public class RZDTelegramBot extends TelegramWebhookBot {
     String botUsername;
     String botToken;
 
+
+    @Autowired
+    TelegramFacade telegramFacade;
+
+
     public RZDTelegramBot(DefaultBotOptions options) {
         super(options);
     }
 
     @Override
     public BotApiMethod<?> onWebhookUpdateReceived(Update update) {
-        Message message = update.getMessage();
-        User user = update.getMessage().getFrom();
-        log.info("Got message {} from user {}", message, user);
 
-        String text = message.getText();
-        log.info("Text to be processed {}", text);
+        SendMessage replyMessageToUser = telegramFacade.handleUpdate(update);
 
-
-        return null;
+        return replyMessageToUser;
     }
 
 
