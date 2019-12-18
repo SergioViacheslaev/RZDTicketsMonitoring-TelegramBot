@@ -19,9 +19,7 @@ public class TrainSearchRequestData {
 
     @Override
     public String toString() {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMM y");
-
-
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMM yyyy");
         return "TrainSearchRequestData{" +
                 "departureStation='" + departureStation + '\'' +
                 ", arrivalStation='" + arrivalStation + '\'' +
