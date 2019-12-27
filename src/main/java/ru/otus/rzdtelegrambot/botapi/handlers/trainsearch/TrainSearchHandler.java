@@ -5,14 +5,20 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.otus.rzdtelegrambot.botapi.BotState;
 import ru.otus.rzdtelegrambot.botapi.BotStateContext;
+import ru.otus.rzdtelegrambot.botapi.RZDTelegramBot;
 import ru.otus.rzdtelegrambot.botapi.handlers.InputMessageHandler;
+import ru.otus.rzdtelegrambot.model.Train;
 import ru.otus.rzdtelegrambot.repository.UserDatabase;
+import ru.otus.rzdtelegrambot.service.StationCodeService;
+import ru.otus.rzdtelegrambot.service.TrainTicketsInfoService;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 
 /**
@@ -24,12 +30,19 @@ import java.util.Date;
 public class TrainSearchHandler implements InputMessageHandler {
 
     private UserDatabase userDb;
-
     private BotStateContext botStateContext;
+    private TrainTicketsInfoService trainTicketsService;
+    private StationCodeService stationCodeService;
+    private RZDTelegramBot telegramBot;
 
-    public TrainSearchHandler(UserDatabase userDb, @Lazy BotStateContext botStateContext) {
+    public TrainSearchHandler(UserDatabase userDb, @Lazy BotStateContext botStateContext,
+                              TrainTicketsInfoService trainTicketsService, StationCodeService stationCodeService,
+                             @Lazy RZDTelegramBot telegramBot) {
         this.userDb = userDb;
         this.botStateContext = botStateContext;
+        this.trainTicketsService = trainTicketsService;
+        this.stationCodeService = stationCodeService;
+        this.telegramBot = telegramBot;
     }
 
     @Override
@@ -86,7 +99,23 @@ public class TrainSearchHandler implements InputMessageHandler {
             requestData.setDateDepart(dateDepart);
             userDb.saveTrainSearchData(userId, requestData);
             botStateContext.setCurrentState(BotState.TRAINS_SEARCH_STARTED);
-            replyToUser = "Начинаю поиск поездов по заданным критериям: \n" + requestData;
+            replyToUser = "Завершен поиск поездов по заданным критериям: \n" + requestData + "\n";
+
+            int stationDepartCode = stationCodeService.getStationCode(requestData.getDepartureStation());
+            int stationArrivalCode = stationCodeService.getStationCode(requestData.getArrivalStation());
+
+            List<Train> trainList = trainTicketsService.getTrainTicketsList(stationDepartCode, stationArrivalCode, dateDepart);
+
+
+            try {
+                for (Train train : trainList) {
+                    telegramBot.execute(new SendMessage(inputMsg.getChatId(),train.toString()));
+                }
+            } catch (TelegramApiException e) {
+                e.printStackTrace();
+            }
+
+
 
         }
         return new SendMessage(inputMsg.getChatId(), replyToUser);

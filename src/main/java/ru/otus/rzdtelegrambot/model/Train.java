@@ -1,11 +1,9 @@
 package ru.otus.rzdtelegrambot.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.*;
 
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -18,21 +16,25 @@ import java.util.List;
 @NoArgsConstructor
 @Getter
 @Setter
+@ToString
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Train {
-    private int number;
+    @JsonProperty(value = "number")
+    private String number;
+    @JsonProperty(value = "brand")
     private String brand;
-    private String carrier;
-    //код станции отправления
-    private int departureStationCode;
-    //код станции прибытия
-    private int arrivalStationCode;
 
-    private Date dateDepart;
-    private Date timeDepart;
-    private Date dateArrival;
-    private Date timeArrival;
-    private Date timeInWay;
+    @JsonProperty(value = "station0")
+    private String stationDepart;
+    @JsonProperty(value = "station1")
+    private String stationArrival;
 
+    @JsonProperty(value = "time0")
+    private String timeDepart;
+
+    @JsonProperty(value = "cars")
     private List<Car> availableCars;
+
+
 
 }

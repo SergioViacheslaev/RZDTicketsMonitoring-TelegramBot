@@ -1,9 +1,8 @@
 package ru.otus.rzdtelegrambot.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.*;
 
 /**
  * Вагон поезда
@@ -14,9 +13,14 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
+@ToString
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Car {
-    private CarType carType;
+    @JsonProperty(value = "type")
+    private String carType;
+    @JsonProperty(value = "freeSeats")
     private int freeSeats;
+    @JsonProperty(value = "tariff")
     private int minimalPrice;
 
 }
