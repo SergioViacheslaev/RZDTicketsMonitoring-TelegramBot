@@ -37,7 +37,7 @@ public class StationCodeService {
         if (stationCode != null) {
             return stationCode;
         } else {
-            throw new RuntimeException("ERROR ! stationCode= null");
+            throw new RuntimeException("Станция не найдена ! stationCode= null");
         }
     }
 

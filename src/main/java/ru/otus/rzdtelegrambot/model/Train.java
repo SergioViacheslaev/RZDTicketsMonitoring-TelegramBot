@@ -31,10 +31,14 @@ public class Train {
 
     @JsonProperty(value = "time0")
     private String timeDepart;
+    @JsonProperty(value = "time1")
+    private String timeArrival;
 
     @JsonProperty(value = "cars")
     private List<Car> availableCars;
 
+    @JsonProperty(value = "timeInWay")
+    private String timeInWay;
 
 
 }

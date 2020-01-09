@@ -110,24 +110,12 @@ public class TrainTicketsInfoService {
 
     private List<Train> parseResponseBody(String responseBody) {
         List<Train> trainList = new ArrayList<>();
-        String trainNumber;
-        String brand;
-        String stationDepart;
-        String stationArrival;
-        String timeDepart;
-
-
         try {
             JsonNode trainsNode = objectMapper.readTree(responseBody).path("tp").findPath("list");
 
-            String trainsStr = trainsNode.toString();
-
-
             trainList = Arrays.asList(objectMapper.readValue(trainsNode.toString(), Train[].class));
 
-
             return trainList;
-
 
         } catch (JsonProcessingException e) {
             e.printStackTrace();

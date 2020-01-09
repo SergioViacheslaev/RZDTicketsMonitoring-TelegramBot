@@ -21,7 +21,7 @@ public class MainMenuHandler implements InputMessageHandler {
 
     @Override
     public SendMessage handle(Message message) {
-        return mainMenuService.getMainMenuMessage(message,"Воспользуйтесь главным меню");
+        return mainMenuService.getMainMenuMessage(message, "Воспользуйтесь главным меню");
     }
 
     @Override
