@@ -23,7 +23,8 @@ public class HelpMenuHandler implements InputMessageHandler {
 
     @Override
     public SendMessage handle(Message message) {
-         rzdTelegramBot.sendInlineKeyBoardMessage(message.getChatId(),"Подписаться");
+        //todo: убрать лишний вывод
+         rzdTelegramBot.sendInlineKeyBoardMessage(message.getChatId(),"Поезд 153","Подписаться","137|Москва|Санкт-Петербург|23.01.2020");
 
         return mainMenuService.getMainMenuMessage(message, "Открыто меню помощи");
     }

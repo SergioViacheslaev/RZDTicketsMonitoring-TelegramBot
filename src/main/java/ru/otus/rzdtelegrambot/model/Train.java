@@ -21,16 +21,25 @@ import java.util.List;
 public class Train {
     @JsonProperty(value = "number")
     private String number;
+
     @JsonProperty(value = "brand")
     private String brand;
 
     @JsonProperty(value = "station0")
     private String stationDepart;
+
     @JsonProperty(value = "station1")
     private String stationArrival;
 
+    @JsonProperty(value = "date0")
+    private String dateDepart;
+
+    @JsonProperty(value = "date1")
+    private String dateArrival;
+
     @JsonProperty(value = "time0")
     private String timeDepart;
+
     @JsonProperty(value = "time1")
     private String timeArrival;
 

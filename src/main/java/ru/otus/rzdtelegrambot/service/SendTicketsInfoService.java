@@ -31,14 +31,17 @@ public class SendTicketsInfoService {
                         car.getCarType(), car.getFreeSeats(), car.getMinimalPrice()));
             }
 
-            String trainTicketsInfoMessage = String.format("%s №%s %s%n Отправление: %s в %s%n" +
-                            "Прибытие: %s в %s%n%sВремя в пути: %s%n%s%n",
-                    Emojis.TRAIN, train.getNumber(), train.getBrand(), train.getStationDepart(), train.getTimeDepart(),
-                    train.getStationArrival(), train.getTimeArrival(),
+            String trainTicketsInfoMessage = String.format("%s №%s %s%nОтправление: %s,%s в %s%n" +
+                            "Прибытие: %s,%s в %s%n%sВремя в пути: %s%n%s%n",
+                    Emojis.TRAIN, train.getNumber(), train.getBrand(), train.getStationDepart(), train.getDateDepart(), train.getTimeDepart(),
+                    train.getStationArrival(), train.getDateArrival(), train.getTimeArrival(),
                     Emojis.TIME_IN_WAY, train.getTimeInWay(), carsInfo);
 
+            //todo: Кнопка одписаться с Данными поезда на который подписываемся
+            String callbackTrainData = String.format("%s|%s",
+                    train.getNumber(),train.getDateDepart());
 
-            telegramBot.sendMessage(chatId, trainTicketsInfoMessage);
+            telegramBot.sendInlineKeyBoardMessage(chatId, trainTicketsInfoMessage, "Подписаться", callbackTrainData);
 
         }
     }
