@@ -27,18 +27,18 @@ public class RZDTelegramBotConfig {
     String userName;
     String botToken;
 
-    DefaultBotOptions.ProxyType proxyType;
+   /* DefaultBotOptions.ProxyType proxyType;
     String proxyHost;
-    int proxyPort;
+    int proxyPort;*/
 
     @Bean
     public RZDTelegramBot RZDTelegramBot() {
         DefaultBotOptions options = ApiContext
                 .getInstance(DefaultBotOptions.class);
 
-        options.setProxyHost(proxyHost);
+/*        options.setProxyHost(proxyHost);
         options.setProxyPort(proxyPort);
-        options.setProxyType(proxyType);
+        options.setProxyType(proxyType);*/
 
         RZDTelegramBot rzdTelegramBot = new RZDTelegramBot(options);
         rzdTelegramBot.setBotUsername(userName);
