@@ -28,6 +28,11 @@ dependencies {
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     compile('org.springframework.boot:spring-boot-configuration-processor:2.2.1.RELEASE')
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: '2.2.1.RELEASE'
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-data-mongodb', version: '2.2.1.RELEASE'
+    //endregion
+
+    //region DB
+    compile group: 'de.flapdoodle.embed', name: 'de.flapdoodle.embed.mongo', version: '2.2.0'
     //endregion
 
     //region Lombok
@@ -36,8 +41,8 @@ dependencies {
     //endregion
 
     testCompile group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
+
     compile group: 'org.telegram', name: 'telegrambots-spring-boot-starter', version: '4.4.0.2'
-    // https://mvnrepository.com/artifact/com.vdurmont/emoji-java
     compile group: 'com.vdurmont', name: 'emoji-java', version: '5.1.1'
 
 

@@ -7,7 +7,6 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import ru.otus.rzdtelegrambot.botapi.BotState;
 import ru.otus.rzdtelegrambot.botapi.BotStateContext;
-import ru.otus.rzdtelegrambot.botapi.RZDTelegramBot;
 import ru.otus.rzdtelegrambot.botapi.handlers.InputMessageHandler;
 import ru.otus.rzdtelegrambot.cache.UserDataCache;
 import ru.otus.rzdtelegrambot.model.Train;
@@ -35,17 +34,15 @@ public class TrainSearchHandler implements InputMessageHandler {
     private TrainTicketsInfoService trainTicketsService;
     private StationCodeService stationCodeService;
     private SendTicketsInfoService sendTicketsInfoService;
-    private RZDTelegramBot telegramBot;
 
     public TrainSearchHandler(UserDataCache userDb, @Lazy BotStateContext botStateContext,
                               TrainTicketsInfoService trainTicketsService, StationCodeService stationCodeService,
-                              SendTicketsInfoService sendTicketsInfoService, @Lazy RZDTelegramBot telegramBot) {
+                              SendTicketsInfoService sendTicketsInfoService) {
         this.userDb = userDb;
         this.botStateContext = botStateContext;
         this.trainTicketsService = trainTicketsService;
         this.stationCodeService = stationCodeService;
         this.sendTicketsInfoService = sendTicketsInfoService;
-        this.telegramBot = telegramBot;
     }
 
     @Override

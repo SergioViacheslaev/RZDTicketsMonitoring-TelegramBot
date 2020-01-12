@@ -35,6 +35,7 @@ public class MainMenuService {
 
         KeyboardRow row = new KeyboardRow();
         row.add(new KeyboardButton("Найти поезда"));
+        row.add(new KeyboardButton("Мои подписки"));
         row.add(new KeyboardButton("Помощь"));
         keyboard.add(row);
         replyKeyboardMarkup.setKeyboard(keyboard);

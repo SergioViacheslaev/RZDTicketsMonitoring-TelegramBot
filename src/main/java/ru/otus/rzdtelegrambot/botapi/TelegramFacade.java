@@ -7,6 +7,7 @@ import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.otus.rzdtelegrambot.cache.UserDataCache;
+import ru.otus.rzdtelegrambot.service.SubscribeTicketsInfoService;
 
 /**
  * @author Sergei Viacheslaev
@@ -14,13 +15,14 @@ import ru.otus.rzdtelegrambot.cache.UserDataCache;
 @Service
 @Slf4j
 public class TelegramFacade {
-    private UserDataCache userDatabase;
-
+    private UserDataCache userDataCache;
     private BotStateContext botStateContext;
+    private SubscribeTicketsInfoService subscribeService;
 
-    public TelegramFacade(UserDataCache userDatabase, BotStateContext botStateContext) {
-        this.userDatabase = userDatabase;
+    public TelegramFacade(UserDataCache userDataCache, BotStateContext botStateContext, SubscribeTicketsInfoService subscribeService) {
+        this.userDataCache = userDataCache;
         this.botStateContext = botStateContext;
+        this.subscribeService = subscribeService;
     }
 
     public SendMessage handleUpdate(Update update) {
@@ -50,11 +52,14 @@ public class TelegramFacade {
             case "Найти поезда":
                 botState = BotState.TRAINS_SEARCH;
                 break;
+            case "Мои подписки":
+                botState = BotState.SHOW_SUBSCRIPTIONS_MENU;
+                break;
             case "Помощь":
                 botState = BotState.SHOW_HELP_MENU;
                 break;
             default:
-                botState = userDatabase.getUserBotState(userId);
+                botState = userDataCache.getUserBotState(userId);
                 break;
         }
 
@@ -65,7 +70,7 @@ public class TelegramFacade {
         replyMessage = botStateContext.processInputMessage(message);
 
         //Сохраняем в БД последнее состояние после обработки сообщения
-        userDatabase.saveUserBotState(userId, botStateContext.getCurrentState());
+        userDataCache.saveUserBotState(userId, botStateContext.getCurrentState());
 
         return replyMessage;
     }
@@ -80,6 +85,7 @@ public class TelegramFacade {
         String[] queryData = callbackQuery.getData().split("\\|");
         switch (queryData[0]) {
             case "subscribe":
+                subscribeService.saveUserSubscription(callbackQuery);
                 queryReply = "Вы успешно подписаны !";
                 break;
             case "unsubscribe":
@@ -91,19 +97,6 @@ public class TelegramFacade {
         }
 
         return new SendMessage(callbackQuery.getMessage().getChatId(), queryReply);
-
-         /*   System.out.println("--------------\n");
-            System.out.println(Arrays.toString(trainInfo));
-            System.out.println(stationDepart);
-            System.out.println(stationArrival);
-
-
-            String callbackMessage = callbackQuery.getMessage().getText();
-
-            String stationDepart = callbackMessage.substring(callbackMessage.lastIndexOf("Отправление:") + 13,
-                    callbackMessage.indexOf(",")).trim();
-            String stationArrival = callbackMessage.substring(callbackMessage.lastIndexOf("Прибытие:") + 10,
-                    callbackMessage.lastIndexOf(",")).trim();*/
 
 
     }
