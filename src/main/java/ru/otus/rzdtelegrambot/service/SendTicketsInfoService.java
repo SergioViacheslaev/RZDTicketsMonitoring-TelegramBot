@@ -6,6 +6,7 @@ import ru.otus.rzdtelegrambot.botapi.RZDTelegramBot;
 import ru.otus.rzdtelegrambot.model.Car;
 import ru.otus.rzdtelegrambot.model.Train;
 import ru.otus.rzdtelegrambot.utils.Emojis;
+import ru.otus.rzdtelegrambot.utils.UserChatButton;
 
 import java.util.List;
 
@@ -31,17 +32,17 @@ public class SendTicketsInfoService {
                         car.getCarType(), car.getFreeSeats(), car.getMinimalPrice()));
             }
 
-            String trainTicketsInfoMessage = String.format("%s №%s %s%nОтправление: %s,%s в %s%n" +
-                            "Прибытие: %s,%s в %s%n%sВремя в пути: %s%n%s%n",
+            String trainTicketsInfoMessage = String.format("%s №%s %s%nОтправление: %s, %s в %s%n" +
+                            "Прибытие: %s, %s в %s%n%sВремя в пути: %s%n%s%n",
                     Emojis.TRAIN, train.getNumber(), train.getBrand(), train.getStationDepart(), train.getDateDepart(), train.getTimeDepart(),
                     train.getStationArrival(), train.getDateArrival(), train.getTimeArrival(),
                     Emojis.TIME_IN_WAY, train.getTimeInWay(), carsInfo);
 
-            //todo: Кнопка одписаться с Данными поезда на который подписываемся
-            String callbackTrainData = String.format("%s|%s",
+            //Посылаем кнопку "Подписаться" с данными поезда на который подписываемся
+            String callbackData = String.format("%s|%s|%s", UserChatButton.SUBSCRIBE,
                     train.getNumber(),train.getDateDepart());
 
-            telegramBot.sendInlineKeyBoardMessage(chatId, trainTicketsInfoMessage, "Подписаться", callbackTrainData);
+            telegramBot.sendInlineKeyBoardMessage(chatId, trainTicketsInfoMessage, "Подписаться", callbackData);
 
         }
     }

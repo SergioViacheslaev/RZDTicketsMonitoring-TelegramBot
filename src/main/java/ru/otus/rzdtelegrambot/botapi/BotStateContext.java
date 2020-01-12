@@ -9,7 +9,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
+/** Stores current state of the Bot.
+ *  Defines message handlers for each state.
+ *
  * @author Sergei Viacheslaev
  */
 @Component
@@ -37,7 +39,6 @@ public class BotStateContext {
         return currentMessageHandler.handle(message);
 
     }
-
 
     private InputMessageHandler findMessageHandler(BotState currentState) {
         if (isTrainSearchState(currentState)) {

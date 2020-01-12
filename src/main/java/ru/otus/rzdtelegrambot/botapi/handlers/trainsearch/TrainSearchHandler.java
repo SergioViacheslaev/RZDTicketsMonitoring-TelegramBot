@@ -9,8 +9,8 @@ import ru.otus.rzdtelegrambot.botapi.BotState;
 import ru.otus.rzdtelegrambot.botapi.BotStateContext;
 import ru.otus.rzdtelegrambot.botapi.RZDTelegramBot;
 import ru.otus.rzdtelegrambot.botapi.handlers.InputMessageHandler;
+import ru.otus.rzdtelegrambot.cache.UserDataCache;
 import ru.otus.rzdtelegrambot.model.Train;
-import ru.otus.rzdtelegrambot.repository.UserDatabase;
 import ru.otus.rzdtelegrambot.service.SendTicketsInfoService;
 import ru.otus.rzdtelegrambot.service.StationCodeService;
 import ru.otus.rzdtelegrambot.service.TrainTicketsInfoService;
@@ -30,14 +30,14 @@ import java.util.List;
 @Component
 public class TrainSearchHandler implements InputMessageHandler {
 
-    private UserDatabase userDb;
+    private UserDataCache userDb;
     private BotStateContext botStateContext;
     private TrainTicketsInfoService trainTicketsService;
     private StationCodeService stationCodeService;
     private SendTicketsInfoService sendTicketsInfoService;
     private RZDTelegramBot telegramBot;
 
-    public TrainSearchHandler(UserDatabase userDb, @Lazy BotStateContext botStateContext,
+    public TrainSearchHandler(UserDataCache userDb, @Lazy BotStateContext botStateContext,
                               TrainTicketsInfoService trainTicketsService, StationCodeService stationCodeService,
                               SendTicketsInfoService sendTicketsInfoService, @Lazy RZDTelegramBot telegramBot) {
         this.userDb = userDb;

@@ -11,14 +11,12 @@ import org.telegram.telegrambots.bots.TelegramWebhookBot;
 import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 @Slf4j
@@ -42,29 +40,7 @@ public class RZDTelegramBot extends TelegramWebhookBot {
     @Override
     public BotApiMethod<?> onWebhookUpdateReceived(Update update) {
 
-        CallbackQuery callbackQuery = update.getCallbackQuery();
-        if (callbackQuery != null) {
-            log.info("CallbackQuery data:{}", callbackQuery.getData());
-            log.info("CallbackQuery Message:{}", callbackQuery.getMessage().getText());
 
-
-            String callbackMessage = callbackQuery.getMessage().getText();
-
-            String stationDepart = callbackMessage.substring(callbackMessage.lastIndexOf("Отправление:") + 13,
-                    callbackMessage.indexOf(",")).trim();
-            String stationArrival = callbackMessage.substring(callbackMessage.lastIndexOf("Прибытие:") + 10,
-                    callbackMessage.lastIndexOf(",")).trim();
-
-
-            String[] trainInfo = callbackQuery.getData().split("\\|");
-            System.out.println("--------------\n");
-            System.out.println(Arrays.toString(trainInfo));
-            System.out.println(stationDepart);
-            System.out.println(stationArrival);
-
-            sendAnswerCallbackQuery(callbackQuery.getId(), "Вы успешно подписаны !");
-
-        }
 
         SendMessage replyMessageToUser = telegramFacade.handleUpdate(update);
 

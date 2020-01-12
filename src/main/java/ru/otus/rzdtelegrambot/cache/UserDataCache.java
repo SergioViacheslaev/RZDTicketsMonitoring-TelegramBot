@@ -1,4 +1,4 @@
-package ru.otus.rzdtelegrambot.repository;
+package ru.otus.rzdtelegrambot.cache;
 
 import org.springframework.stereotype.Service;
 import ru.otus.rzdtelegrambot.botapi.BotState;
@@ -8,14 +8,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * In-memory DB to store:
+ * In-memory cache to store:
  * 1.user_id and user's bot state
  * 2.used_id and TrainSearchData
  *
  * @author Sergei Viacheslaev
  */
 @Service
-public class UserDatabase {
+public class UserDataCache {
     private Map<Integer, BotState> usersBotStates = new HashMap<>();
     private Map<Integer, TrainSearchRequestData> trainSearchUsersData = new HashMap<>();
 

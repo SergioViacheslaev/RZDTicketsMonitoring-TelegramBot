@@ -1,25 +1,31 @@
 package ru.otus.rzdtelegrambot.model;
 
-import java.util.Date;
-import java.util.Map;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
- * Подписка на конкретный поезд и дату
+ * Подписка пользователя на конкретный поезд
  *
  * @author Sergei Viacheslaev
  */
+@AllArgsConstructor
+@Getter
+@Setter
 public class TrainTicketsInfoSubscription {
-    //в какой чат слать уведомление
+    private String id;
+
     private int chatId;
 
-    private int trainNumber;
+    private String trainNumber;
 
-    private String trainName;
+    private String stationDepart;
 
-    //дата отправления
-    private Date dateDepart;
+    private String stationArrival;
 
-    //Тип вагона и минимальная цена на билет
-    Map<CarType, Integer> carsTariffs;
+    private String dateDepart;
+
+ /*   //Тип вагона и минимальная цена на билет
+    Map<CarType, Integer> carsTariffs;*/
 
 }
