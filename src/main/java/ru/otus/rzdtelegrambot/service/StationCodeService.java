@@ -19,10 +19,13 @@ import java.util.Map;
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class StationCodeService {
-    final String stationCodeRequestTemplate = "https://pass.rzd.ru/suggester?stationNamePart={stationNamePart}&lang=ru";
-    final RestTemplate restTemplate = new RestTemplate();
+    final String STATIONCODE_REQUEST_TEMPLATE = "https://pass.rzd.ru/suggester?stationNamePart={stationNamePart}&lang=ru";
+    private RestTemplate restTemplate;
+    private Map<String, Integer> stationCodeCache = new HashMap<>();
 
-    Map<String, Integer> stationCodeCache = new HashMap<>();
+    public StationCodeService(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
+    }
 
     public int getStationCode(String stationName) {
         String stationNameParam = stationName.toUpperCase();
@@ -37,28 +40,20 @@ public class StationCodeService {
         if (stationCode != null) {
             return stationCode;
         } else {
-            throw new RuntimeException("Станция не найдена ! stationCode= null");
+            return -1;
         }
     }
 
-
     private void processStationCodeRequest(String stationNamePart) {
-
         ResponseEntity<TrainStation[]> response =
                 restTemplate.getForEntity(
-                        stationCodeRequestTemplate,
+                        STATIONCODE_REQUEST_TEMPLATE,
                         TrainStation[].class, stationNamePart);
-
-
         TrainStation[] stations = response.getBody();
 
         log.info("Stations {}", Arrays.toString(stations));
-
         for (TrainStation station : stations) {
             stationCodeCache.put(station.getStationName(), station.getStationCode());
         }
-
-
     }
-
 }

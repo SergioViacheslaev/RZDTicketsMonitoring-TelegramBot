@@ -1,11 +1,9 @@
 package ru.otus.rzdtelegrambot.botapi.handlers;
 
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import ru.otus.rzdtelegrambot.botapi.BotState;
-import ru.otus.rzdtelegrambot.botapi.RZDTelegramBot;
 import ru.otus.rzdtelegrambot.service.MainMenuService;
 
 /**
@@ -14,19 +12,15 @@ import ru.otus.rzdtelegrambot.service.MainMenuService;
 @Component
 public class HelpMenuHandler implements InputMessageHandler {
     private MainMenuService mainMenuService;
-    private RZDTelegramBot rzdTelegramBot;
 
-    public HelpMenuHandler(MainMenuService mainMenuService, @Lazy RZDTelegramBot rzdTelegramBot) {
+    public HelpMenuHandler(MainMenuService mainMenuService) {
         this.mainMenuService = mainMenuService;
-        this.rzdTelegramBot = rzdTelegramBot;
     }
 
     @Override
     public SendMessage handle(Message message) {
-        //todo: убрать лишний вывод
-         rzdTelegramBot.sendInlineKeyBoardMessage(message.getChatId(),"Поезд 153","Подписаться","137|Москва|Санкт-Петербург|23.01.2020");
 
-        return mainMenuService.getMainMenuMessage(message, "Открыто меню помощи");
+        return mainMenuService.getMainMenuMessage(message, "Воспользуйтесь кнопками меню для поиска поездов и подписки.");
     }
 
     @Override

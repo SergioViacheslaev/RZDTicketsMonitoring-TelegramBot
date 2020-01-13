@@ -93,23 +93,37 @@ public class TrainSearchHandler implements InputMessageHandler {
             try {
                 dateDepart = new SimpleDateFormat("dd.MM.yyyy").parse(usersAnswer);
             } catch (ParseException e) {
-                log.error("Неверный формат даты {}", e.getMessage());
-                replyToUser = "Неверный формат даты, " +
-                        "повторите ввод в формате День.Месяц.Год\nНапример: 31.02.2020";
+                replyToUser = String.format("%sНеверный формат даты, " +
+                        "повторите ввод в формате День.Месяц.Год\nНапример: 31.02.2020", Emojis.SEARCH_FAILED);
                 return new SendMessage(inputMsg.getChatId(), replyToUser);
             }
             requestData.setDateDepart(dateDepart);
             userDb.saveTrainSearchData(userId, requestData);
             botStateContext.setCurrentState(BotState.TRAINS_SEARCH_STARTED);
-            replyToUser = String.format("%s %s%n", Emojis.SEARCH_FINISHED, "Завершен поиск поездов по заданным критериям.");
+            replyToUser = String.format("%s %s%n", Emojis.SUCCESS_MARK, "Завершен поиск поездов по заданным критериям.");
 
             int stationDepartCode = stationCodeService.getStationCode(requestData.getDepartureStation());
+            if (stationDepartCode == -1) {
+                botStateContext.setCurrentState(BotState.SHOW_MAIN_MENU);
+                return new SendMessage(chatId,
+                        String.format("%s Не найдена станция '%s', повторите поиск заново.", Emojis.SEARCH_FAILED, requestData.getDepartureStation()));
+            }
+
             int stationArrivalCode = stationCodeService.getStationCode(requestData.getArrivalStation());
+            if (stationArrivalCode == -1) {
+                botStateContext.setCurrentState(BotState.SHOW_MAIN_MENU);
+                return new SendMessage(chatId,
+                        String.format("%s Не найдена станция '%s', повторите поиск заново.", Emojis.SEARCH_FAILED, requestData.getArrivalStation()));
+            }
 
             List<Train> trainList = trainTicketsService.getTrainTicketsList(stationDepartCode, stationArrivalCode, dateDepart);
+            if (trainList.isEmpty()) {
+                botStateContext.setCurrentState(BotState.SHOW_MAIN_MENU);
+                return new SendMessage(chatId, String.format("%s Не найдено ни одного поезда !", Emojis.SEARCH_FAILED));
+            }
 
+            botStateContext.setCurrentState(BotState.SHOW_MAIN_MENU);
             sendTicketsInfoService.sendTrainTicketsInfo(chatId, trainList);
-
 
         }
         return new SendMessage(chatId, replyToUser);

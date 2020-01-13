@@ -21,17 +21,16 @@ import java.util.*;
 @Slf4j
 @Service
 public class TrainTicketsInfoService {
-    private final String trainInfoRidRequest = "https://pass.rzd.ru/timetable/public/ru?layer_id=5827&dir=0&tfl=3&" +
+    private final String TRAIN_INFO_RID_REQUEST = "https://pass.rzd.ru/timetable/public/ru?layer_id=5827&dir=0&tfl=3&" +
             "checkSeats=1&code0={STATION_DEPART_CODE}&dt0={DATE_DEPART}&code1={STATION_ARRIVAL_CODE}";
-    private String trainInfoDataRequestTemplate = "https://pass.rzd.ru/timetable/public/ru?layer_id=5827&rid={RID_VALUE}";
+    private final String TRAIN_INFO_REQUEST_TEMPLATE = "https://pass.rzd.ru/timetable/public/ru?layer_id=5827&rid={RID_VALUE}";
     private final ObjectMapper objectMapper = new ObjectMapper();
-
-    private HttpHeaders httpHeaders;
-    private String rid;
     private final SimpleDateFormat dateFormatter = new SimpleDateFormat("dd.MM.yyyy");
+    private final RestTemplate restTemplate;
 
-    private final RestTemplate restTemplate = new RestTemplate();
-
+    public TrainTicketsInfoService(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
+    }
 
     public List<Train> getTrainTicketsList(int stationDepartCode, int stationArrivalCode, Date dateDepart) {
         String dateDepartStr = dateFormatter.format(dateDepart);
@@ -41,8 +40,11 @@ public class TrainTicketsInfoService {
         urlParams.put("DATE_DEPART", dateDepartStr);
 
         //1. Get RID and cookies
+        HttpHeaders httpHeaders = null;
+        String rid = "";
+
         ResponseEntity<String> passRzdResp
-                = restTemplate.getForEntity(trainInfoRidRequest, String.class,
+                = restTemplate.getForEntity(TRAIN_INFO_RID_REQUEST, String.class,
                 urlParams);
 
         String jsonRespBody = passRzdResp.getBody();
@@ -54,20 +56,12 @@ public class TrainTicketsInfoService {
             e.printStackTrace();
         }
 
-        try {
-            Thread.sleep(3000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        sleep(2000);
 
-
-        System.out.println(rid);
         List<String> cookies = httpHeaders.get("Set-Cookie");
-        System.out.println(cookies);
 
         String jSessionId = cookies.get(cookies.size() - 1);
         jSessionId = jSessionId.substring(jSessionId.indexOf("=") + 1, jSessionId.indexOf(";"));
-        System.out.println(jSessionId);
 
         HttpHeaders requestHeaders = new HttpHeaders();
         requestHeaders.add("Cookie", "lang=ru");
@@ -75,24 +69,21 @@ public class TrainTicketsInfoService {
         requestHeaders.add("Cookie", "AuthFlag=false");
 
         //2. Get JSON Trains Info
-
         HttpEntity<String> httpEntity = new HttpEntity<>(requestHeaders);
-
-        ResponseEntity<String> resultResponse = restTemplate.exchange(trainInfoDataRequestTemplate,
+        ResponseEntity<String> resultResponse = restTemplate.exchange(TRAIN_INFO_REQUEST_TEMPLATE,
                 HttpMethod.GET,
                 httpEntity,
                 String.class, rid);
 
         if (!isResponseResultOK(resultResponse)) {
-            resultResponse = restTemplate.exchange(trainInfoDataRequestTemplate,
+            resultResponse = restTemplate.exchange(TRAIN_INFO_REQUEST_TEMPLATE,
                     HttpMethod.GET,
                     httpEntity,
                     String.class, rid);
 
         }
+
         return parseResponseBody(resultResponse.getBody());
-
-
     }
 
     private boolean isResponseResultOK(ResponseEntity<String> resultResponse) {
@@ -100,11 +91,7 @@ public class TrainTicketsInfoService {
             return true;
 
         log.error("Result of responce is RID - try again...");
-        try {
-            Thread.sleep(500);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        sleep(500);
         return false;
     }
 
@@ -122,8 +109,14 @@ public class TrainTicketsInfoService {
         }
 
         return trainList;
-
     }
 
+    private void sleep(int i) {
+        try {
+            Thread.sleep(i);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
 
 }

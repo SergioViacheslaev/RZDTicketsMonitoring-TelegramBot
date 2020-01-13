@@ -13,7 +13,9 @@ public enum Emojis {
     TIME_DEPART(EmojiParser.parseToUnicode(":clock8:")),
     TIME_ARRIVAL(EmojiParser.parseToUnicode(":clock3:")),
     TIME_IN_WAY(EmojiParser.parseToUnicode(":alarm_clock:")),
-    SEARCH_FINISHED(EmojiParser.parseToUnicode(":white_check_mark:"));
+    SUCCESS_MARK(EmojiParser.parseToUnicode(":white_check_mark:")),
+    SEARCH_FAILED(EmojiParser.parseToUnicode(":exclamation:")),
+    SUCCESS_UNSUBSCRIBE(EmojiParser.parseToUnicode(":negative_squared_cross_mark:"));
 
     private String emojiName;
 

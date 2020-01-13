@@ -8,6 +8,7 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.otus.rzdtelegrambot.cache.UserDataCache;
 import ru.otus.rzdtelegrambot.service.SubscribeTicketsInfoService;
+import ru.otus.rzdtelegrambot.utils.Emojis;
 
 /**
  * @author Sergei Viacheslaev
@@ -86,14 +87,14 @@ public class TelegramFacade {
         switch (queryData[0]) {
             case "subscribe":
                 subscribeService.saveUserSubscription(callbackQuery);
-                queryReply = "Вы успешно подписаны !";
+                queryReply = String.format("%sОформлена подписка на поезд №%s", Emojis.SUCCESS_MARK, queryData[1]);
                 break;
             case "unsubscribe":
                 subscribeService.deleteUserSubscription(callbackQuery);
-                queryReply = "Вы успешно отписаны от обновления цен !";
+                queryReply = String.format("%sУдалена подписка на поезд №%s", Emojis.SUCCESS_UNSUBSCRIBE, queryData[2]);
                 break;
             default:
-                queryReply = "Не могу разобрать ваш запрос";
+                queryReply = String.format("%sНе могу разобрать ваш запрос", Emojis.SEARCH_FAILED);
                 break;
         }
 

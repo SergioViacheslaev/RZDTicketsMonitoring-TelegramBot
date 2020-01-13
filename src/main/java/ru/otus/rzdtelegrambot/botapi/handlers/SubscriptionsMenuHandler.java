@@ -51,13 +51,13 @@ public class SubscriptionsMenuHandler implements InputMessageHandler {
 
 
             //Посылаем кнопку "Отписаться" с ID подписки
-            String callbackData = String.format("%s|%s", UserChatButton.UNSUBSCRIBE,
-                    subscription.getId());
+            String callbackData = String.format("%s|%s|%s", UserChatButton.UNSUBSCRIBE,
+                    subscription.getId(),subscription.getTrainNumber());
 
             telegramBot.sendInlineKeyBoardMessage(message.getChatId(), subscriptionInfo, "Отписаться", callbackData);
         }
 
-        return new SendMessage(message.getChatId(), String.format("%sСписок подписок загружен.", Emojis.SEARCH_FINISHED));
+        return new SendMessage(message.getChatId(), String.format("%sСписок подписок загружен.", Emojis.SUCCESS_MARK));
     }
 
     @Override

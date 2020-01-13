@@ -33,7 +33,7 @@ public class WebHookController {
         return telegramBot.onWebhookUpdateReceived(update);
     }
 
-
+    //Temp testing method
     @GetMapping(value = "/subscriptions", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<UserTicketsSubscription> index() {
         List<UserTicketsSubscription> articlesIterable = repository.findAll();
