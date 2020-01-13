@@ -33,11 +33,15 @@ public class MainMenuService {
 
         List<KeyboardRow> keyboard = new ArrayList<>();
 
-        KeyboardRow row = new KeyboardRow();
-        row.add(new KeyboardButton("Найти поезда"));
-        row.add(new KeyboardButton("Мои подписки"));
-        row.add(new KeyboardButton("Помощь"));
-        keyboard.add(row);
+        KeyboardRow row1 = new KeyboardRow();
+        KeyboardRow row2 = new KeyboardRow();
+        KeyboardRow row3 = new KeyboardRow();
+        row1.add(new KeyboardButton("Найти поезда"));
+        row2.add(new KeyboardButton("Мои подписки"));
+        row3.add(new KeyboardButton("Помощь"));
+        keyboard.add(row1);
+        keyboard.add(row2);
+        keyboard.add(row3);
         replyKeyboardMarkup.setKeyboard(keyboard);
         return replyKeyboardMarkup;
     }

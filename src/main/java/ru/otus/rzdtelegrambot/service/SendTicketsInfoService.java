@@ -28,7 +28,7 @@ public class SendTicketsInfoService {
             List<Car> cars = train.getAvailableCars();
 
             for (Car car : cars) {
-                carsInfo.append(String.format("%s: свободных мест %s от %dруб.%n",
+                carsInfo.append(String.format("%s: свободных мест %s от %d руб.%n",
                         car.getCarType(), car.getFreeSeats(), car.getMinimalPrice()));
             }
 

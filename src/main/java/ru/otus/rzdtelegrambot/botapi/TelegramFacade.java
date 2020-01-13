@@ -89,6 +89,7 @@ public class TelegramFacade {
                 queryReply = "Вы успешно подписаны !";
                 break;
             case "unsubscribe":
+                subscribeService.deleteUserSubscription(callbackQuery);
                 queryReply = "Вы успешно отписаны от обновления цен !";
                 break;
             default:

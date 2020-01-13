@@ -6,6 +6,8 @@ import lombok.ToString;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.List;
+
 /**
  * Подписка пользователя на конкретный поезд
  *
@@ -29,15 +31,16 @@ public class UserTicketsSubscription {
 
     private String dateDepart;
 
-    public UserTicketsSubscription(long chatId, String trainNumber, String stationDepart, String stationArrival, String dateDepart) {
+    private List<Car> availableCars;
+
+    public UserTicketsSubscription(long chatId, String trainNumber, String stationDepart, String stationArrival, String dateDepart, List<Car> availableCars) {
         this.chatId = chatId;
         this.trainNumber = trainNumber;
         this.stationDepart = stationDepart;
         this.stationArrival = stationArrival;
         this.dateDepart = dateDepart;
+        this.availableCars = availableCars;
     }
 
-    /*   //Тип вагона и минимальная цена на билет
-    Map<CarType, Integer> carsTariffs;*/
 
 }
