@@ -15,7 +15,7 @@ import java.net.URL;
 @Slf4j
 public class PingTask {
 
-    @Scheduled(fixedRate = 60_000)
+    @Scheduled(fixedRate = 900_000)
     public void pingMe() {
         try {
             URL url = new URL("https://rzd-telegrambot.herokuapp.com/");

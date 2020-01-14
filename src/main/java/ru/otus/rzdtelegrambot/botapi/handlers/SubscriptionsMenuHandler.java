@@ -8,6 +8,7 @@ import ru.otus.rzdtelegrambot.botapi.BotState;
 import ru.otus.rzdtelegrambot.botapi.RZDTelegramBot;
 import ru.otus.rzdtelegrambot.model.Car;
 import ru.otus.rzdtelegrambot.model.UserTicketsSubscription;
+import ru.otus.rzdtelegrambot.service.MainMenuService;
 import ru.otus.rzdtelegrambot.service.SubscribeTicketsInfoService;
 import ru.otus.rzdtelegrambot.utils.Emojis;
 import ru.otus.rzdtelegrambot.utils.UserChatButton;
@@ -22,10 +23,12 @@ public class SubscriptionsMenuHandler implements InputMessageHandler {
 
     private SubscribeTicketsInfoService subscribeService;
     private RZDTelegramBot telegramBot;
+    private MainMenuService mainMenuService;
 
-    public SubscriptionsMenuHandler(SubscribeTicketsInfoService subscribeService, @Lazy RZDTelegramBot telegramBot) {
+    public SubscriptionsMenuHandler(SubscribeTicketsInfoService subscribeService, MainMenuService mainMenuService, @Lazy RZDTelegramBot telegramBot) {
         this.subscribeService = subscribeService;
         this.telegramBot = telegramBot;
+        this.mainMenuService = mainMenuService;
     }
 
     @Override
@@ -52,12 +55,12 @@ public class SubscriptionsMenuHandler implements InputMessageHandler {
 
             //Посылаем кнопку "Отписаться" с ID подписки
             String callbackData = String.format("%s|%s|%s", UserChatButton.UNSUBSCRIBE,
-                    subscription.getId(),subscription.getTrainNumber());
+                    subscription.getId(), subscription.getTrainNumber());
 
             telegramBot.sendInlineKeyBoardMessage(message.getChatId(), subscriptionInfo, "Отписаться", callbackData);
         }
 
-        return new SendMessage(message.getChatId(), String.format("%sСписок подписок загружен.", Emojis.SUCCESS_MARK));
+        return mainMenuService.getMainMenuMessage(message, String.format("%sСписок подписок загружен.", Emojis.SUCCESS_MARK));
     }
 
     @Override
