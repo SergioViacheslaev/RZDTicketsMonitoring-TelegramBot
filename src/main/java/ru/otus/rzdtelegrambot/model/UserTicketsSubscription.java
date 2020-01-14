@@ -31,15 +31,15 @@ public class UserTicketsSubscription {
 
     private String dateDepart;
 
-    private List<Car> availableCars;
+    private List<Car> subscribedCars;
 
-    public UserTicketsSubscription(long chatId, String trainNumber, String stationDepart, String stationArrival, String dateDepart, List<Car> availableCars) {
+    public UserTicketsSubscription(long chatId, String trainNumber, String stationDepart, String stationArrival, String dateDepart, List<Car> subscribedCars) {
         this.chatId = chatId;
         this.trainNumber = trainNumber;
         this.stationDepart = stationDepart;
         this.stationArrival = stationArrival;
         this.dateDepart = dateDepart;
-        this.availableCars = availableCars;
+        this.subscribedCars = subscribedCars;
     }
 
 
