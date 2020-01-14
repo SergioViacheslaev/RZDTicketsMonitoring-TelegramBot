@@ -29,7 +29,7 @@ import java.util.List;
 @Component
 public class TrainSearchHandler implements InputMessageHandler {
 
-    private UserDataCache userDb;
+    private UserDataCache userDataCache;
     private BotStateContext botStateContext;
     private TrainTicketsInfoService trainTicketsService;
     private StationCodeService stationCodeService;
@@ -38,7 +38,7 @@ public class TrainSearchHandler implements InputMessageHandler {
     public TrainSearchHandler(UserDataCache userDb, @Lazy BotStateContext botStateContext,
                               TrainTicketsInfoService trainTicketsService, StationCodeService stationCodeService,
                               SendTicketsInfoService sendTicketsInfoService) {
-        this.userDb = userDb;
+        this.userDataCache = userDb;
         this.botStateContext = botStateContext;
         this.trainTicketsService = trainTicketsService;
         this.stationCodeService = stationCodeService;
@@ -64,7 +64,7 @@ public class TrainSearchHandler implements InputMessageHandler {
         int userId = inputMsg.getFrom().getId();
         long chatId = inputMsg.getChatId();
 
-        TrainSearchRequestData requestData = userDb.getUserTrainSearchData(userId);
+        TrainSearchRequestData requestData = userDataCache.getUserTrainSearchData(userId);
 
         BotState botState = botStateContext.getCurrentState();
 
@@ -75,14 +75,14 @@ public class TrainSearchHandler implements InputMessageHandler {
 
         if (botState.equals(BotState.ASK_STATION_ARRIVAL)) {
             requestData.setDepartureStation(usersAnswer);
-            userDb.saveTrainSearchData(userId, requestData);
+            userDataCache.saveTrainSearchData(userId, requestData);
             replyToUser = "Введите станцию назначения";
             botStateContext.setCurrentState(BotState.ASK_DATE_DEPART);
         }
 
         if (botState.equals(BotState.ASK_DATE_DEPART)) {
             requestData.setArrivalStation(usersAnswer);
-            userDb.saveTrainSearchData(userId, requestData);
+            userDataCache.saveTrainSearchData(userId, requestData);
             replyToUser = "Введите дату отправления";
             botStateContext.setCurrentState(BotState.DATE_DEPART_RECEIVED);
         }
@@ -98,7 +98,7 @@ public class TrainSearchHandler implements InputMessageHandler {
                 return new SendMessage(inputMsg.getChatId(), replyToUser);
             }
             requestData.setDateDepart(dateDepart);
-            userDb.saveTrainSearchData(userId, requestData);
+            userDataCache.saveTrainSearchData(userId, requestData);
             botStateContext.setCurrentState(BotState.TRAINS_SEARCH_STARTED);
             replyToUser = String.format("%s %s%n", Emojis.SUCCESS_MARK, "Завершен поиск поездов по заданным критериям.");
 

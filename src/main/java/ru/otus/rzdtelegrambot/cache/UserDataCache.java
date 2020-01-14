@@ -4,8 +4,8 @@ import org.springframework.stereotype.Service;
 import ru.otus.rzdtelegrambot.botapi.BotState;
 import ru.otus.rzdtelegrambot.botapi.handlers.trainsearch.TrainSearchRequestData;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.WeakHashMap;
 
 /**
  * In-memory cache to store:
@@ -16,8 +16,8 @@ import java.util.Map;
  */
 @Service
 public class UserDataCache {
-    private Map<Integer, BotState> usersBotStates = new HashMap<>();
-    private Map<Integer, TrainSearchRequestData> trainSearchUsersData = new HashMap<>();
+    private Map<Integer, BotState> usersBotStates = new WeakHashMap<>();
+    private Map<Integer, TrainSearchRequestData> trainSearchUsersData = new WeakHashMap<>();
 
 
     public void saveUserBotState(int userId, BotState botState) {
