@@ -9,6 +9,7 @@ import ru.otus.rzdtelegrambot.model.Car;
 import ru.otus.rzdtelegrambot.model.Train;
 import ru.otus.rzdtelegrambot.model.UserTicketsSubscription;
 import ru.otus.rzdtelegrambot.repository.UserTicketsSubscriptionMongoRepository;
+import ru.otus.rzdtelegrambot.utils.CarUtils;
 import ru.otus.rzdtelegrambot.utils.Emojis;
 
 import java.text.ParseException;
@@ -60,10 +61,6 @@ public class TicketsNotificationService {
                     subscription.setSubscribedCars(updatedCars);
                     subscriptionsRepository.save(subscription);
                     sendUserNotification(subscription.getChatId(), subscription.getTrainNumber(), updatedCars);
-                } else {
-                    //todo:Временное тестовое сообщение для проверки работы уведомлений
-                    telegramBot.sendMessage(subscription.getChatId(),
-                            String.format("%s Цены на поезд %s не изменились.", Emojis.NOTIFICATION_INFO_MARK, subscription.getTrainNumber()));
                 }
             }
         });
@@ -94,7 +91,7 @@ public class TicketsNotificationService {
                 }
             }
         }
-        return updatedCarsList;
+        return CarUtils.getCarsWithMinimumPrice(updatedCarsList);
     }
 
     private void sendUserNotification(long chatId, String trainNumber, List<Car> updatedCars) {

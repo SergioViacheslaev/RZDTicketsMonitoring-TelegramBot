@@ -11,7 +11,7 @@ import ru.otus.rzdtelegrambot.model.UserTicketsSubscription;
 import ru.otus.rzdtelegrambot.service.MainMenuService;
 import ru.otus.rzdtelegrambot.service.SubscribeTicketsInfoService;
 import ru.otus.rzdtelegrambot.utils.Emojis;
-import ru.otus.rzdtelegrambot.utils.UserChatButton;
+import ru.otus.rzdtelegrambot.utils.UserChatButtonType;
 
 import java.util.List;
 
@@ -48,13 +48,13 @@ public class SubscriptionsMenuHandler implements InputMessageHandler {
                         car.getCarType(), car.getMinimalPrice()));
             }
 
-            String subscriptionInfo = String.format("%s №%s%nОтправление: %s%nПрибытие: %s%n%sДата поездки: %s%n%s%n",
-                    Emojis.TRAIN, subscription.getTrainNumber(), subscription.getStationDepart(), subscription.getStationArrival(),
+            String subscriptionInfo = String.format("%s №%s %s%nОтправление: %s%nПрибытие: %s%n%sДата поездки: %s%n%s%n",
+                    Emojis.TRAIN, subscription.getTrainNumber(), subscription.getTrainName(), subscription.getStationDepart(), subscription.getStationArrival(),
                     Emojis.TIME_DEPART, subscription.getDateDepart(), carsInfo);
 
 
             //Посылаем кнопку "Отписаться" с ID подписки
-            String callbackData = String.format("%s|%s|%s", UserChatButton.UNSUBSCRIBE,
+            String callbackData = String.format("%s|%s|%s", UserChatButtonType.UNSUBSCRIBE,
                     subscription.getId(), subscription.getTrainNumber());
 
             telegramBot.sendInlineKeyBoardMessage(message.getChatId(), subscriptionInfo, "Отписаться", callbackData);

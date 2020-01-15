@@ -1,9 +1,7 @@
 package ru.otus.rzdtelegrambot.service;
 
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
-import ru.otus.rzdtelegrambot.botapi.RZDTelegramBot;
 import ru.otus.rzdtelegrambot.model.Car;
 import ru.otus.rzdtelegrambot.model.UserTicketsSubscription;
 import ru.otus.rzdtelegrambot.repository.UserTicketsSubscriptionMongoRepository;
@@ -15,6 +13,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
+ * Обрабатывает запрос пользователя "Подписаться" и "Отписаться" на поезда
+ *
  * @author Sergei Viacheslaev
  */
 @Service
@@ -22,11 +22,10 @@ public class SubscribeTicketsInfoService {
 
 
     private UserTicketsSubscriptionMongoRepository subscriptionsRepository;
-    private RZDTelegramBot telegramBot;
 
-    public SubscribeTicketsInfoService(UserTicketsSubscriptionMongoRepository repository, @Lazy RZDTelegramBot telegramBot) {
+    public SubscribeTicketsInfoService(UserTicketsSubscriptionMongoRepository repository) {
         this.subscriptionsRepository = repository;
-        this.telegramBot = telegramBot;
+
     }
 
     public void saveUserSubscription(CallbackQuery usersQuery) {
@@ -35,7 +34,8 @@ public class SubscribeTicketsInfoService {
         String callbackMessage = usersQuery.getMessage().getText();
 
         String trainNumber = queryData[1];
-        String dateDepart = queryData[2];
+        String trainName = queryData[2];
+        String dateDepart = queryData[3];
 
 
         String stationDepart = callbackMessage.substring(callbackMessage.lastIndexOf("Отправление:") + 13,
@@ -46,11 +46,9 @@ public class SubscribeTicketsInfoService {
         List<Car> availableCars = parseCarsFromMessage(callbackMessage);
 
         UserTicketsSubscription usersSubscription =
-                new UserTicketsSubscription(chatId, trainNumber, stationDepart, stationArrival, dateDepart, availableCars);
+                new UserTicketsSubscription(chatId, trainNumber, trainName, stationDepart, stationArrival, dateDepart, availableCars);
 
         subscriptionsRepository.save(usersSubscription);
-
-        telegramBot.sendAnswerCallbackQuery(usersQuery.getId(), "Вы успешно подписаны !");
 
 
     }
@@ -60,8 +58,6 @@ public class SubscribeTicketsInfoService {
         String subscriptionID = queryData[1];
 
         subscriptionsRepository.deleteById(subscriptionID);
-
-        telegramBot.sendAnswerCallbackQuery(usersQuery.getId(), "Вы успешно отписаны !");
 
     }
 

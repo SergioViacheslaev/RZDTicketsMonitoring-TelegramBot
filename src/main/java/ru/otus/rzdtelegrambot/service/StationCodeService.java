@@ -12,7 +12,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
+/**Позволяет получить код станции по ее названию.
+ *
  * @author Sergei Viacheslaev
  */
 @Service

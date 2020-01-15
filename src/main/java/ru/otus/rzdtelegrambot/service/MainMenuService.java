@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * Упралвяет отображением главного меню в чате.
+ *
  * @author Sergei Viacheslaev
  */
 @Component

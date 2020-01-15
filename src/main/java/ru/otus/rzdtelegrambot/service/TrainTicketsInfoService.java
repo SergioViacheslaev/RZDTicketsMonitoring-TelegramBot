@@ -15,7 +15,9 @@ import ru.otus.rzdtelegrambot.model.Train;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-/**
+/**Отправляет запросы к RZD API.
+ * Получает данные об актуальных поездах.
+ *
  * @author Sergei Viacheslaev
  */
 @Slf4j

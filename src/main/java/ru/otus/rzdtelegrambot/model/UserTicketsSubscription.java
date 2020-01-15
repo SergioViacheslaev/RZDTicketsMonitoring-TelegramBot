@@ -25,6 +25,8 @@ public class UserTicketsSubscription {
 
     private String trainNumber;
 
+    private String trainName;
+
     private String stationDepart;
 
     private String stationArrival;
@@ -33,14 +35,14 @@ public class UserTicketsSubscription {
 
     private List<Car> subscribedCars;
 
-    public UserTicketsSubscription(long chatId, String trainNumber, String stationDepart, String stationArrival, String dateDepart, List<Car> subscribedCars) {
+    public UserTicketsSubscription(long chatId, String trainNumber, String trainName, String stationDepart,
+                                   String stationArrival, String dateDepart, List<Car> subscribedCars) {
         this.chatId = chatId;
         this.trainNumber = trainNumber;
+        this.trainName = trainName;
         this.stationDepart = stationDepart;
         this.stationArrival = stationArrival;
         this.dateDepart = dateDepart;
         this.subscribedCars = subscribedCars;
     }
-
-
 }

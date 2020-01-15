@@ -5,17 +5,16 @@ import org.springframework.stereotype.Service;
 import ru.otus.rzdtelegrambot.botapi.RZDTelegramBot;
 import ru.otus.rzdtelegrambot.model.Car;
 import ru.otus.rzdtelegrambot.model.Train;
+import ru.otus.rzdtelegrambot.utils.CarUtils;
 import ru.otus.rzdtelegrambot.utils.Emojis;
-import ru.otus.rzdtelegrambot.utils.UserChatButton;
+import ru.otus.rzdtelegrambot.utils.UserChatButtonType;
 
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
-import java.util.function.BinaryOperator;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
+ * Отправляет в чат данные по поездам,
+ * после выполнения команды "Поиск поездов" пользователем.
+ *
  * @author Sergei Viacheslaev
  */
 @Service
@@ -30,7 +29,7 @@ public class SendTicketsInfoService {
     public void sendTrainTicketsInfo(long chatId, List<Train> trainsList) {
         for (Train train : trainsList) {
             StringBuilder carsInfo = new StringBuilder();
-            List<Car> carsWithMinimalPrice = getCarsWithMinimumPrice(train.getAvailableCars());
+            List<Car> carsWithMinimalPrice = CarUtils.getCarsWithMinimumPrice(train.getAvailableCars());
 
             for (Car car : carsWithMinimalPrice) {
                 carsInfo.append(String.format("%s: свободных мест %s от %d руб.%n",
@@ -44,17 +43,13 @@ public class SendTicketsInfoService {
                     Emojis.TIME_IN_WAY, train.getTimeInWay(), carsInfo);
 
             //Посылаем кнопку "Подписаться" с данными поезда на который подписываемся
-            String callbackData = String.format("%s|%s|%s", UserChatButton.SUBSCRIBE,
-                    train.getNumber(), train.getDateDepart());
+            String callbackData = String.format("%s|%s|%s|%s", UserChatButtonType.SUBSCRIBE,
+                    train.getNumber(), train.getBrand(), train.getDateDepart());
 
             telegramBot.sendInlineKeyBoardMessage(chatId, trainTicketsInfoMessage, "Подписаться", callbackData);
 
         }
     }
 
-    private List<Car> getCarsWithMinimumPrice(List<Car> cars) {
-        return new ArrayList<>(cars.stream()
-                .collect(Collectors.toMap(Car::getCarType, Function.identity(),
-                        BinaryOperator.minBy(Comparator.comparing(Car::getMinimalPrice)))).values());
-    }
+
 }

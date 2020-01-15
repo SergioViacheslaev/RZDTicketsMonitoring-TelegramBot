@@ -8,7 +8,7 @@ import lombok.AllArgsConstructor;
  * @author Sergei Viacheslaev
  */
 @AllArgsConstructor
-public enum UserChatButton {
+public enum UserChatButtonType {
     SUBSCRIBE("subscribe"), UNSUBSCRIBE("unsubscribe");
 
     private String buttonName;

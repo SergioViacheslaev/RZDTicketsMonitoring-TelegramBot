@@ -1,6 +1,7 @@
 package ru.otus.rzdtelegrambot.botapi;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
@@ -9,6 +10,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.otus.rzdtelegrambot.cache.UserDataCache;
 import ru.otus.rzdtelegrambot.service.SubscribeTicketsInfoService;
 import ru.otus.rzdtelegrambot.utils.Emojis;
+import ru.otus.rzdtelegrambot.utils.UserChatButtonStatus;
 
 /**
  * @author Sergei Viacheslaev
@@ -19,17 +21,22 @@ public class TelegramFacade {
     private UserDataCache userDataCache;
     private BotStateContext botStateContext;
     private SubscribeTicketsInfoService subscribeService;
+    //todo: Возможно стоить вынести обработку Callback в отдельный сервис
+    private RZDTelegramBot telegramBot;
 
-    public TelegramFacade(UserDataCache userDataCache, BotStateContext botStateContext, SubscribeTicketsInfoService subscribeService) {
+    public TelegramFacade(UserDataCache userDataCache, BotStateContext botStateContext,
+                          SubscribeTicketsInfoService subscribeService, @Lazy RZDTelegramBot telegramBot) {
         this.userDataCache = userDataCache;
         this.botStateContext = botStateContext;
         this.subscribeService = subscribeService;
+        this.telegramBot = telegramBot;
     }
 
     public SendMessage handleUpdate(Update update) {
         SendMessage replyMessage = null;
 
         if (update.hasCallbackQuery()) {
+            log.info("Получен запрос callbackQuery: {}", update.getCallbackQuery().getData());
             return processCallbackQuery(update.getCallbackQuery());
         }
 
@@ -79,19 +86,19 @@ public class TelegramFacade {
     private SendMessage processCallbackQuery(CallbackQuery callbackQuery) {
         String queryReply;
 
-        log.info("CallbackQuery data:{}", callbackQuery.getData());
-        log.info("CallbackQuery Message:{}", callbackQuery.getMessage().getText());
-
-
         String[] queryData = callbackQuery.getData().split("\\|");
         switch (queryData[0]) {
             case "subscribe":
                 subscribeService.saveUserSubscription(callbackQuery);
+                telegramBot.sendChangedInlineButtonText(callbackQuery,
+                        String.format("%s %s", Emojis.SUCCESS_SUBSCRIBED, UserChatButtonStatus.SUBSCRIBED));
                 queryReply = String.format("%sОформлена подписка на поезд №%s", Emojis.SUCCESS_MARK, queryData[1]);
                 break;
             case "unsubscribe":
                 subscribeService.deleteUserSubscription(callbackQuery);
-                queryReply = String.format("%sУдалена подписка на поезд №%s", Emojis.SUCCESS_UNSUBSCRIBE, queryData[2]);
+                telegramBot.sendChangedInlineButtonText(callbackQuery,
+                        String.format("%s %s", Emojis.SUCCESS_UNSUBSCRIBED, UserChatButtonStatus.UNSUBSCRIBED));
+                queryReply = String.format("%sУдалена подписка на поезд №%s", Emojis.SUCCESS_UNSUBSCRIBED, queryData[2]);
                 break;
             default:
                 queryReply = String.format("%sНе могу разобрать ваш запрос", Emojis.SEARCH_FAILED);
@@ -102,4 +109,6 @@ public class TelegramFacade {
 
 
     }
+
+
 }
