@@ -1,5 +1,6 @@
-package ru.otus.rzdtelegrambot.utils;
+package ru.otus.rzdtelegrambot.service;
 
+import org.springframework.stereotype.Service;
 import ru.otus.rzdtelegrambot.model.Car;
 
 import java.util.ArrayList;
@@ -15,10 +16,15 @@ import java.util.stream.Collectors;
  *
  * @author Sergei Viacheslaev
  */
-public class CarUtils {
-    public static List<Car> getCarsWithMinimumPrice(List<Car> cars) {
+@Service
+public class CarsProccessingService {
+
+
+    public List<Car> getCarsWithMinimumPrice(List<Car> cars) {
         return new ArrayList<>(cars.stream()
                 .collect(Collectors.toMap(Car::getCarType, Function.identity(),
                         BinaryOperator.minBy(Comparator.comparing(Car::getMinimalPrice)))).values());
     }
+
+
 }
