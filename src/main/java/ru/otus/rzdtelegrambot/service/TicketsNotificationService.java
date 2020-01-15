@@ -13,9 +13,7 @@ import ru.otus.rzdtelegrambot.utils.Emojis;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * Сервис уведомлений,
@@ -49,7 +47,7 @@ public class TicketsNotificationService {
 
 
     /**
-     * Периодически смотрит за обновленицем цен
+     * Периодически смотрит за обновлением цен
      * по всей базе подписок.
      */
     @Scheduled(fixedRateString = "${fixed-rate.in.milliseconds}")
@@ -67,12 +65,15 @@ public class TicketsNotificationService {
         actualTrains.forEach(actualTrain -> {
 
             if (actualTrain.getNumber().equals(subscription.getTrainNumber()) && actualTrain.getDateDepart().equals(subscription.getDateDepart())) {
-                List<Car> updatedCars = processCarsLists(subscription.getChatId(), subscription.getSubscribedCars(), actualTrain.getAvailableCars());
-                if (!updatedCars.isEmpty()) {
-                    subscription.setSubscribedCars(updatedCars);
+                Map<String, List<Car>> updatedCarsNotification = processCarsLists(subscription.getSubscribedCars(), actualTrain.getAvailableCars());
+                if (!updatedCarsNotification.isEmpty()) {
+                    String priceChangesMessage = updatedCarsNotification.keySet().iterator().next();
+                    List<Car> actualCars = updatedCarsNotification.get(priceChangesMessage);
+
+                    subscription.setSubscribedCars(actualCars);
                     subscriptionsRepository.save(subscription);
-                    sendUserNotification(subscription.getChatId(), subscription.getTrainNumber(),
-                            subscription.getTrainName(), subscription.getDateDepart(), updatedCars);
+                    sendUserNotification(subscription.getChatId(), priceChangesMessage, subscription.getTrainNumber(),
+                            subscription.getTrainName(), subscription.getDateDepart(), actualCars);
                 }
             }
         });
@@ -89,7 +90,11 @@ public class TicketsNotificationService {
         return trainTicketsInfoService.getTrainTicketsList(stationDepartCode, stationArrivalCode, dateDepart);
     }
 
-    private List<Car> processCarsLists(Long chatId, List<Car> subscribedCars, List<Car> actualCars) {
+    /**
+     * Возвращает Мапу: Строку-уведомление и список обновленных цен
+     * Если цены не менялись, вернет пустую мапу.
+     */
+    private Map<String, List<Car>> processCarsLists(List<Car> subscribedCars, List<Car> actualCars) {
         List<Car> updatedCarsList = new ArrayList<>();
         StringBuilder notificationMessage = new StringBuilder();
 
@@ -98,11 +103,11 @@ public class TicketsNotificationService {
             for (Car actualCar : actualCars) {
                 if (actualCar.getCarType().equals(subscribedCar.getCarType())) {
                     if (actualCar.getMinimalPrice() > subscribedCar.getMinimalPrice()) {
-                        notificationMessage.append(String.format("%sВозросла цена на вагоны %s, была %s ₽.%n", Emojis.NOTIFICATION_PRICE_UP,
+                        notificationMessage.append(String.format("%sВозросла цена на вагоны %s, было %s ₽.%n", Emojis.NOTIFICATION_PRICE_UP,
                                 actualCar.getCarType(), subscribedCar.getMinimalPrice()));
                         updatedCarsList.add(actualCar);
                     } else if (actualCar.getMinimalPrice() < subscribedCar.getMinimalPrice()) {
-                        notificationMessage.append(String.format("%sПонизилась цена на вагоны %s, была %s ₽.%n", Emojis.NOTIFICATION_PRICE_DOWN,
+                        notificationMessage.append(String.format("%sПонизилась цена на вагоны %s, было %s ₽.%n", Emojis.NOTIFICATION_PRICE_DOWN,
                                 actualCar.getCarType(), subscribedCar.getMinimalPrice()));
                         updatedCarsList.add(actualCar);
                     }
@@ -111,23 +116,20 @@ public class TicketsNotificationService {
             }
         }
 
-        //Если были изменения по ценам, то отправляем итоговое уведомление
-        if (notificationMessage.length() != 0) {
-            telegramBot.sendMessage(chatId, notificationMessage.toString());
-        }
-
-        return updatedCarsList.isEmpty() ? updatedCarsList : carsProccessingService.getCarsWithMinimumPrice(updatedCarsList);
+        return updatedCarsList.isEmpty() ? Collections.emptyMap() : Collections.singletonMap(notificationMessage.toString(), updatedCarsList);
     }
 
-    private void sendUserNotification(long chatId, String trainNumber, String trainName, String dateDepart, List<Car> updatedCars) {
-        StringBuilder carsInfo = new StringBuilder();
+    private void sendUserNotification(long chatId, String priceChangeMessage, String trainNumber, String trainName, String dateDepart, List<Car> updatedCars) {
+        StringBuilder carsInfo = new StringBuilder(String.format("%s Изменились цены на билеты.%n", Emojis.NOTIFICATION_BELL));
+        carsInfo.append(priceChangeMessage).append(String.format("Актуальные цены на поезд %s %s отправлением %s:%n",
+                trainNumber, trainName, dateDepart));
+
         for (Car car : updatedCars) {
             carsInfo.append(String.format("%s: свободных мест %s от %d ₽.%n",
                     car.getCarType(), car.getFreeSeats(), car.getMinimalPrice()));
         }
 
-        telegramBot.sendMessage(chatId, String.format("%sАктуальные цены на поезд %s %s отправлением %s:%n%s", Emojis.NOTIFICATION_BELL,
-                trainNumber, trainName, dateDepart, carsInfo));
+        telegramBot.sendMessage(chatId, carsInfo.toString());
     }
 
 
