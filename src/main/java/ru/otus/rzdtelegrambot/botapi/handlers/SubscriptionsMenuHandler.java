@@ -44,7 +44,7 @@ public class SubscriptionsMenuHandler implements InputMessageHandler {
             List<Car> cars = subscription.getSubscribedCars();
 
             for (Car car : cars) {
-                carsInfo.append(String.format("%s: цены от %d руб.%n",
+                carsInfo.append(String.format("%s: цены от %d ₽.%n",
                         car.getCarType(), car.getMinimalPrice()));
             }
 

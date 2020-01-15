@@ -34,7 +34,7 @@ public class SendTicketsInfoService {
             List<Car> carsWithMinimalPrice = carsProccessingService.getCarsWithMinimumPrice(train.getAvailableCars());
 
             for (Car car : carsWithMinimalPrice) {
-                carsInfo.append(String.format("%s: свободных мест %s от %d руб.%n",
+                carsInfo.append(String.format("%s: свободных мест %s от %d ₽.%n",
                         car.getCarType(), car.getFreeSeats(), car.getMinimalPrice()));
             }
 

@@ -60,8 +60,6 @@ public class TicketsNotificationService {
     /**
      * Получает актуальные данные по билетам для текущей подписки,
      * если цена изменилась сохраняет последнюю и уведомляет клиента.
-     *
-     * @param subscription
      */
     private void processSubscription(UserTicketsSubscription subscription) {
         List<Train> actualTrains = getActualTrains(subscription.getStationDepart(), subscription.getStationArrival(), subscription.getDateDepart());
@@ -93,33 +91,42 @@ public class TicketsNotificationService {
 
     private List<Car> processCarsLists(Long chatId, List<Car> subscribedCars, List<Car> actualCars) {
         List<Car> updatedCarsList = new ArrayList<>();
+        StringBuilder notificationMessage = new StringBuilder();
 
         for (Car subscribedCar : subscribedCars) {
 
             for (Car actualCar : actualCars) {
                 if (actualCar.getCarType().equals(subscribedCar.getCarType())) {
                     if (actualCar.getMinimalPrice() > subscribedCar.getMinimalPrice()) {
-                        telegramBot.sendMessage(chatId, String.format("%sВозросла цена на вагоны %s", Emojis.NOTIFICATION_PRICE_UP,
-                                actualCar.getCarType()));
+                        notificationMessage.append(String.format("%sВозросла цена на вагоны %s, была %s ₽.%n", Emojis.NOTIFICATION_PRICE_UP,
+                                actualCar.getCarType(), subscribedCar.getMinimalPrice()));
+                        updatedCarsList.add(actualCar);
                     } else if (actualCar.getMinimalPrice() < subscribedCar.getMinimalPrice()) {
-                        telegramBot.sendMessage(chatId, String.format("%sПонизилась цена на вагоны %s", Emojis.NOTIFICATION_PRICE_DOWN,
-                                actualCar.getCarType()));
+                        notificationMessage.append(String.format("%sПонизилась цена на вагоны %s, была %s ₽.%n", Emojis.NOTIFICATION_PRICE_DOWN,
+                                actualCar.getCarType(), subscribedCar.getMinimalPrice()));
+                        updatedCarsList.add(actualCar);
                     }
-                    updatedCarsList.add(actualCar);
+
                 }
             }
         }
-        return carsProccessingService.getCarsWithMinimumPrice(updatedCarsList);
+
+        //Если были изменения по ценам, то отправляем итоговое уведомление
+        if (notificationMessage.length() != 0) {
+            telegramBot.sendMessage(chatId, notificationMessage.toString());
+        }
+
+        return updatedCarsList.isEmpty() ? updatedCarsList : carsProccessingService.getCarsWithMinimumPrice(updatedCarsList);
     }
 
     private void sendUserNotification(long chatId, String trainNumber, String trainName, String dateDepart, List<Car> updatedCars) {
         StringBuilder carsInfo = new StringBuilder();
         for (Car car : updatedCars) {
-            carsInfo.append(String.format("%s: свободных мест %s от %d руб.%n",
+            carsInfo.append(String.format("%s: свободных мест %s от %d ₽.%n",
                     car.getCarType(), car.getFreeSeats(), car.getMinimalPrice()));
         }
 
-        telegramBot.sendMessage(chatId, String.format("%sОбновленные цены на поезд %s %s отправлением %s:%n%s", Emojis.NOTIFICATION_BELL,
+        telegramBot.sendMessage(chatId, String.format("%sАктуальные цены на поезд %s %s отправлением %s:%n%s", Emojis.NOTIFICATION_BELL,
                 trainNumber, trainName, dateDepart, carsInfo));
     }
 
