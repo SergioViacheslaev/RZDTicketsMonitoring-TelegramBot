@@ -55,7 +55,7 @@ public class SubscriptionsMenuHandler implements InputMessageHandler {
 
             //Посылаем кнопку "Отписаться" с ID подписки
             String callbackData = String.format("%s|%s|%s", UserChatButtonType.UNSUBSCRIBE,
-                    subscription.getId(), subscription.getTrainNumber());
+                    subscription.getTrainNumber(),subscription.getId());
 
             telegramBot.sendInlineKeyBoardMessage(message.getChatId(), subscriptionInfo, "Отписаться", callbackData);
         }

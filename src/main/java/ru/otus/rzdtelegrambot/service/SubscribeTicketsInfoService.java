@@ -34,14 +34,15 @@ public class SubscribeTicketsInfoService {
         String callbackMessage = usersQuery.getMessage().getText();
 
         String trainNumber = queryData[1];
-        String trainName = queryData[2];
-        String dateDepart = queryData[3];
+        String dateDepart = queryData[2];
 
 
+        String trainName = callbackMessage.substring(callbackMessage.indexOf("'") + 1, callbackMessage.lastIndexOf("'"));
         String stationDepart = callbackMessage.substring(callbackMessage.lastIndexOf("Отправление:") + 13,
                 callbackMessage.indexOf(",")).trim();
         String stationArrival = callbackMessage.substring(callbackMessage.lastIndexOf("Прибытие:") + 10,
                 callbackMessage.lastIndexOf(",")).trim();
+
 
         List<Car> availableCars = parseCarsFromMessage(callbackMessage);
 
@@ -55,7 +56,7 @@ public class SubscribeTicketsInfoService {
 
     public void deleteUserSubscription(CallbackQuery usersQuery) {
         String[] queryData = usersQuery.getData().split("\\|");
-        String subscriptionID = queryData[1];
+        String subscriptionID = queryData[2];
 
         subscriptionsRepository.deleteById(subscriptionID);
 
@@ -89,9 +90,9 @@ public class SubscribeTicketsInfoService {
             availableCars.add(new Car("Мягкий", 0, Integer.parseInt(miagkiyTariff)));
         }
 
-        if (message.contains("Сидячий")) {
+        if (message.contains("Сид")) {
             String sidyachiTariff = message.substring(lastIndexOf(CarPatterns.SIDYACHI_START, message), lastIndexOf(CarPatterns.SIDYACHI_END, message));
-            availableCars.add(new Car("Сидячий", 0, Integer.parseInt(sidyachiTariff)));
+            availableCars.add(new Car("Сид", 0, Integer.parseInt(sidyachiTariff)));
         }
 
 

@@ -18,7 +18,9 @@ public enum Emojis {
     SUCCESS_UNSUBSCRIBED(EmojiParser.parseToUnicode(":negative_squared_cross_mark:")),
     SUCCESS_SUBSCRIBED(EmojiParser.parseToUnicode(":mailbox:")),
     NOTIFICATION_BELL(EmojiParser.parseToUnicode(":bell:")),
-    NOTIFICATION_INFO_MARK(EmojiParser.parseToUnicode(":information_source:"));
+    NOTIFICATION_INFO_MARK(EmojiParser.parseToUnicode(":information_source:")),
+    NOTIFICATION_PRICE_UP(EmojiParser.parseToUnicode(":chart_with_upwards_trend:")),
+    NOTIFICATION_PRICE_DOWN(EmojiParser.parseToUnicode(":chart_with_downwards_trend:"));
 
     private String emojiName;
 

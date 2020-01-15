@@ -100,14 +100,14 @@ public class RZDTelegramBot extends TelegramWebhookBot {
         }
     }
 
-    public void sendChangedInlineButtonText(CallbackQuery callbackQuery, String buttonText) {
+    public void sendChangedInlineButtonText(CallbackQuery callbackQuery, String buttonText, String callbackData) {
         long message_id = callbackQuery.getMessage().getMessageId();
         long chat_id = callbackQuery.getMessage().getChatId();
 
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
 
         List<InlineKeyboardButton> keyboardButtonsRow1 = new ArrayList<>();
-        keyboardButtonsRow1.add(new InlineKeyboardButton().setText(buttonText).setCallbackData("ButtonPressed"));
+        keyboardButtonsRow1.add(new InlineKeyboardButton().setText(buttonText).setCallbackData(callbackData));
 
         List<List<InlineKeyboardButton>> rowList = new ArrayList<>();
         rowList.add(keyboardButtonsRow1);

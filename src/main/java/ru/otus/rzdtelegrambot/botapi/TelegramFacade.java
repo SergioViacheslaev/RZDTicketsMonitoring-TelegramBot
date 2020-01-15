@@ -87,18 +87,21 @@ public class TelegramFacade {
         String queryReply;
 
         String[] queryData = callbackQuery.getData().split("\\|");
-        switch (queryData[0]) {
+        String buttonType = queryData[0];
+        String trainNumber = queryData[1];
+        switch (buttonType) {
             case "subscribe":
+                String dateDepart = queryData[2];
                 subscribeService.saveUserSubscription(callbackQuery);
                 telegramBot.sendChangedInlineButtonText(callbackQuery,
-                        String.format("%s %s", Emojis.SUCCESS_SUBSCRIBED, UserChatButtonStatus.SUBSCRIBED));
-                queryReply = String.format("%sОформлена подписка на поезд №%s", Emojis.SUCCESS_MARK, queryData[1]);
+                        String.format("%s %s", Emojis.SUCCESS_SUBSCRIBED, UserChatButtonStatus.SUBSCRIBED), "buttonPressed");
+                queryReply = String.format("Оформлена подписка на поезд №%s отправлением %s", trainNumber, dateDepart);
                 break;
             case "unsubscribe":
                 subscribeService.deleteUserSubscription(callbackQuery);
                 telegramBot.sendChangedInlineButtonText(callbackQuery,
-                        String.format("%s %s", Emojis.SUCCESS_UNSUBSCRIBED, UserChatButtonStatus.UNSUBSCRIBED));
-                queryReply = String.format("%sУдалена подписка на поезд №%s", Emojis.SUCCESS_UNSUBSCRIBED, queryData[2]);
+                        String.format("%s %s", Emojis.SUCCESS_UNSUBSCRIBED, UserChatButtonStatus.UNSUBSCRIBED), "buttonPressed");
+                queryReply = String.format("Удалена подписка на поезд №%s", trainNumber);
                 break;
             default:
                 queryReply = String.format("%sНе могу разобрать ваш запрос", Emojis.SEARCH_FAILED);
