@@ -7,7 +7,7 @@ import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import ru.otus.rzdtelegrambot.botapi.RZDTelegramBot;
 import ru.otus.rzdtelegrambot.model.Car;
 import ru.otus.rzdtelegrambot.model.UserTicketsSubscription;
-import ru.otus.rzdtelegrambot.service.CarsProccessingService;
+import ru.otus.rzdtelegrambot.service.CarsProcessingService;
 import ru.otus.rzdtelegrambot.service.UserTicketsSubscriptionService;
 import ru.otus.rzdtelegrambot.utils.CallbackQueryType;
 import ru.otus.rzdtelegrambot.utils.Emojis;
@@ -25,14 +25,14 @@ import java.util.List;
 public class SubscribeTicketsInfoQueryHandler implements CallbackQueryHandler {
 
     private UserTicketsSubscriptionService subscriptionService;
-    private CarsProccessingService carsProccessingService;
+    private CarsProcessingService carsProcessingService;
     private RZDTelegramBot telegramBot;
 
     public SubscribeTicketsInfoQueryHandler(UserTicketsSubscriptionService subscribeService,
-                                            CarsProccessingService carsProccessingService,
+                                            CarsProcessingService carsProcessingService,
                                             @Lazy RZDTelegramBot telegramBot) {
         this.subscriptionService = subscribeService;
-        this.carsProccessingService = carsProccessingService;
+        this.carsProcessingService = carsProcessingService;
         this.telegramBot = telegramBot;
     }
 
@@ -54,7 +54,7 @@ public class SubscribeTicketsInfoQueryHandler implements CallbackQueryHandler {
 
         return new SendMessage(callbackQuery.getMessage().getChatId(),
                 String.format("Оформлена подписка на поезд №%s отправлением %s",
-                        carsProccessingService.parseTrainNumber(callbackQuery), carsProccessingService.parseDateDepart(callbackQuery)));
+                        carsProcessingService.parseTrainNumber(callbackQuery), carsProcessingService.parseDateDepart(callbackQuery)));
 
     }
 
@@ -62,8 +62,8 @@ public class SubscribeTicketsInfoQueryHandler implements CallbackQueryHandler {
         long chatId = usersQuery.getMessage().getChatId();
         String callbackMessage = usersQuery.getMessage().getText();
 
-        String trainNumber = carsProccessingService.parseTrainNumber(usersQuery);
-        String dateDepart = carsProccessingService.parseDateDepart(usersQuery);
+        String trainNumber = carsProcessingService.parseTrainNumber(usersQuery);
+        String dateDepart = carsProcessingService.parseDateDepart(usersQuery);
 
 
         String trainName = callbackMessage.substring(callbackMessage.indexOf("'") + 1, callbackMessage.lastIndexOf("'"));
@@ -71,7 +71,7 @@ public class SubscribeTicketsInfoQueryHandler implements CallbackQueryHandler {
                 callbackMessage.indexOf(",")).trim();
         String stationArrival = callbackMessage.substring(callbackMessage.lastIndexOf("Прибытие:") + 10,
                 callbackMessage.lastIndexOf(",")).trim();
-        List<Car> availableCars = carsProccessingService.parseCarsFromMessage(callbackMessage);
+        List<Car> availableCars = carsProcessingService.parseCarsFromMessage(callbackMessage);
 
         return new UserTicketsSubscription(chatId, trainNumber, trainName, stationDepart, stationArrival, dateDepart, availableCars);
     }

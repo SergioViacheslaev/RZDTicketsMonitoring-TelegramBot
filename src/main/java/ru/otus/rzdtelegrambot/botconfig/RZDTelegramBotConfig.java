@@ -27,7 +27,7 @@ public class RZDTelegramBotConfig {
     String userName;
     String botToken;
 
-  /*  DefaultBotOptions.ProxyType proxyType;
+   /* DefaultBotOptions.ProxyType proxyType;
     String proxyHost;
     int proxyPort;*/
 

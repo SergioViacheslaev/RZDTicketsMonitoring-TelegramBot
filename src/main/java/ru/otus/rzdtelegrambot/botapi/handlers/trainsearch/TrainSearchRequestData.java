@@ -4,7 +4,6 @@ import lombok.AccessLevel;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
@@ -15,15 +14,7 @@ import java.util.Date;
 public class TrainSearchRequestData {
     String departureStation;
     String arrivalStation;
+    int departureStationCode;
+    int arrivalStationCode;
     Date dateDepart;
-
-    @Override
-    public String toString() {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMM yyyy");
-        return "TrainSearchRequestData{" +
-                "departureStation='" + departureStation + '\'' +
-                ", arrivalStation='" + arrivalStation + '\'' +
-                ", dateDepart=" + dateFormat.format(dateDepart) +
-                '}';
-    }
 }

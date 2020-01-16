@@ -107,11 +107,11 @@ public class TrainTicketsInfoService {
         return parseResponseBody(resultResponse.getBody());
     }
 
+    //Срабатывает если RZD не ответил на RID сразу
     private boolean isResponseResultOK(ResponseEntity<String> resultResponse) {
         if (resultResponse.getBody().contains("OK"))
             return true;
 
-        log.error("Result of responce is RID - try again...");
         sleep(500);
         return false;
     }

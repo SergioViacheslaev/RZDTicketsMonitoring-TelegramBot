@@ -33,18 +33,18 @@ public class TicketsNotificationService {
     private UserTicketsSubscriptionMongoRepository subscriptionsRepository;
     private TrainTicketsInfoService trainTicketsInfoService;
     private StationCodeService stationCodeService;
-    private CarsProccessingService carsProccessingService;
+    private CarsProcessingService carsProcessingService;
     private RZDTelegramBot telegramBot;
 
     public TicketsNotificationService(UserTicketsSubscriptionMongoRepository subscriptionsRepository,
                                       TrainTicketsInfoService trainTicketsInfoService,
                                       StationCodeService stationCodeService,
-                                      CarsProccessingService carsProccessingService,
+                                      CarsProcessingService carsProcessingService,
                                       @Lazy RZDTelegramBot telegramBot) {
         this.subscriptionsRepository = subscriptionsRepository;
         this.trainTicketsInfoService = trainTicketsInfoService;
         this.stationCodeService = stationCodeService;
-        this.carsProccessingService = carsProccessingService;
+        this.carsProcessingService = carsProcessingService;
         this.telegramBot = telegramBot;
     }
 
@@ -55,7 +55,9 @@ public class TicketsNotificationService {
      */
     @Scheduled(fixedRateString = "${fixed-rate.in.milliseconds}")
     public void reportCurrentTime() {
+        log.info("Выполняю обработку подписок пользователей.");
         subscriptionsRepository.findAll().forEach(this::processSubscription);
+        log.info("Завершил обработку подписок пользователей.");
     }
 
     /**
@@ -63,12 +65,20 @@ public class TicketsNotificationService {
      * если цена изменилась сохраняет последнюю и уведомляет клиента.
      */
     private void processSubscription(UserTicketsSubscription subscription) {
-        List<Train> actualTrains = getActualTrains(subscription.getChatId(), subscription.getStationDepart(), subscription.getStationArrival(), subscription.getDateDepart());
+        List<Train> actualTrains = getActualTrains(subscription.getChatId(), subscription.getStationDepart(),
+                subscription.getStationArrival(), subscription.getDateDepart());
 
         actualTrains.forEach(actualTrain -> {
 
-            if (actualTrain.getNumber().equals(subscription.getTrainNumber()) && actualTrain.getDateDepart().equals(subscription.getDateDepart())) {
-                Map<String, List<Car>> updatedCarsNotification = processCarsLists(subscription.getSubscribedCars(), actualTrain.getAvailableCars());
+            if (actualTrain.getNumber().equals(subscription.getTrainNumber()) &&
+                    actualTrain.getDateDepart().equals(subscription.getDateDepart())) {
+
+
+                List<Car> actualCarsWithMinimumPrice = carsProcessingService.filterCarsWithMinimumPrice(actualTrain.getAvailableCars());
+
+                Map<String, List<Car>> updatedCarsNotification = processCarsLists(subscription.getSubscribedCars(),
+                        actualCarsWithMinimumPrice);
+
                 if (!updatedCarsNotification.isEmpty()) {
                     String priceChangesMessage = updatedCarsNotification.keySet().iterator().next();
                     List<Car> actualCars = updatedCarsNotification.get(priceChangesMessage);
@@ -113,25 +123,28 @@ public class TicketsNotificationService {
                                 actualCar.getCarType(), subscribedCar.getMinimalPrice()));
                         subscribedCar.setMinimalPrice(actualCar.getMinimalPrice());
                     }
-
+                    subscribedCar.setFreeSeats(actualCar.getFreeSeats());
                 }
             }
         }
 
-        return notificationMessage.length() > 0 ? Collections.emptyMap() : Collections.singletonMap(notificationMessage.toString(), subscribedCars);
+        return notificationMessage.length() == 0 ? Collections.emptyMap() : Collections.singletonMap(notificationMessage.toString(), subscribedCars);
     }
 
-    private void sendUserNotification(long chatId, String priceChangeMessage, String trainNumber, String trainName, String dateDepart, List<Car> updatedCars) {
-        StringBuilder carsInfo = new StringBuilder(String.format("%s Изменились цены на билеты.%n", Emojis.NOTIFICATION_BELL));
-        carsInfo.append(priceChangeMessage).append(String.format("Актуальные цены на поезд %s %s отправлением %s:%n",
-                trainNumber, trainName, dateDepart));
+    private void sendUserNotification(long chatId, String priceChangeMessage, String trainNumber, String trainName,
+                                      String dateDepart, List<Car> updatedCars) {
+
+        StringBuilder notificationMessage = new StringBuilder(String.format("%s Изменились цены на поезд №%s '%s', отправлением %s.%n%n",
+                Emojis.NOTIFICATION_BELL, trainNumber, trainName, dateDepart)).append(priceChangeMessage);
+
+        notificationMessage.append("Последние данные по билетам:\n");
 
         for (Car car : updatedCars) {
-            carsInfo.append(String.format("%s: свободных мест %s от %d ₽.%n",
+            notificationMessage.append(String.format("%s: свободных мест %s от %d ₽.%n",
                     car.getCarType(), car.getFreeSeats(), car.getMinimalPrice()));
         }
 
-        telegramBot.sendMessage(chatId, carsInfo.toString());
+        telegramBot.sendMessage(chatId, notificationMessage.toString());
     }
 
 

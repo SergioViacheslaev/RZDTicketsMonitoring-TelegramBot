@@ -6,7 +6,7 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import ru.otus.rzdtelegrambot.botapi.RZDTelegramBot;
 import ru.otus.rzdtelegrambot.model.UserTicketsSubscription;
-import ru.otus.rzdtelegrambot.service.CarsProccessingService;
+import ru.otus.rzdtelegrambot.service.CarsProcessingService;
 import ru.otus.rzdtelegrambot.service.UserTicketsSubscriptionService;
 import ru.otus.rzdtelegrambot.utils.CallbackQueryType;
 import ru.otus.rzdtelegrambot.utils.Emojis;
@@ -23,14 +23,14 @@ import java.util.Optional;
 @Component
 public class UnsubscribeTicketsInfoQueryHandler implements CallbackQueryHandler {
     private UserTicketsSubscriptionService subscriptionService;
-    private CarsProccessingService carsProccessingService;
+    private CarsProcessingService carsProcessingService;
     private RZDTelegramBot telegramBot;
 
     public UnsubscribeTicketsInfoQueryHandler(UserTicketsSubscriptionService subscriptionService,
-                                              CarsProccessingService carsProccessingService,
+                                              CarsProcessingService carsProcessingService,
                                               @Lazy RZDTelegramBot telegramBot) {
         this.subscriptionService = subscriptionService;
-        this.carsProccessingService = carsProccessingService;
+        this.carsProcessingService = carsProcessingService;
         this.telegramBot = telegramBot;
     }
 
@@ -38,7 +38,7 @@ public class UnsubscribeTicketsInfoQueryHandler implements CallbackQueryHandler 
     public SendMessage handleCallbackQuery(CallbackQuery callbackQuery) {
         UserTicketsSubscription userSubscription;
 
-        String subscriptionID = carsProccessingService.parseSubscriptionID(callbackQuery);
+        String subscriptionID = carsProcessingService.parseSubscriptionID(callbackQuery);
         Optional<UserTicketsSubscription> optionalUserSubscription = subscriptionService.getUsersSubscriptionById(subscriptionID);
 
         if (optionalUserSubscription.isPresent()) {

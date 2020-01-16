@@ -12,7 +12,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-/**Позволяет получить код станции по ее названию.
+/**
+ * Позволяет получить код станции по ее названию.
  *
  * @author Sergei Viacheslaev
  */
@@ -34,7 +35,9 @@ public class StationCodeService {
         Integer stationCode = stationCodeCache.get(stationNameParam);
         if (stationCode != null) return stationCode;
 
-        processStationCodeRequest(stationNameParam);
+        if (processStationCodeRequest(stationNameParam) != 0) {
+            return -1;
+        }
 
         stationCode = stationCodeCache.get(stationNameParam);
 
@@ -45,16 +48,21 @@ public class StationCodeService {
         }
     }
 
-    private void processStationCodeRequest(String stationNamePart) {
+    private int processStationCodeRequest(String stationNamePart) {
         ResponseEntity<TrainStation[]> response =
                 restTemplate.getForEntity(
                         STATIONCODE_REQUEST_TEMPLATE,
                         TrainStation[].class, stationNamePart);
         TrainStation[] stations = response.getBody();
+        if (stations == null) {
+            return -1;
+        }
 
         log.info("Stations {}", Arrays.toString(stations));
         for (TrainStation station : stations) {
             stationCodeCache.put(station.getStationName(), station.getStationCode());
         }
+
+        return 0;
     }
 }

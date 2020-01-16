@@ -14,6 +14,7 @@ import ru.otus.rzdtelegrambot.service.SendTicketsInfoService;
 import ru.otus.rzdtelegrambot.service.StationCodeService;
 import ru.otus.rzdtelegrambot.service.TrainTicketsInfoService;
 import ru.otus.rzdtelegrambot.utils.Emojis;
+import ru.otus.rzdtelegrambot.utils.NotificationMessage;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -74,14 +75,26 @@ public class TrainSearchHandler implements InputMessageHandler {
         }
 
         if (botState.equals(BotState.ASK_STATION_ARRIVAL)) {
-            requestData.setDepartureStation(usersAnswer);
+            int departureStationCode = stationCodeService.getStationCode(usersAnswer);
+            if (departureStationCode == -1) {
+                return new SendMessage(chatId,
+                        NotificationMessage.STATION_SEARCH_FAILED.toString());
+            }
+
+            requestData.setDepartureStationCode(departureStationCode);
             userDataCache.saveTrainSearchData(userId, requestData);
             replyToUser = "Введите станцию назначения";
             botStateContext.setCurrentState(BotState.ASK_DATE_DEPART);
         }
 
         if (botState.equals(BotState.ASK_DATE_DEPART)) {
-            requestData.setArrivalStation(usersAnswer);
+            int arrivalStationCode = stationCodeService.getStationCode(usersAnswer);
+            if (arrivalStationCode == -1) {
+                return new SendMessage(chatId,
+                        NotificationMessage.STATION_SEARCH_FAILED.toString());
+            }
+
+            requestData.setArrivalStationCode(arrivalStationCode);
             userDataCache.saveTrainSearchData(userId, requestData);
             replyToUser = "Введите дату отправления";
             botStateContext.setCurrentState(BotState.DATE_DEPART_RECEIVED);
@@ -101,21 +114,9 @@ public class TrainSearchHandler implements InputMessageHandler {
             botStateContext.setCurrentState(BotState.TRAINS_SEARCH_STARTED);
             replyToUser = String.format("%s %s%n", Emojis.SUCCESS_MARK, "Завершен поиск поездов по заданным критериям.");
 
-            int stationDepartCode = stationCodeService.getStationCode(requestData.getDepartureStation());
-            if (stationDepartCode == -1) {
-                botStateContext.setCurrentState(BotState.SHOW_MAIN_MENU);
-                return new SendMessage(chatId,
-                        String.format("%s Не найдена станция '%s', повторите поиск заново.", Emojis.NOTIFICATION_MARK_FAILED, requestData.getDepartureStation()));
-            }
 
-            int stationArrivalCode = stationCodeService.getStationCode(requestData.getArrivalStation());
-            if (stationArrivalCode == -1) {
-                botStateContext.setCurrentState(BotState.SHOW_MAIN_MENU);
-                return new SendMessage(chatId,
-                        String.format("%s Не найдена станция '%s', повторите поиск заново.", Emojis.NOTIFICATION_MARK_FAILED, requestData.getArrivalStation()));
-            }
-
-            List<Train> trainList = trainTicketsService.getTrainTicketsList(chatId, stationDepartCode, stationArrivalCode, dateDepart);
+            List<Train> trainList = trainTicketsService.getTrainTicketsList(chatId, requestData.getDepartureStationCode(),
+                    requestData.getArrivalStationCode(), dateDepart);
             if (trainList.isEmpty()) {
                 botStateContext.setCurrentState(BotState.SHOW_MAIN_MENU);
                 return new SendMessage(chatId, String.format("%s Не найдено ни одного поезда !", Emojis.NOTIFICATION_MARK_FAILED));

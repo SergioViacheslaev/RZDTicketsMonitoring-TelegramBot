@@ -19,11 +19,11 @@ import java.util.List;
 @Service
 public class SendTicketsInfoService {
     private RZDTelegramBot telegramBot;
-    private CarsProccessingService carsProccessingService;
+    private CarsProcessingService carsProcessingService;
 
-    public SendTicketsInfoService(CarsProccessingService carsProccessingService,
+    public SendTicketsInfoService(CarsProcessingService carsProcessingService,
                                   @Lazy RZDTelegramBot telegramBot) {
-        this.carsProccessingService = carsProccessingService;
+        this.carsProcessingService = carsProcessingService;
         this.telegramBot = telegramBot;
     }
 
@@ -31,7 +31,7 @@ public class SendTicketsInfoService {
     public void sendTrainTicketsInfo(long chatId, List<Train> trainsList) {
         for (Train train : trainsList) {
             StringBuilder carsInfo = new StringBuilder();
-            List<Car> carsWithMinimalPrice = carsProccessingService.getCarsWithMinimumPrice(train.getAvailableCars());
+            List<Car> carsWithMinimalPrice = carsProcessingService.filterCarsWithMinimumPrice(train.getAvailableCars());
 
             for (Car car : carsWithMinimalPrice) {
                 carsInfo.append(String.format("%s: свободных мест %s от %d ₽.%n",
