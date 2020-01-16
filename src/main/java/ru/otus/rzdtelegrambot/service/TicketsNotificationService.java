@@ -54,7 +54,7 @@ public class TicketsNotificationService {
      * по всей базе подписок.
      */
     @Scheduled(fixedRateString = "${fixed-rate.in.milliseconds}")
-    public void reportCurrentTime() {
+    public void processAllUsersSubscriptions() {
         log.info("Выполняю обработку подписок пользователей.");
         subscriptionsRepository.findAll().forEach(this::processSubscription);
         log.info("Завершил обработку подписок пользователей.");
