@@ -5,8 +5,8 @@ import org.springframework.stereotype.Service;
 import ru.otus.rzdtelegrambot.botapi.RZDTelegramBot;
 import ru.otus.rzdtelegrambot.model.Car;
 import ru.otus.rzdtelegrambot.model.Train;
+import ru.otus.rzdtelegrambot.utils.CallbackQueryType;
 import ru.otus.rzdtelegrambot.utils.Emojis;
-import ru.otus.rzdtelegrambot.utils.UserChatButtonType;
 
 import java.util.List;
 
@@ -45,7 +45,7 @@ public class SendTicketsInfoService {
                     Emojis.TIME_IN_WAY, train.getTimeInWay(), carsInfo);
 
             //Посылаем кнопку "Подписаться" с данными поезда на который подписываемся
-            String callbackData = String.format("%s|%s|%s", UserChatButtonType.SUBSCRIBE,
+            String callbackData = String.format("%s|%s|%s", CallbackQueryType.SUBSCRIBE,
                     train.getNumber(), train.getDateDepart());
 
             telegramBot.sendInlineKeyBoardMessage(chatId, trainTicketsInfoMessage, "Подписаться", callbackData);

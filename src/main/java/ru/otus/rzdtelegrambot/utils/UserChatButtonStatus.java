@@ -3,7 +3,8 @@ package ru.otus.rzdtelegrambot.utils;
 
 import lombok.AllArgsConstructor;
 
-/**
+/**Статус кнопки клавиатуры пользователя.
+ *
  * @author Sergei Viacheslaev
  */
 @AllArgsConstructor

@@ -94,7 +94,7 @@ public class TrainSearchHandler implements InputMessageHandler {
                 dateDepart = new SimpleDateFormat("dd.MM.yyyy").parse(usersAnswer);
             } catch (ParseException e) {
                 replyToUser = String.format("%sНеверный формат даты, " +
-                        "повторите ввод в формате День.Месяц.Год\nНапример: 31.02.2020", Emojis.SEARCH_FAILED);
+                        "повторите ввод в формате День.Месяц.Год\nНапример: 31.02.2020", Emojis.NOTIFICATION_MARK_FAILED);
                 return new SendMessage(inputMsg.getChatId(), replyToUser);
             }
             requestData.setDateDepart(dateDepart);
@@ -106,20 +106,20 @@ public class TrainSearchHandler implements InputMessageHandler {
             if (stationDepartCode == -1) {
                 botStateContext.setCurrentState(BotState.SHOW_MAIN_MENU);
                 return new SendMessage(chatId,
-                        String.format("%s Не найдена станция '%s', повторите поиск заново.", Emojis.SEARCH_FAILED, requestData.getDepartureStation()));
+                        String.format("%s Не найдена станция '%s', повторите поиск заново.", Emojis.NOTIFICATION_MARK_FAILED, requestData.getDepartureStation()));
             }
 
             int stationArrivalCode = stationCodeService.getStationCode(requestData.getArrivalStation());
             if (stationArrivalCode == -1) {
                 botStateContext.setCurrentState(BotState.SHOW_MAIN_MENU);
                 return new SendMessage(chatId,
-                        String.format("%s Не найдена станция '%s', повторите поиск заново.", Emojis.SEARCH_FAILED, requestData.getArrivalStation()));
+                        String.format("%s Не найдена станция '%s', повторите поиск заново.", Emojis.NOTIFICATION_MARK_FAILED, requestData.getArrivalStation()));
             }
 
             List<Train> trainList = trainTicketsService.getTrainTicketsList(stationDepartCode, stationArrivalCode, dateDepart);
             if (trainList.isEmpty()) {
                 botStateContext.setCurrentState(BotState.SHOW_MAIN_MENU);
-                return new SendMessage(chatId, String.format("%s Не найдено ни одного поезда !", Emojis.SEARCH_FAILED));
+                return new SendMessage(chatId, String.format("%s Не найдено ни одного поезда !", Emojis.NOTIFICATION_MARK_FAILED));
             }
 
             botStateContext.setCurrentState(BotState.SHOW_MAIN_MENU);
