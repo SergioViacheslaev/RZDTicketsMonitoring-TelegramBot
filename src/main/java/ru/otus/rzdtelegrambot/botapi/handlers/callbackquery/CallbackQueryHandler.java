@@ -1,4 +1,4 @@
-package ru.otus.rzdtelegrambot.botapi.handlers;
+package ru.otus.rzdtelegrambot.botapi.handlers.callbackquery;
 
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;

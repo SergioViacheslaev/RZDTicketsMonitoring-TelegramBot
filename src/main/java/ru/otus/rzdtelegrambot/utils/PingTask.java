@@ -18,7 +18,7 @@ public class PingTask {
     @Scheduled(fixedRate = 900_000)
     public void pingMe() {
         try {
-            URL url = new URL("https://bot1035774480-aaern.herokuapp.com/");
+            URL url = new URL("https://rzdbot-1035774480.herokuapp.com/");
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.connect();
             log.info("Ping OK: response code {}", connection.getResponseCode());

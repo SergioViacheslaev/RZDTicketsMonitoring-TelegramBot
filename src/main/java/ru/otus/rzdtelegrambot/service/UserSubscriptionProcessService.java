@@ -28,21 +28,21 @@ import java.util.Map;
  */
 @Slf4j
 @Service
-public class TicketsNotificationService {
+public class UserSubscriptionProcessService {
     private final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd.MM.yyyy");
     private UserTicketsSubscriptionMongoRepository subscriptionsRepository;
-    private TrainTicketsInfoService trainTicketsInfoService;
+    private TrainTicketsGetInfoService trainTicketsGetInfoService;
     private StationCodeService stationCodeService;
     private CarsProcessingService carsProcessingService;
     private RZDTelegramBot telegramBot;
 
-    public TicketsNotificationService(UserTicketsSubscriptionMongoRepository subscriptionsRepository,
-                                      TrainTicketsInfoService trainTicketsInfoService,
-                                      StationCodeService stationCodeService,
-                                      CarsProcessingService carsProcessingService,
-                                      @Lazy RZDTelegramBot telegramBot) {
+    public UserSubscriptionProcessService(UserTicketsSubscriptionMongoRepository subscriptionsRepository,
+                                          TrainTicketsGetInfoService trainTicketsGetInfoService,
+                                          StationCodeService stationCodeService,
+                                          CarsProcessingService carsProcessingService,
+                                          @Lazy RZDTelegramBot telegramBot) {
         this.subscriptionsRepository = subscriptionsRepository;
-        this.trainTicketsInfoService = trainTicketsInfoService;
+        this.trainTicketsGetInfoService = trainTicketsGetInfoService;
         this.stationCodeService = stationCodeService;
         this.carsProcessingService = carsProcessingService;
         this.telegramBot = telegramBot;
@@ -100,7 +100,7 @@ public class TicketsNotificationService {
         int stationArrivalCode = stationCodeService.getStationCode(stationArrival);
         Date dateDepart = parseDateDeparture(dateDeparture);
 
-        return trainTicketsInfoService.getTrainTicketsList(chatId, stationDepartCode, stationArrivalCode, dateDepart);
+        return trainTicketsGetInfoService.getTrainTicketsList(chatId, stationDepartCode, stationArrivalCode, dateDepart);
     }
 
     /**

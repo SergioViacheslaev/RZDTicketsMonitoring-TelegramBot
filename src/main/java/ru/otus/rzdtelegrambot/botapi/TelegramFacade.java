@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import ru.otus.rzdtelegrambot.botapi.handlers.CallbackQueryFacade;
+import ru.otus.rzdtelegrambot.botapi.handlers.callbackquery.CallbackQueryFacade;
 import ru.otus.rzdtelegrambot.cache.UserDataCache;
 import ru.otus.rzdtelegrambot.service.UserTicketsSubscriptionService;
 
@@ -44,7 +44,8 @@ public class TelegramFacade {
 
         Message message = update.getMessage();
         if (message != null && message.hasText()) {
-            log.info("New message from User:{} with text: {}", message.getFrom().getUserName(), message.getText());
+            log.info("New message from User:{}, chatId: {},  with text: {}",
+                    message.getFrom().getUserName(), message.getChatId(), message.getText());
             replyMessage = handleInputMessage(message);
         }
 

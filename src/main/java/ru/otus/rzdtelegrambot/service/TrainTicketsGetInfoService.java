@@ -26,7 +26,7 @@ import java.util.*;
  */
 @Slf4j
 @Service
-public class TrainTicketsInfoService {
+public class TrainTicketsGetInfoService {
     private final String TRAIN_INFO_RID_REQUEST = "https://pass.rzd.ru/timetable/public/ru?layer_id=5827&dir=0&tfl=3&" +
             "checkSeats=1&code0={STATION_DEPART_CODE}&dt0={DATE_DEPART}&code1={STATION_ARRIVAL_CODE}";
     private final String TRAIN_INFO_REQUEST_TEMPLATE = "https://pass.rzd.ru/timetable/public/ru?layer_id=5827&rid={RID_VALUE}";
@@ -35,7 +35,7 @@ public class TrainTicketsInfoService {
     private final RestTemplate restTemplate;
     private RZDTelegramBot telegramBot;
 
-    public TrainTicketsInfoService(RestTemplate restTemplate, @Lazy RZDTelegramBot telegramBot) {
+    public TrainTicketsGetInfoService(RestTemplate restTemplate, @Lazy RZDTelegramBot telegramBot) {
         this.restTemplate = restTemplate;
         this.telegramBot = telegramBot;
     }
@@ -69,7 +69,13 @@ public class TrainTicketsInfoService {
 
         try {
             JsonNode jsonNode = objectMapper.readTree(jsonRespBody);
-            rid = jsonNode.get("RID").asText();
+            JsonNode ridNode = jsonNode.get("RID");
+            if (ridNode == null) {
+                telegramBot.sendMessage(chatId, NotificationMessage.TRAIN_SEARCH_BAD_QUERY.toString());
+                return Collections.emptyList();
+            }
+
+            rid = ridNode.asText();
             httpHeaders = passRzdResp.getHeaders();
         } catch (JsonProcessingException e) {
             telegramBot.sendMessage(chatId, String.format("Ошибка получения данных от RZD, обратитесь к разработчику: %s", e.getMessage()));
@@ -131,6 +137,7 @@ public class TrainTicketsInfoService {
 
         return trainList;
     }
+
 
     private void sleep(int i) {
         try {

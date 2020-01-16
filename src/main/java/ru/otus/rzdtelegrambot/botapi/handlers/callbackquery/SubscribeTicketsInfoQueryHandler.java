@@ -1,4 +1,4 @@
-package ru.otus.rzdtelegrambot.botapi.handlers;
+package ru.otus.rzdtelegrambot.botapi.handlers.callbackquery;
 
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;

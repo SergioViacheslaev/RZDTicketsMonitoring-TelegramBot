@@ -12,7 +12,7 @@ import ru.otus.rzdtelegrambot.cache.UserDataCache;
 import ru.otus.rzdtelegrambot.model.Train;
 import ru.otus.rzdtelegrambot.service.SendTicketsInfoService;
 import ru.otus.rzdtelegrambot.service.StationCodeService;
-import ru.otus.rzdtelegrambot.service.TrainTicketsInfoService;
+import ru.otus.rzdtelegrambot.service.TrainTicketsGetInfoService;
 import ru.otus.rzdtelegrambot.utils.Emojis;
 import ru.otus.rzdtelegrambot.utils.NotificationMessage;
 
@@ -32,12 +32,12 @@ public class TrainSearchHandler implements InputMessageHandler {
 
     private UserDataCache userDataCache;
     private BotStateContext botStateContext;
-    private TrainTicketsInfoService trainTicketsService;
+    private TrainTicketsGetInfoService trainTicketsService;
     private StationCodeService stationCodeService;
     private SendTicketsInfoService sendTicketsInfoService;
 
     public TrainSearchHandler(UserDataCache userDb, @Lazy BotStateContext botStateContext,
-                              TrainTicketsInfoService trainTicketsService, StationCodeService stationCodeService,
+                              TrainTicketsGetInfoService trainTicketsService, StationCodeService stationCodeService,
                               SendTicketsInfoService sendTicketsInfoService) {
         this.userDataCache = userDb;
         this.botStateContext = botStateContext;
@@ -119,7 +119,7 @@ public class TrainSearchHandler implements InputMessageHandler {
                     requestData.getArrivalStationCode(), dateDepart);
             if (trainList.isEmpty()) {
                 botStateContext.setCurrentState(BotState.SHOW_MAIN_MENU);
-                return new SendMessage(chatId, String.format("%s Не найдено ни одного поезда !", Emojis.NOTIFICATION_MARK_FAILED));
+                return new SendMessage(chatId, NotificationMessage.TRAIN_SEARCH_FOUND_ZERO.toString());
             }
 
             botStateContext.setCurrentState(BotState.SHOW_MAIN_MENU);
