@@ -87,7 +87,6 @@ public class TrainSearchHandler implements InputMessageHandler {
             botStateContext.setCurrentState(BotState.DATE_DEPART_RECEIVED);
         }
 
-        //todo: Добавить проверку корректности диапазона времени
         if (botState.equals(BotState.DATE_DEPART_RECEIVED)) {
             Date dateDepart;
             try {
@@ -116,7 +115,7 @@ public class TrainSearchHandler implements InputMessageHandler {
                         String.format("%s Не найдена станция '%s', повторите поиск заново.", Emojis.NOTIFICATION_MARK_FAILED, requestData.getArrivalStation()));
             }
 
-            List<Train> trainList = trainTicketsService.getTrainTicketsList(stationDepartCode, stationArrivalCode, dateDepart);
+            List<Train> trainList = trainTicketsService.getTrainTicketsList(chatId, stationDepartCode, stationArrivalCode, dateDepart);
             if (trainList.isEmpty()) {
                 botStateContext.setCurrentState(BotState.SHOW_MAIN_MENU);
                 return new SendMessage(chatId, String.format("%s Не найдено ни одного поезда !", Emojis.NOTIFICATION_MARK_FAILED));

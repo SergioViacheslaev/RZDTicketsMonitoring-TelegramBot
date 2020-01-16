@@ -13,7 +13,10 @@ import ru.otus.rzdtelegrambot.utils.Emojis;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Сервис уведомлений,
@@ -60,7 +63,7 @@ public class TicketsNotificationService {
      * если цена изменилась сохраняет последнюю и уведомляет клиента.
      */
     private void processSubscription(UserTicketsSubscription subscription) {
-        List<Train> actualTrains = getActualTrains(subscription.getStationDepart(), subscription.getStationArrival(), subscription.getDateDepart());
+        List<Train> actualTrains = getActualTrains(subscription.getChatId(), subscription.getStationDepart(), subscription.getStationArrival(), subscription.getDateDepart());
 
         actualTrains.forEach(actualTrain -> {
 
@@ -82,20 +85,19 @@ public class TicketsNotificationService {
 
     }
 
-    private List<Train> getActualTrains(String stationDepart, String stationArrival, String dateDeparture) {
+    private List<Train> getActualTrains(long chatId, String stationDepart, String stationArrival, String dateDeparture) {
         int stationDepartCode = stationCodeService.getStationCode(stationDepart);
         int stationArrivalCode = stationCodeService.getStationCode(stationArrival);
         Date dateDepart = parseDateDeparture(dateDeparture);
 
-        return trainTicketsInfoService.getTrainTicketsList(stationDepartCode, stationArrivalCode, dateDepart);
+        return trainTicketsInfoService.getTrainTicketsList(chatId, stationDepartCode, stationArrivalCode, dateDepart);
     }
 
     /**
-     * Возвращает Мапу: Строку-уведомление и список обновленных цен
+     * Возвращает Мапу: Строку-уведомление и список обновленных цен в вагонах подписки.
      * Если цены не менялись, вернет пустую мапу.
      */
     private Map<String, List<Car>> processCarsLists(List<Car> subscribedCars, List<Car> actualCars) {
-        List<Car> updatedCarsList = new ArrayList<>();
         StringBuilder notificationMessage = new StringBuilder();
 
         for (Car subscribedCar : subscribedCars) {
@@ -105,18 +107,18 @@ public class TicketsNotificationService {
                     if (actualCar.getMinimalPrice() > subscribedCar.getMinimalPrice()) {
                         notificationMessage.append(String.format("%sВозросла цена на вагоны %s, было %s ₽.%n", Emojis.NOTIFICATION_PRICE_UP,
                                 actualCar.getCarType(), subscribedCar.getMinimalPrice()));
-                        updatedCarsList.add(actualCar);
+                        subscribedCar.setMinimalPrice(actualCar.getMinimalPrice());
                     } else if (actualCar.getMinimalPrice() < subscribedCar.getMinimalPrice()) {
                         notificationMessage.append(String.format("%sПонизилась цена на вагоны %s, было %s ₽.%n", Emojis.NOTIFICATION_PRICE_DOWN,
                                 actualCar.getCarType(), subscribedCar.getMinimalPrice()));
-                        updatedCarsList.add(actualCar);
+                        subscribedCar.setMinimalPrice(actualCar.getMinimalPrice());
                     }
 
                 }
             }
         }
 
-        return updatedCarsList.isEmpty() ? Collections.emptyMap() : Collections.singletonMap(notificationMessage.toString(), updatedCarsList);
+        return notificationMessage.length() > 0 ? Collections.emptyMap() : Collections.singletonMap(notificationMessage.toString(), subscribedCars);
     }
 
     private void sendUserNotification(long chatId, String priceChangeMessage, String trainNumber, String trainName, String dateDepart, List<Car> updatedCars) {

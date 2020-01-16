@@ -4,18 +4,22 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import ru.otus.rzdtelegrambot.botapi.RZDTelegramBot;
 import ru.otus.rzdtelegrambot.model.Train;
+import ru.otus.rzdtelegrambot.utils.NotificationMessage;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-/**Отправляет запросы к RZD API.
+/**
+ * Отправляет запросы к RZD API.
  * Получает данные об актуальных поездах.
  *
  * @author Sergei Viacheslaev
@@ -29,12 +33,14 @@ public class TrainTicketsInfoService {
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final SimpleDateFormat dateFormatter = new SimpleDateFormat("dd.MM.yyyy");
     private final RestTemplate restTemplate;
+    private RZDTelegramBot telegramBot;
 
-    public TrainTicketsInfoService(RestTemplate restTemplate) {
+    public TrainTicketsInfoService(RestTemplate restTemplate, @Lazy RZDTelegramBot telegramBot) {
         this.restTemplate = restTemplate;
+        this.telegramBot = telegramBot;
     }
 
-    public List<Train> getTrainTicketsList(int stationDepartCode, int stationArrivalCode, Date dateDepart) {
+    public List<Train> getTrainTicketsList(long chatId, int stationDepartCode, int stationArrivalCode, Date dateDepart) {
         String dateDepartStr = dateFormatter.format(dateDepart);
         Map<String, String> urlParams = new HashMap<>();
         urlParams.put("STATION_DEPART_CODE", String.valueOf(stationDepartCode));
@@ -50,12 +56,25 @@ public class TrainTicketsInfoService {
                 urlParams);
 
         String jsonRespBody = passRzdResp.getBody();
+
+        if (jsonRespBody == null) {
+            telegramBot.sendMessage(chatId, NotificationMessage.TICKET_SEARCH_DATEDEPART_OUTDATE.toString());
+            return Collections.emptyList();
+        }
+
+        if (jsonRespBody.contains("находится за пределами периода")) {
+            telegramBot.sendMessage(chatId, NotificationMessage.TICKET_SEARCH_DATEDEPART_OUTDATE.toString());
+            return Collections.emptyList();
+        }
+
         try {
             JsonNode jsonNode = objectMapper.readTree(jsonRespBody);
             rid = jsonNode.get("RID").asText();
             httpHeaders = passRzdResp.getHeaders();
         } catch (JsonProcessingException e) {
+            telegramBot.sendMessage(chatId, String.format("Ошибка получения данных от RZD, обратитесь к разработчику: %s", e.getMessage()));
             e.printStackTrace();
+            return Collections.emptyList();
         }
 
         sleep(2000);
