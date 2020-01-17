@@ -8,11 +8,11 @@ import ru.otus.rzdtelegrambot.botapi.BotState;
 import ru.otus.rzdtelegrambot.botapi.BotStateContext;
 import ru.otus.rzdtelegrambot.botapi.RZDTelegramBot;
 import ru.otus.rzdtelegrambot.botapi.handlers.InputMessageHandler;
+import ru.otus.rzdtelegrambot.botapi.handlers.callbackquery.CallbackQueryType;
 import ru.otus.rzdtelegrambot.model.Car;
 import ru.otus.rzdtelegrambot.model.UserTicketsSubscription;
 import ru.otus.rzdtelegrambot.service.MainMenuService;
 import ru.otus.rzdtelegrambot.service.UserTicketsSubscriptionService;
-import ru.otus.rzdtelegrambot.utils.CallbackQueryType;
 import ru.otus.rzdtelegrambot.utils.Emojis;
 
 import java.util.List;

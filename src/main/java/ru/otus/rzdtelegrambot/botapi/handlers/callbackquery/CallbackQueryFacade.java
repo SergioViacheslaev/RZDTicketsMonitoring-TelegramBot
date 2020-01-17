@@ -5,8 +5,10 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import ru.otus.rzdtelegrambot.botapi.BotStateContext;
 import ru.otus.rzdtelegrambot.cache.UserDataCache;
-import ru.otus.rzdtelegrambot.utils.CallbackQueryType;
-import ru.otus.rzdtelegrambot.utils.NotificationMessage;
+import ru.otus.rzdtelegrambot.service.ReplyMessagesService;
+
+import java.util.List;
+import java.util.Optional;
 
 /**
  * Разбирает входящие запросы от кнопок клаватуры,
@@ -18,42 +20,41 @@ import ru.otus.rzdtelegrambot.utils.NotificationMessage;
 public class CallbackQueryFacade {
     private BotStateContext botStateContext;
     private UserDataCache userDataCache;
-    private SubscribeTicketsInfoQueryHandler subscribeHandler;
-    private UnsubscribeTicketsInfoQueryHandler unsubscribeHandler;
+    private ReplyMessagesService messagesService;
+    private List<CallbackQueryHandler> callbackQueryHandlers;
 
-    public CallbackQueryFacade(SubscribeTicketsInfoQueryHandler subscribeHandler,
-                               UnsubscribeTicketsInfoQueryHandler unsubscribeHandler,
-                               UserDataCache userDataCache,
-                               BotStateContext botStateContext) {
-        this.subscribeHandler = subscribeHandler;
-        this.unsubscribeHandler = unsubscribeHandler;
+    public CallbackQueryFacade(UserDataCache userDataCache,
+                               BotStateContext botStateContext,
+                               ReplyMessagesService messagesService,
+                               List<CallbackQueryHandler> callbackQueryHandlers) {
+
         this.userDataCache = userDataCache;
         this.botStateContext = botStateContext;
+        this.messagesService = messagesService;
+        this.callbackQueryHandlers = callbackQueryHandlers;
     }
 
-    public SendMessage processCallbackQuery(CallbackQuery callbackQuery) {
-        CallbackQueryType queryType = CallbackQueryType.valueOf(callbackQuery.getData().split("\\|")[0]);
+    public SendMessage processCallbackQuery(CallbackQuery usersQuery) {
+        CallbackQueryType usersQueryType = CallbackQueryType.valueOf(usersQuery.getData().split("\\|")[0]);
 
-        SendMessage queryReply;
+        SendMessage userReply;
 
-        switch (queryType) {
-            case SUBSCRIBE:
-                queryReply = subscribeHandler.handleCallbackQuery(callbackQuery);
-                break;
-            case UNSUBSCRIBE:
-                queryReply = unsubscribeHandler.handleCallbackQuery(callbackQuery);
-                break;
-            case QUERY_PROCESSED:
-                queryReply = new SendMessage(callbackQuery.getMessage().getChatId(), NotificationMessage.QUERY_WAS_PROCESSED.toString());
-                break;
-            default:
-                queryReply = new SendMessage(callbackQuery.getMessage().getChatId(), NotificationMessage.HANDLE_KEYBOARD_QUERY_FAILED.toString());
-                break;
+        Optional<CallbackQueryHandler> queryHandler = callbackQueryHandlers.stream().
+                filter(callbackQuery -> callbackQuery.getHandlerQueryType().equals(usersQueryType)).findFirst();
+
+
+        if (queryHandler.isPresent()) {
+            userReply = queryHandler.get().handleCallbackQuery(usersQuery);
+        } else {
+            userReply = messagesService.getReplyMessage(usersQuery.getMessage().getChatId(), "reply.query.failed");
         }
 
-        userDataCache.saveUserBotState(callbackQuery.getFrom().getId(), botStateContext.getCurrentState());
 
-        return queryReply;
+        userDataCache.saveUserBotState(usersQuery.getFrom().getId(), botStateContext.getCurrentState());
+
+        return userReply;
+
+
     }
 
 

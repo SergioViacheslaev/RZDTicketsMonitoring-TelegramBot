@@ -3,9 +3,9 @@ package ru.otus.rzdtelegrambot.service;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import ru.otus.rzdtelegrambot.botapi.RZDTelegramBot;
+import ru.otus.rzdtelegrambot.botapi.handlers.callbackquery.CallbackQueryType;
 import ru.otus.rzdtelegrambot.model.Car;
 import ru.otus.rzdtelegrambot.model.Train;
-import ru.otus.rzdtelegrambot.utils.CallbackQueryType;
 import ru.otus.rzdtelegrambot.utils.Emojis;
 
 import java.util.List;

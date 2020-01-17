@@ -9,7 +9,6 @@ import ru.otus.rzdtelegrambot.model.Car;
 import ru.otus.rzdtelegrambot.model.UserTicketsSubscription;
 import ru.otus.rzdtelegrambot.service.CarsProcessingService;
 import ru.otus.rzdtelegrambot.service.UserTicketsSubscriptionService;
-import ru.otus.rzdtelegrambot.utils.CallbackQueryType;
 import ru.otus.rzdtelegrambot.utils.Emojis;
 import ru.otus.rzdtelegrambot.utils.NotificationMessage;
 import ru.otus.rzdtelegrambot.utils.UserChatButtonStatus;
@@ -23,10 +22,11 @@ import java.util.List;
  */
 @Component
 public class SubscribeTicketsInfoQueryHandler implements CallbackQueryHandler {
-
+    private static final CallbackQueryType HANDLER_QUERY_TYPE = CallbackQueryType.SUBSCRIBE;
     private UserTicketsSubscriptionService subscriptionService;
     private CarsProcessingService carsProcessingService;
     private RZDTelegramBot telegramBot;
+
 
     public SubscribeTicketsInfoQueryHandler(UserTicketsSubscriptionService subscribeService,
                                             CarsProcessingService carsProcessingService,
@@ -34,6 +34,12 @@ public class SubscribeTicketsInfoQueryHandler implements CallbackQueryHandler {
         this.subscriptionService = subscribeService;
         this.carsProcessingService = carsProcessingService;
         this.telegramBot = telegramBot;
+    }
+
+
+    @Override
+    public CallbackQueryType getHandlerQueryType() {
+        return HANDLER_QUERY_TYPE;
     }
 
     @Override
@@ -57,6 +63,7 @@ public class SubscribeTicketsInfoQueryHandler implements CallbackQueryHandler {
                         carsProcessingService.parseTrainNumber(callbackQuery), carsProcessingService.parseDateDepart(callbackQuery)));
 
     }
+
 
     private UserTicketsSubscription parseQueryData(CallbackQuery usersQuery) {
         long chatId = usersQuery.getMessage().getChatId();

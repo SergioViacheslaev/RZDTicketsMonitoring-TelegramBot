@@ -8,7 +8,6 @@ import ru.otus.rzdtelegrambot.botapi.RZDTelegramBot;
 import ru.otus.rzdtelegrambot.model.UserTicketsSubscription;
 import ru.otus.rzdtelegrambot.service.CarsProcessingService;
 import ru.otus.rzdtelegrambot.service.UserTicketsSubscriptionService;
-import ru.otus.rzdtelegrambot.utils.CallbackQueryType;
 import ru.otus.rzdtelegrambot.utils.Emojis;
 import ru.otus.rzdtelegrambot.utils.NotificationMessage;
 import ru.otus.rzdtelegrambot.utils.UserChatButtonStatus;
@@ -22,6 +21,7 @@ import java.util.Optional;
  */
 @Component
 public class UnsubscribeTicketsInfoQueryHandler implements CallbackQueryHandler {
+    private static final CallbackQueryType HANDLER_QUERY_TYPE = CallbackQueryType.UNSUBSCRIBE;
     private UserTicketsSubscriptionService subscriptionService;
     private CarsProcessingService carsProcessingService;
     private RZDTelegramBot telegramBot;
@@ -32,6 +32,11 @@ public class UnsubscribeTicketsInfoQueryHandler implements CallbackQueryHandler 
         this.subscriptionService = subscriptionService;
         this.carsProcessingService = carsProcessingService;
         this.telegramBot = telegramBot;
+    }
+
+    @Override
+    public CallbackQueryType getHandlerQueryType() {
+        return HANDLER_QUERY_TYPE;
     }
 
     @Override
