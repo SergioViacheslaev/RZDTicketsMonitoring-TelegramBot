@@ -38,7 +38,7 @@ public class SendTicketsInfoService {
                         car.getCarType(), car.getFreeSeats(), car.getMinimalPrice()));
             }
 
-            String trainTicketsInfoMessage = String.format("%s №%s '%s'%nОтправление: %s, %s в %s%n" +
+            String trainTicketsInfoMessage = String.format("%s №%s %s%nОтправление: %s, %s в %s%n" +
                             "Прибытие: %s, %s в %s%n%sВремя в пути: %s%n%s%n",
                     Emojis.TRAIN, train.getNumber(), train.getBrand(), train.getStationDepart(), train.getDateDepart(), train.getTimeDepart(),
                     train.getStationArrival(), train.getDateArrival(), train.getTimeArrival(),

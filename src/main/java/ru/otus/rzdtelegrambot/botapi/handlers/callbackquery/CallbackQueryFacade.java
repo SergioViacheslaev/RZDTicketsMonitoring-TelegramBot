@@ -12,7 +12,7 @@ import java.util.Optional;
 
 /**
  * Разбирает входящие запросы от кнопок клаватуры,
- * направляет нужному обработчику в зависимости от типа запроса.
+ * находит нужный обработчик по типу запроса.
  *
  * @author Sergei Viacheslaev
  */
@@ -46,7 +46,7 @@ public class CallbackQueryFacade {
         if (queryHandler.isPresent()) {
             userReply = queryHandler.get().handleCallbackQuery(usersQuery);
         } else {
-            userReply = messagesService.getReplyMessage(usersQuery.getMessage().getChatId(), "reply.query.failed");
+            userReply = messagesService.getWarningReplyMessage(usersQuery.getMessage().getChatId(), "reply.query.failed");
         }
 
 

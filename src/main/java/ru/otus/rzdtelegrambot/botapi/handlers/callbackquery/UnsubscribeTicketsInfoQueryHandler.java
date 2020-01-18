@@ -7,9 +7,9 @@ import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import ru.otus.rzdtelegrambot.botapi.RZDTelegramBot;
 import ru.otus.rzdtelegrambot.model.UserTicketsSubscription;
 import ru.otus.rzdtelegrambot.service.CarsProcessingService;
+import ru.otus.rzdtelegrambot.service.ReplyMessagesService;
 import ru.otus.rzdtelegrambot.service.UserTicketsSubscriptionService;
 import ru.otus.rzdtelegrambot.utils.Emojis;
-import ru.otus.rzdtelegrambot.utils.NotificationMessage;
 import ru.otus.rzdtelegrambot.utils.UserChatButtonStatus;
 
 import java.util.Optional;
@@ -24,13 +24,16 @@ public class UnsubscribeTicketsInfoQueryHandler implements CallbackQueryHandler 
     private static final CallbackQueryType HANDLER_QUERY_TYPE = CallbackQueryType.UNSUBSCRIBE;
     private UserTicketsSubscriptionService subscriptionService;
     private CarsProcessingService carsProcessingService;
+    private ReplyMessagesService messagesService;
     private RZDTelegramBot telegramBot;
 
     public UnsubscribeTicketsInfoQueryHandler(UserTicketsSubscriptionService subscriptionService,
                                               CarsProcessingService carsProcessingService,
+                                              ReplyMessagesService messagesService,
                                               @Lazy RZDTelegramBot telegramBot) {
         this.subscriptionService = subscriptionService;
         this.carsProcessingService = carsProcessingService;
+        this.messagesService = messagesService;
         this.telegramBot = telegramBot;
     }
 
@@ -42,28 +45,24 @@ public class UnsubscribeTicketsInfoQueryHandler implements CallbackQueryHandler 
     @Override
     public SendMessage handleCallbackQuery(CallbackQuery callbackQuery) {
         UserTicketsSubscription userSubscription;
+        final long chatId = callbackQuery.getMessage().getChatId();
 
-        String subscriptionID = carsProcessingService.parseSubscriptionID(callbackQuery);
+        final String subscriptionID = carsProcessingService.parseSubscriptionIDFromQuery(callbackQuery);
         Optional<UserTicketsSubscription> optionalUserSubscription = subscriptionService.getUsersSubscriptionById(subscriptionID);
 
         if (optionalUserSubscription.isPresent()) {
             userSubscription = optionalUserSubscription.get();
         } else {
-            return new SendMessage(callbackQuery.getMessage().getChatId(),
-                    NotificationMessage.DELETE_SUBSCRIPTION_FAILED.toString());
+            return messagesService.getWarningReplyMessage(chatId, "reply.query.train.userHasNoSubscription");
         }
 
-
         subscriptionService.deleteUserSubscription(subscriptionID);
-
 
         telegramBot.sendChangedInlineButtonText(callbackQuery,
                 String.format("%s %s", Emojis.SUCCESS_UNSUBSCRIBED, UserChatButtonStatus.UNSUBSCRIBED),
                 CallbackQueryType.QUERY_PROCESSED.name());
 
-        return new SendMessage(callbackQuery.getMessage().getChatId(),
-                String.format("Удалена подписка на поезд №%s отправлением %s",
-                        userSubscription.getTrainNumber(), userSubscription.getDateDepart()));
+        return messagesService.getTrainUnsubscribedMessage(chatId, userSubscription.getTrainNumber(), userSubscription.getDateDepart());
     }
 
 

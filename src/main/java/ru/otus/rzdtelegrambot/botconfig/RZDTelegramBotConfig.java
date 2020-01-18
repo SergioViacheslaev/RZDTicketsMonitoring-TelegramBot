@@ -7,7 +7,6 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
 import org.telegram.telegrambots.bots.DefaultBotOptions;
 import org.telegram.telegrambots.meta.ApiContext;
 import ru.otus.rzdtelegrambot.botapi.RZDTelegramBot;
@@ -17,7 +16,6 @@ import ru.otus.rzdtelegrambot.botapi.RZDTelegramBot;
  */
 
 @Configuration
-@PropertySource("classpath:application.properties")
 @ConfigurationProperties(prefix = "telegrambot")
 @Getter
 @Setter

@@ -15,8 +15,8 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
- * Выполняет служебную обработку коллекций "Поездов"
- * Используется в нескольких классах.
+ * Выполняет служебную обработку коллекций "Поездов".
+ * Парсит сообщений входящих запросов от клавиатуры.
  *
  * @author Sergei Viacheslaev
  */
@@ -64,18 +64,34 @@ public class CarsProcessingService {
     }
 
 
-    public String parseTrainNumber(CallbackQuery callbackQuery) {
+    public String parseTrainNumberFromQuery(CallbackQuery callbackQuery) {
 
         return callbackQuery.getData().split("\\|")[1];
     }
 
-    public String parseDateDepart(CallbackQuery callbackQuery) {
+    public String parseDateDepartFromQuery(CallbackQuery callbackQuery) {
         return callbackQuery.getData().split("\\|")[2];
     }
 
-    public String parseSubscriptionID(CallbackQuery callbackQuery) {
-        return callbackQuery.getData().split("\\|")[2];
+    public String parseSubscriptionIDFromQuery(CallbackQuery callbackQuery) {
+        return callbackQuery.getData().split("\\|")[1];
     }
+
+    public String parseTrainNameFromMessage(String callbackMessage, String trainNumber) {
+//        return callbackMessage.substring(callbackMessage.indexOf("'") + 1, callbackMessage.lastIndexOf("'"));
+        return  callbackMessage.substring(callbackMessage.indexOf(trainNumber) + trainNumber.length() + 1, callbackMessage.indexOf("\n"));
+    }
+
+    public String parseStationDepartFromMessage(String callbackMessage) {
+        return callbackMessage.substring(callbackMessage.lastIndexOf("Отправление:") + 13,
+                callbackMessage.indexOf(",")).trim();
+    }
+
+    public String parseStationArrivalFromMessage(String callbackMessage) {
+        return callbackMessage.substring(callbackMessage.lastIndexOf("Прибытие:") + 10,
+                callbackMessage.lastIndexOf(",")).trim();
+    }
+
 
     private int lastIndexOf(Pattern pattern, String input) {
         Matcher matcher = pattern.matcher(input);

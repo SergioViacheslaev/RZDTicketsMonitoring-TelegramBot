@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import ru.otus.rzdtelegrambot.botapi.RZDTelegramBot;
 import ru.otus.rzdtelegrambot.model.Train;
-import ru.otus.rzdtelegrambot.utils.NotificationMessage;
+import ru.otus.rzdtelegrambot.utils.MessageTemplates;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -58,12 +58,12 @@ public class TrainTicketsGetInfoService {
         String jsonRespBody = passRzdResp.getBody();
 
         if (jsonRespBody == null) {
-            telegramBot.sendMessage(chatId, NotificationMessage.TICKET_SEARCH_DATEDEPART_OUTDATE.toString());
+            telegramBot.sendMessage(chatId, MessageTemplates.TICKET_SEARCH_DATEDEPART_OUTDATE.toString());
             return Collections.emptyList();
         }
 
         if (jsonRespBody.contains("находится за пределами периода")) {
-            telegramBot.sendMessage(chatId, NotificationMessage.TICKET_SEARCH_DATEDEPART_OUTDATE.toString());
+            telegramBot.sendMessage(chatId, MessageTemplates.TICKET_SEARCH_DATEDEPART_OUTDATE.toString());
             return Collections.emptyList();
         }
 
@@ -71,7 +71,7 @@ public class TrainTicketsGetInfoService {
             JsonNode jsonNode = objectMapper.readTree(jsonRespBody);
             JsonNode ridNode = jsonNode.get("RID");
             if (ridNode == null) {
-                telegramBot.sendMessage(chatId, NotificationMessage.TRAIN_SEARCH_BAD_QUERY.toString());
+                telegramBot.sendMessage(chatId, MessageTemplates.TRAIN_SEARCH_BAD_QUERY.toString());
                 return Collections.emptyList();
             }
 

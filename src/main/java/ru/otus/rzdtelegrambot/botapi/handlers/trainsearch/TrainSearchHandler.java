@@ -14,7 +14,7 @@ import ru.otus.rzdtelegrambot.service.SendTicketsInfoService;
 import ru.otus.rzdtelegrambot.service.StationCodeService;
 import ru.otus.rzdtelegrambot.service.TrainTicketsGetInfoService;
 import ru.otus.rzdtelegrambot.utils.Emojis;
-import ru.otus.rzdtelegrambot.utils.NotificationMessage;
+import ru.otus.rzdtelegrambot.utils.MessageTemplates;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -78,7 +78,7 @@ public class TrainSearchHandler implements InputMessageHandler {
             int departureStationCode = stationCodeService.getStationCode(usersAnswer);
             if (departureStationCode == -1) {
                 return new SendMessage(chatId,
-                        NotificationMessage.STATION_SEARCH_FAILED.toString());
+                        MessageTemplates.STATION_SEARCH_FAILED.toString());
             }
 
             requestData.setDepartureStationCode(departureStationCode);
@@ -91,7 +91,7 @@ public class TrainSearchHandler implements InputMessageHandler {
             int arrivalStationCode = stationCodeService.getStationCode(usersAnswer);
             if (arrivalStationCode == -1) {
                 return new SendMessage(chatId,
-                        NotificationMessage.STATION_SEARCH_FAILED.toString());
+                        MessageTemplates.STATION_SEARCH_FAILED.toString());
             }
 
             requestData.setArrivalStationCode(arrivalStationCode);
@@ -119,7 +119,7 @@ public class TrainSearchHandler implements InputMessageHandler {
                     requestData.getArrivalStationCode(), dateDepart);
             if (trainList.isEmpty()) {
                 botStateContext.setCurrentState(BotState.SHOW_MAIN_MENU);
-                return new SendMessage(chatId, NotificationMessage.TRAIN_SEARCH_FOUND_ZERO.toString());
+                return new SendMessage(chatId, MessageTemplates.TRAIN_SEARCH_FOUND_ZERO.toString());
             }
 
             botStateContext.setCurrentState(BotState.SHOW_MAIN_MENU);
