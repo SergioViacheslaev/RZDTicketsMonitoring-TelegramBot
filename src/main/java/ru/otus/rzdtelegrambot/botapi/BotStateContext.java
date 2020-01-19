@@ -45,6 +45,10 @@ public class BotStateContext {
             return messageHandlers.get(BotState.TRAINS_SEARCH);
         }
 
+        if (isStationSearchState(currentState)) {
+            return messageHandlers.get(BotState.STATIONS_SEARCH);
+        }
+
         return messageHandlers.get(currentState);
     }
 
@@ -58,6 +62,18 @@ public class BotStateContext {
             case TRAINS_SEARCH_STARTED:
             case TRAIN_INFO_RESPONCE_AWAITING:
             case TRAINS_SEARCH_FINISH:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    private boolean isStationSearchState(BotState currentState) {
+        switch (currentState) {
+            case SHOW_STATIONS_BOOK_MENU:
+            case ASK_STATION_NAMEPART:
+            case STATION_NAMEPART_RECEIVED:
+            case STATIONS_SEARCH:
                 return true;
             default:
                 return false;

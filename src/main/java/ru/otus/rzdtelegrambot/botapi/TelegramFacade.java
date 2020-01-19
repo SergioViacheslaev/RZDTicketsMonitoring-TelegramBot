@@ -65,6 +65,9 @@ public class TelegramFacade {
             case "Мои подписки":
                 botState = BotState.SHOW_SUBSCRIPTIONS_MENU;
                 break;
+            case "Справочник станций":
+                botState = BotState.STATIONS_SEARCH;
+                break;
             case "Помощь":
                 botState = BotState.SHOW_HELP_MENU;
                 break;

@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import ru.otus.rzdtelegrambot.utils.Emojis;
 
+import java.util.List;
 import java.util.Locale;
 
 
@@ -22,11 +23,7 @@ public class ReplyMessagesService {
     public ReplyMessagesService(@Value("${localeTag}") String localeTag, MessageSource messageSource) {
         this.messageSource = messageSource;
         this.locale = Locale.forLanguageTag(localeTag);
-        System.out.println(locale);
-        System.out.println(locale.getCountry());
-
     }
-
 
     public SendMessage getSuccessReplyMessage(long chatId, String replyMessage) {
         return new SendMessage(chatId, String.format("%s %s", Emojis.SUCCESS_MARK, messageSource.getMessage(replyMessage, null, locale)));
@@ -53,5 +50,18 @@ public class ReplyMessagesService {
 
     public SendMessage getWarningReplyMessage(long chatId, String replyMessage) {
         return new SendMessage(chatId, String.format("%s %s", Emojis.NOTIFICATION_MARK_FAILED, messageSource.getMessage(replyMessage, null, locale)));
+    }
+
+    public SendMessage getStationFoundMessage(long chatId, String replyMessage, String stationName) {
+        return new SendMessage(chatId, String.format("%s %s %s", Emojis.SUCCESS_MARK,
+                messageSource.getMessage(replyMessage, null, locale), stationName));
+    }
+
+    public SendMessage getStationsFoundMessage(long chatId, String replyMessage, List<String> foundedStationNames) {
+        StringBuilder stationsNamesMessage = new StringBuilder();
+        foundedStationNames.forEach(foundedName -> stationsNamesMessage.append(String.format("%s%n", foundedName)));
+
+        return new SendMessage(chatId, String.format("%s %s%n%s", Emojis.SUCCESS_MARK,
+                messageSource.getMessage(replyMessage, null, locale), stationsNamesMessage.toString()));
     }
 }
