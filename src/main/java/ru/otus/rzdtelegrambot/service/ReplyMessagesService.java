@@ -28,6 +28,10 @@ public class ReplyMessagesService {
     }
 
 
+    public SendMessage getSuccessReplyMessage(long chatId, String replyMessage) {
+        return new SendMessage(chatId, String.format("%s %s", Emojis.SUCCESS_MARK, messageSource.getMessage(replyMessage, null, locale)));
+    }
+
     public SendMessage getReplyMessage(long chatId, String replyMessage) {
         return new SendMessage(chatId, messageSource.getMessage(replyMessage, null, locale));
     }

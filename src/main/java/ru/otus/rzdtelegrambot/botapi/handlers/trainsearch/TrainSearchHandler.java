@@ -14,7 +14,6 @@ import ru.otus.rzdtelegrambot.service.ReplyMessagesService;
 import ru.otus.rzdtelegrambot.service.SendTicketsInfoService;
 import ru.otus.rzdtelegrambot.service.StationCodeService;
 import ru.otus.rzdtelegrambot.service.TrainTicketsGetInfoService;
-import ru.otus.rzdtelegrambot.utils.MessageTemplates;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -83,8 +82,7 @@ public class TrainSearchHandler implements InputMessageHandler {
         if (botState.equals(BotState.ASK_STATION_ARRIVAL)) {
             int departureStationCode = stationCodeService.getStationCode(usersAnswer);
             if (departureStationCode == -1) {
-                return new SendMessage(chatId,
-                        MessageTemplates.STATION_SEARCH_FAILED.toString());
+                return messagesService.getWarningReplyMessage(chatId, "reply.trainSearch.stationNotFound");
             }
 
             requestData.setDepartureStationCode(departureStationCode);

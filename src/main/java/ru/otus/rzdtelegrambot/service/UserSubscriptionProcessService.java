@@ -53,7 +53,7 @@ public class UserSubscriptionProcessService {
      * Периодически смотрит за обновлением цен
      * по всей базе подписок.
      */
-    @Scheduled(fixedRateString = "${fixed-rate.in.milliseconds}")
+    @Scheduled(fixedRateString = "${subscriptions.processPeriod}")
     public void processAllUsersSubscriptions() {
         log.info("Выполняю обработку подписок пользователей.");
         subscriptionsRepository.findAll().forEach(this::processSubscription);
@@ -91,8 +91,6 @@ public class UserSubscriptionProcessService {
             }
         });
 
-        sleep(250);
-
     }
 
     private List<Train> getActualTrains(long chatId, String stationDepart, String stationArrival, String dateDeparture) {
@@ -114,13 +112,14 @@ public class UserSubscriptionProcessService {
 
             for (Car actualCar : actualCars) {
                 if (actualCar.getCarType().equals(subscribedCar.getCarType())) {
+
                     if (actualCar.getMinimalPrice() > subscribedCar.getMinimalPrice()) {
-                        notificationMessage.append(String.format("%sВозросла цена на вагоны %s, было %s ₽.%n", Emojis.NOTIFICATION_PRICE_UP,
-                                actualCar.getCarType(), subscribedCar.getMinimalPrice()));
+                        notificationMessage.append(String.format("%sВозросла цена на вагоны %s, %s -> %s ₽.%n", Emojis.NOTIFICATION_PRICE_UP,
+                                actualCar.getCarType(), subscribedCar.getMinimalPrice(), actualCar.getMinimalPrice()));
                         subscribedCar.setMinimalPrice(actualCar.getMinimalPrice());
                     } else if (actualCar.getMinimalPrice() < subscribedCar.getMinimalPrice()) {
-                        notificationMessage.append(String.format("%sПонизилась цена на вагоны %s, было %s ₽.%n", Emojis.NOTIFICATION_PRICE_DOWN,
-                                actualCar.getCarType(), subscribedCar.getMinimalPrice()));
+                        notificationMessage.append(String.format("%sПонизилась цена на вагоны %s, %s -> %s ₽.%n", Emojis.NOTIFICATION_PRICE_DOWN,
+                                actualCar.getCarType(), subscribedCar.getMinimalPrice(), actualCar.getMinimalPrice()));
                         subscribedCar.setMinimalPrice(actualCar.getMinimalPrice());
                     }
                     subscribedCar.setFreeSeats(actualCar.getFreeSeats());
@@ -158,12 +157,5 @@ public class UserSubscriptionProcessService {
         return dateDepart;
     }
 
-    private void sleep(long millis) {
-        try {
-            Thread.sleep(millis);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
 
 }

@@ -15,12 +15,10 @@ import java.util.Optional;
 @Service
 public class UserTicketsSubscriptionService {
 
-
     private UserTicketsSubscriptionMongoRepository subscriptionsRepository;
 
     public UserTicketsSubscriptionService(UserTicketsSubscriptionMongoRepository repository) {
         this.subscriptionsRepository = repository;
-
     }
 
     public void saveUserSubscription(UserTicketsSubscription usersSubscription) {
@@ -37,7 +35,6 @@ public class UserTicketsSubscriptionService {
                 userSubscription.getTrainNumber(), userSubscription.getDateDepart()).size() > 0;
     }
 
-
     public Optional<UserTicketsSubscription> getUsersSubscriptionById(String subscriptionID) {
         return subscriptionsRepository.findById(subscriptionID);
     }
@@ -45,6 +42,5 @@ public class UserTicketsSubscriptionService {
     public List<UserTicketsSubscription> getUsersSubscriptions(long chatId) {
         return subscriptionsRepository.findByChatId(chatId);
     }
-
 
 }

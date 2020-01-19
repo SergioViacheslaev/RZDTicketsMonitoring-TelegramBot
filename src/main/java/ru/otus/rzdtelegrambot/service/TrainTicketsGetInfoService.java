@@ -3,7 +3,10 @@ package ru.otus.rzdtelegrambot.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -25,16 +28,24 @@ import java.util.*;
  */
 @Slf4j
 @Service
+@Getter
+@Setter
 public class TrainTicketsGetInfoService {
-    private static final String TRAIN_INFO_RID_REQUEST = "https://pass.rzd.ru/timetable/public/ru?layer_id=5827&dir=0&tfl=3&" +
-            "checkSeats=1&code0={STATION_DEPART_CODE}&dt0={DATE_DEPART}&code1={STATION_ARRIVAL_CODE}";
-    private static final String TRAIN_INFO_REQUEST_TEMPLATE = "https://pass.rzd.ru/timetable/public/ru?layer_id=5827&rid={RID_VALUE}";
-    private static final int PROCESSING_PAUSE = 1000;
+    @Value("${trainTicketsGetInfoService.ridRequestTemplate}")
+    private String trainInfoRidRequestTemplate;
+    @Value("${trainTicketsGetInfoService.trainInfoRequestTemplate}")
+    private String trainInfoRequestTemplate;
+
+    private static final String URI_PARAM_STATION_DEPART_CODE = "STATION_DEPART_CODE";
+    private static final String URI_PARAM_STATION_ARRIVAL_CODE = "STATION_ARRIVAL_CODE";
+    private static final String URI_PARAM_DATE_DEPART = "DATE_DEPART";
+
+    private static final int PROCESSING_PAUSE = 2500;
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final SimpleDateFormat dateFormatter = new SimpleDateFormat("dd.MM.yyyy");
     private final RestTemplate restTemplate;
     private final ReplyMessagesService messagesService;
-    private RZDTelegramBot telegramBot;
+    private final RZDTelegramBot telegramBot;
 
     public TrainTicketsGetInfoService(RestTemplate restTemplate, ReplyMessagesService messagesService,
                                       @Lazy RZDTelegramBot telegramBot) {
@@ -47,11 +58,10 @@ public class TrainTicketsGetInfoService {
         List<Train> trainList;
         String dateDepartStr = dateFormatter.format(dateDepart);
         Map<String, String> urlParams = new HashMap<>();
-        urlParams.put("STATION_DEPART_CODE", String.valueOf(stationDepartCode));
-        urlParams.put("STATION_ARRIVAL_CODE", String.valueOf(stationArrivalCode));
-        urlParams.put("DATE_DEPART", dateDepartStr);
+        urlParams.put(URI_PARAM_STATION_DEPART_CODE, String.valueOf(stationDepartCode));
+        urlParams.put(URI_PARAM_STATION_ARRIVAL_CODE, String.valueOf(stationArrivalCode));
+        urlParams.put(URI_PARAM_DATE_DEPART, dateDepartStr);
 
-        //1. Get RID and Cookies
         Map<String, HttpHeaders> ridAndHttpHeaders = sendRidRequest(chatId, urlParams);
         if (ridAndHttpHeaders.isEmpty()) {
             return Collections.emptyList();
@@ -65,10 +75,9 @@ public class TrainTicketsGetInfoService {
             telegramBot.sendMessage(messagesService.getWarningReplyMessage(chatId, "reply.query.failed"));
             return Collections.emptyList();
         }
-        HttpHeaders dataRequestHeaders = getDataRequestHeaders(cookies);
+        HttpHeaders trainInfoRequestHeaders = getDataRequestHeaders(cookies);
 
-        //2. Get JSON Trains Info
-        String trainInfoResponseBody = sendTrainInfoJsonRequest(ridValue, dataRequestHeaders);
+        String trainInfoResponseBody = sendTrainInfoJsonRequest(ridValue, trainInfoRequestHeaders);
         trainList = parseResponseBody(trainInfoResponseBody);
         if (trainList.isEmpty()) {
             telegramBot.sendMessage(messagesService.getWarningReplyMessage(chatId, "reply.trainSearch.trainsNotFound"));
@@ -80,7 +89,7 @@ public class TrainTicketsGetInfoService {
 
     private Map<String, HttpHeaders> sendRidRequest(long chatId, Map<String, String> urlParams) {
         ResponseEntity<String> passRzdResp
-                = restTemplate.getForEntity(TRAIN_INFO_RID_REQUEST, String.class,
+                = restTemplate.getForEntity(trainInfoRidRequestTemplate, String.class,
                 urlParams);
 
         String jsonRespBody = passRzdResp.getBody();
@@ -102,11 +111,10 @@ public class TrainTicketsGetInfoService {
 
     //Срабатывает если RZD не ответил на RID сразу
     private boolean isResponseResultOK(ResponseEntity<String> resultResponse) {
-        if (resultResponse.getBody().contains("OK"))
-            return true;
-
-        sleep(PROCESSING_PAUSE);
-        return false;
+        if (resultResponse.getBody() == null) {
+            return false;
+        }
+        return resultResponse.getBody().contains("OK");
     }
 
     private List<Train> parseResponseBody(String responseBody) {
@@ -134,7 +142,6 @@ public class TrainTicketsGetInfoService {
             e.printStackTrace();
         }
 
-        sleep(PROCESSING_PAUSE);
         return Optional.ofNullable(rid);
     }
 
@@ -154,13 +161,15 @@ public class TrainTicketsGetInfoService {
 
     private String sendTrainInfoJsonRequest(String ridValue, HttpHeaders dataRequestHeaders) {
         HttpEntity<String> httpEntity = new HttpEntity<>(dataRequestHeaders);
-        ResponseEntity<String> resultResponse = restTemplate.exchange(TRAIN_INFO_REQUEST_TEMPLATE,
+        ResponseEntity<String> resultResponse = restTemplate.exchange(trainInfoRequestTemplate,
                 HttpMethod.GET,
                 httpEntity,
                 String.class, ridValue);
 
+        sleep(PROCESSING_PAUSE);
+
         if (!isResponseResultOK(resultResponse)) {
-            resultResponse = restTemplate.exchange(TRAIN_INFO_REQUEST_TEMPLATE,
+            resultResponse = restTemplate.exchange(trainInfoRequestTemplate,
                     HttpMethod.GET,
                     httpEntity,
                     String.class, ridValue);

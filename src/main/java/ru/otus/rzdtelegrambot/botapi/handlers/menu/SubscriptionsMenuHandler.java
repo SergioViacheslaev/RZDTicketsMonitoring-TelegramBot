@@ -12,6 +12,7 @@ import ru.otus.rzdtelegrambot.botapi.handlers.callbackquery.CallbackQueryType;
 import ru.otus.rzdtelegrambot.model.Car;
 import ru.otus.rzdtelegrambot.model.UserTicketsSubscription;
 import ru.otus.rzdtelegrambot.service.MainMenuService;
+import ru.otus.rzdtelegrambot.service.ReplyMessagesService;
 import ru.otus.rzdtelegrambot.service.UserTicketsSubscriptionService;
 import ru.otus.rzdtelegrambot.utils.Emojis;
 
@@ -27,12 +28,15 @@ public class SubscriptionsMenuHandler implements InputMessageHandler {
     private RZDTelegramBot telegramBot;
     private MainMenuService mainMenuService;
     private BotStateContext botStateContext;
+    private ReplyMessagesService messagesService;
 
     public SubscriptionsMenuHandler(UserTicketsSubscriptionService subscribeService,
                                     MainMenuService mainMenuService,
+                                    ReplyMessagesService messagesService,
                                     @Lazy BotStateContext botStateContext,
                                     @Lazy RZDTelegramBot telegramBot) {
         this.subscribeService = subscribeService;
+        this.messagesService = messagesService;
         this.telegramBot = telegramBot;
         this.mainMenuService = mainMenuService;
         this.botStateContext = botStateContext;
@@ -43,7 +47,7 @@ public class SubscriptionsMenuHandler implements InputMessageHandler {
         List<UserTicketsSubscription> usersSubscriptions = subscribeService.getUsersSubscriptions(message.getChatId());
 
         if (usersSubscriptions.isEmpty()) {
-            return new SendMessage(message.getChatId(), "У вас нет активных подписок !");
+            return messagesService.getReplyMessage(message.getChatId(), "reply.subscriptions.userHasNoSubscriptions");
         }
 
         for (UserTicketsSubscription subscription : usersSubscriptions) {
@@ -68,7 +72,7 @@ public class SubscriptionsMenuHandler implements InputMessageHandler {
 
         botStateContext.setCurrentState(BotState.SHOW_MAIN_MENU);
 
-        return mainMenuService.getMainMenuMessage(message, String.format("%sСписок подписок загружен.", Emojis.SUCCESS_MARK));
+        return messagesService.getSuccessReplyMessage(message.getChatId(), "reply.subscriptions.listLoaded");
     }
 
     @Override

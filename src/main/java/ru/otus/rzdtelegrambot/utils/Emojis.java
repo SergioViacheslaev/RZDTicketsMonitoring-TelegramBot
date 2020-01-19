@@ -4,7 +4,8 @@ import com.vdurmont.emoji.EmojiParser;
 import lombok.AllArgsConstructor;
 
 
-/**
+/**Смайлики
+ *
  * @author Sergei Viacheslaev
  */
 @AllArgsConstructor

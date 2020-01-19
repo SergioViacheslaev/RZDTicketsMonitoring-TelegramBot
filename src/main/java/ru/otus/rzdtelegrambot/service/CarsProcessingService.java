@@ -78,7 +78,6 @@ public class CarsProcessingService {
     }
 
     public String parseTrainNameFromMessage(String callbackMessage, String trainNumber) {
-//        return callbackMessage.substring(callbackMessage.indexOf("'") + 1, callbackMessage.lastIndexOf("'"));
         return  callbackMessage.substring(callbackMessage.indexOf(trainNumber) + trainNumber.length() + 1, callbackMessage.indexOf("\n"));
     }
 
@@ -92,11 +91,9 @@ public class CarsProcessingService {
                 callbackMessage.lastIndexOf(",")).trim();
     }
 
-
     private int lastIndexOf(Pattern pattern, String input) {
         Matcher matcher = pattern.matcher(input);
         return matcher.find() ? matcher.end() : -1;
     }
-
 
 }

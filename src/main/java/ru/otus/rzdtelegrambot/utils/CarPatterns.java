@@ -2,7 +2,8 @@ package ru.otus.rzdtelegrambot.utils;
 
 import java.util.regex.Pattern;
 
-/**
+/**Утилитный класс для поиска данных вагонов в сообщении.
+ *
  * @author Sergei Viacheslaev
  */
 public class CarPatterns {
@@ -16,5 +17,4 @@ public class CarPatterns {
     public static final Pattern MIAGKIY_END = Pattern.compile("Мягкий:.*от\\s\\d*");
     public static final Pattern SIDYACHI_START = Pattern.compile("Сид:.*от\\s");
     public static final Pattern SIDYACHI_END = Pattern.compile("Сид:.*от\\s\\d*");
-
 }

@@ -23,7 +23,6 @@ public class AppConfig {
                 = new ReloadableResourceBundleMessageSource();
 
         messageSource.setBasename("classpath:messages");
-
         messageSource.setDefaultEncoding("UTF-8");
         return messageSource;
     }

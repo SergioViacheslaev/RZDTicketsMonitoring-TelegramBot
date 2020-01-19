@@ -1,8 +1,11 @@
 package ru.otus.rzdtelegrambot.service;
 
 import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -11,6 +14,7 @@ import ru.otus.rzdtelegrambot.model.TrainStation;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Позволяет получить код станции по ее названию.
@@ -20,8 +24,11 @@ import java.util.Map;
 @Service
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@Getter
+@Setter
 public class StationCodeService {
-    final String STATIONCODE_REQUEST_TEMPLATE = "https://pass.rzd.ru/suggester?stationNamePart={stationNamePart}&lang=ru";
+    @Value("${stationcodeservice.requesttemplate}")
+    private String stationCodeRequestTemplate;
     private RestTemplate restTemplate;
     private Map<String, Integer> stationCodeCache = new HashMap<>();
 
@@ -35,7 +42,7 @@ public class StationCodeService {
         Integer stationCode = stationCodeCache.get(stationNameParam);
         if (stationCode != null) return stationCode;
 
-        if (processStationCodeRequest(stationNameParam) != 0) {
+        if (processStationCodeRequest(stationNameParam).isEmpty()) {
             return -1;
         }
 
@@ -48,14 +55,14 @@ public class StationCodeService {
         }
     }
 
-    private int processStationCodeRequest(String stationNamePart) {
+    private Optional<TrainStation[]> processStationCodeRequest(String stationNamePart) {
         ResponseEntity<TrainStation[]> response =
                 restTemplate.getForEntity(
-                        STATIONCODE_REQUEST_TEMPLATE,
+                        stationCodeRequestTemplate,
                         TrainStation[].class, stationNamePart);
         TrainStation[] stations = response.getBody();
         if (stations == null) {
-            return -1;
+            return Optional.empty();
         }
 
         log.info("Stations {}", Arrays.toString(stations));
@@ -63,6 +70,6 @@ public class StationCodeService {
             stationCodeCache.put(station.getStationName(), station.getStationCode());
         }
 
-        return 0;
+        return Optional.of(stations);
     }
 }
