@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import ru.otus.rzdtelegrambot.botapi.RZDTelegramBot;
 import ru.otus.rzdtelegrambot.model.Train;
-import ru.otus.rzdtelegrambot.utils.MessageTemplates;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -27,66 +26,120 @@ import java.util.*;
 @Slf4j
 @Service
 public class TrainTicketsGetInfoService {
-    private final String TRAIN_INFO_RID_REQUEST = "https://pass.rzd.ru/timetable/public/ru?layer_id=5827&dir=0&tfl=3&" +
+    private static final String TRAIN_INFO_RID_REQUEST = "https://pass.rzd.ru/timetable/public/ru?layer_id=5827&dir=0&tfl=3&" +
             "checkSeats=1&code0={STATION_DEPART_CODE}&dt0={DATE_DEPART}&code1={STATION_ARRIVAL_CODE}";
-    private final String TRAIN_INFO_REQUEST_TEMPLATE = "https://pass.rzd.ru/timetable/public/ru?layer_id=5827&rid={RID_VALUE}";
+    private static final String TRAIN_INFO_REQUEST_TEMPLATE = "https://pass.rzd.ru/timetable/public/ru?layer_id=5827&rid={RID_VALUE}";
+    private static final int PROCESSING_PAUSE = 1000;
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final SimpleDateFormat dateFormatter = new SimpleDateFormat("dd.MM.yyyy");
     private final RestTemplate restTemplate;
+    private final ReplyMessagesService messagesService;
     private RZDTelegramBot telegramBot;
 
-    public TrainTicketsGetInfoService(RestTemplate restTemplate, @Lazy RZDTelegramBot telegramBot) {
+    public TrainTicketsGetInfoService(RestTemplate restTemplate, ReplyMessagesService messagesService,
+                                      @Lazy RZDTelegramBot telegramBot) {
         this.restTemplate = restTemplate;
+        this.messagesService = messagesService;
         this.telegramBot = telegramBot;
     }
 
     public List<Train> getTrainTicketsList(long chatId, int stationDepartCode, int stationArrivalCode, Date dateDepart) {
+        List<Train> trainList;
         String dateDepartStr = dateFormatter.format(dateDepart);
         Map<String, String> urlParams = new HashMap<>();
         urlParams.put("STATION_DEPART_CODE", String.valueOf(stationDepartCode));
         urlParams.put("STATION_ARRIVAL_CODE", String.valueOf(stationArrivalCode));
         urlParams.put("DATE_DEPART", dateDepartStr);
 
-        //1. Get RID and cookies
-        HttpHeaders httpHeaders = null;
-        String rid = "";
+        //1. Get RID and Cookies
+        Map<String, HttpHeaders> ridAndHttpHeaders = sendRidRequest(chatId, urlParams);
+        if (ridAndHttpHeaders.isEmpty()) {
+            return Collections.emptyList();
+        }
 
+        String ridValue = ridAndHttpHeaders.keySet().iterator().next();
+        HttpHeaders httpHeaders = ridAndHttpHeaders.get(ridValue);
+        List<String> cookies = httpHeaders.get("Set-Cookie");
+
+        if (cookies == null) {
+            telegramBot.sendMessage(messagesService.getWarningReplyMessage(chatId, "reply.query.failed"));
+            return Collections.emptyList();
+        }
+        HttpHeaders dataRequestHeaders = getDataRequestHeaders(cookies);
+
+        //2. Get JSON Trains Info
+        String trainInfoResponseBody = sendTrainInfoJsonRequest(ridValue, dataRequestHeaders);
+        trainList = parseResponseBody(trainInfoResponseBody);
+        if (trainList.isEmpty()) {
+            telegramBot.sendMessage(messagesService.getWarningReplyMessage(chatId, "reply.trainSearch.trainsNotFound"));
+        }
+
+        return trainList;
+    }
+
+
+    private Map<String, HttpHeaders> sendRidRequest(long chatId, Map<String, String> urlParams) {
         ResponseEntity<String> passRzdResp
                 = restTemplate.getForEntity(TRAIN_INFO_RID_REQUEST, String.class,
                 urlParams);
 
         String jsonRespBody = passRzdResp.getBody();
 
-        if (jsonRespBody == null) {
-            telegramBot.sendMessage(chatId, MessageTemplates.TICKET_SEARCH_DATEDEPART_OUTDATE.toString());
-            return Collections.emptyList();
+        if (isResponseBodyHasNoTrains(jsonRespBody)) {
+            telegramBot.sendMessage(messagesService.getWarningReplyMessage(chatId, "reply.trainSearch.dateOutOfBoundError"));
+            return Collections.emptyMap();
         }
 
-        if (jsonRespBody.contains("находится за пределами периода")) {
-            telegramBot.sendMessage(chatId, MessageTemplates.TICKET_SEARCH_DATEDEPART_OUTDATE.toString());
-            return Collections.emptyList();
+        Optional<String> parsedRID = parseRID(jsonRespBody);
+        if (parsedRID.isEmpty()) {
+            telegramBot.sendMessage(messagesService.getWarningReplyMessage(chatId, "reply.query.failed"));
+            return Collections.emptyMap();
         }
 
+        return Collections.singletonMap(parsedRID.get(), passRzdResp.getHeaders());
+    }
+
+
+    //Срабатывает если RZD не ответил на RID сразу
+    private boolean isResponseResultOK(ResponseEntity<String> resultResponse) {
+        if (resultResponse.getBody().contains("OK"))
+            return true;
+
+        sleep(PROCESSING_PAUSE);
+        return false;
+    }
+
+    private List<Train> parseResponseBody(String responseBody) {
+        List<Train> trainList = new ArrayList<>();
+        try {
+            JsonNode trainsNode = objectMapper.readTree(responseBody).path("tp").findPath("list");
+            trainList = Arrays.asList(objectMapper.readValue(trainsNode.toString(), Train[].class));
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+
+        return trainList;
+    }
+
+
+    private Optional<String> parseRID(String jsonRespBody) {
+        String rid = null;
         try {
             JsonNode jsonNode = objectMapper.readTree(jsonRespBody);
             JsonNode ridNode = jsonNode.get("RID");
-            if (ridNode == null) {
-                telegramBot.sendMessage(chatId, MessageTemplates.TRAIN_SEARCH_BAD_QUERY.toString());
-                return Collections.emptyList();
+            if (ridNode != null) {
+                rid = ridNode.asText();
             }
-
-            rid = ridNode.asText();
-            httpHeaders = passRzdResp.getHeaders();
         } catch (JsonProcessingException e) {
-            telegramBot.sendMessage(chatId, String.format("Ошибка получения данных от RZD, обратитесь к разработчику: %s", e.getMessage()));
             e.printStackTrace();
-            return Collections.emptyList();
         }
 
-        sleep(2000);
+        sleep(PROCESSING_PAUSE);
+        return Optional.ofNullable(rid);
+    }
 
-        List<String> cookies = httpHeaders.get("Set-Cookie");
 
+    private HttpHeaders getDataRequestHeaders(List<String> cookies) {
         String jSessionId = cookies.get(cookies.size() - 1);
         jSessionId = jSessionId.substring(jSessionId.indexOf("=") + 1, jSessionId.indexOf(";"));
 
@@ -95,49 +148,30 @@ public class TrainTicketsGetInfoService {
         requestHeaders.add("Cookie", "JSESSIONID=" + jSessionId);
         requestHeaders.add("Cookie", "AuthFlag=false");
 
-        //2. Get JSON Trains Info
-        HttpEntity<String> httpEntity = new HttpEntity<>(requestHeaders);
+        return requestHeaders;
+    }
+
+
+    private String sendTrainInfoJsonRequest(String ridValue, HttpHeaders dataRequestHeaders) {
+        HttpEntity<String> httpEntity = new HttpEntity<>(dataRequestHeaders);
         ResponseEntity<String> resultResponse = restTemplate.exchange(TRAIN_INFO_REQUEST_TEMPLATE,
                 HttpMethod.GET,
                 httpEntity,
-                String.class, rid);
+                String.class, ridValue);
 
         if (!isResponseResultOK(resultResponse)) {
             resultResponse = restTemplate.exchange(TRAIN_INFO_REQUEST_TEMPLATE,
                     HttpMethod.GET,
                     httpEntity,
-                    String.class, rid);
+                    String.class, ridValue);
 
         }
-
-        return parseResponseBody(resultResponse.getBody());
+        return resultResponse.getBody();
     }
 
-    //Срабатывает если RZD не ответил на RID сразу
-    private boolean isResponseResultOK(ResponseEntity<String> resultResponse) {
-        if (resultResponse.getBody().contains("OK"))
-            return true;
-
-        sleep(500);
-        return false;
+    private boolean isResponseBodyHasNoTrains(String jsonRespBody) {
+        return jsonRespBody == null || jsonRespBody.contains("находится за пределами периода");
     }
-
-    private List<Train> parseResponseBody(String responseBody) {
-        List<Train> trainList = new ArrayList<>();
-        try {
-            JsonNode trainsNode = objectMapper.readTree(responseBody).path("tp").findPath("list");
-
-            trainList = Arrays.asList(objectMapper.readValue(trainsNode.toString(), Train[].class));
-
-            return trainList;
-
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
-
-        return trainList;
-    }
-
 
     private void sleep(int i) {
         try {

@@ -60,6 +60,14 @@ public class RZDTelegramBot extends TelegramWebhookBot {
         }
     }
 
+    public void sendMessage(SendMessage sendMessage) {
+        try {
+            execute(sendMessage);
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void sendInlineKeyBoardMessage(long chatId, String messageText, String buttonText, String callbackData) {
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
 

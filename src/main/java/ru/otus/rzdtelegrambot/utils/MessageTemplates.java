@@ -17,6 +17,7 @@ public enum MessageTemplates {
             Emojis.NOTIFICATION_MARK_FAILED)),
     STATION_SEARCH_FAILED(String.format("%s Станция не найдена, повторите ввод.", Emojis.NOTIFICATION_MARK_FAILED)),
     TRAIN_SEARCH_FOUND_ZERO(String.format("%s Не найдено ни одного поезда.", Emojis.NOTIFICATION_MARK_FAILED)),
+    TRAIN_SEARCH_ENTER_DATE_DEPART("Введите дату отправления."),
     TRAIN_SEARCH_BAD_QUERY(String.format("%s Не могу выполнить ваш запрос.", Emojis.NOTIFICATION_MARK_FAILED)),
     TRAIN_SUBSCRIBED_OK("Оформлена подписка на поезд №%s отправлением %s");
 

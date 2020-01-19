@@ -10,10 +10,10 @@ import ru.otus.rzdtelegrambot.botapi.BotStateContext;
 import ru.otus.rzdtelegrambot.botapi.handlers.InputMessageHandler;
 import ru.otus.rzdtelegrambot.cache.UserDataCache;
 import ru.otus.rzdtelegrambot.model.Train;
+import ru.otus.rzdtelegrambot.service.ReplyMessagesService;
 import ru.otus.rzdtelegrambot.service.SendTicketsInfoService;
 import ru.otus.rzdtelegrambot.service.StationCodeService;
 import ru.otus.rzdtelegrambot.service.TrainTicketsGetInfoService;
-import ru.otus.rzdtelegrambot.utils.Emojis;
 import ru.otus.rzdtelegrambot.utils.MessageTemplates;
 
 import java.text.ParseException;
@@ -23,6 +23,9 @@ import java.util.List;
 
 
 /**
+ * Формирует  запрос на поиск поездов,
+ * сохраняет и обрабатывает ввод пользователя.
+ *
  * @author Sergei Viacheslaev
  */
 
@@ -35,15 +38,18 @@ public class TrainSearchHandler implements InputMessageHandler {
     private TrainTicketsGetInfoService trainTicketsService;
     private StationCodeService stationCodeService;
     private SendTicketsInfoService sendTicketsInfoService;
+    private ReplyMessagesService messagesService;
 
     public TrainSearchHandler(UserDataCache userDb, @Lazy BotStateContext botStateContext,
                               TrainTicketsGetInfoService trainTicketsService, StationCodeService stationCodeService,
+                              ReplyMessagesService messagesService,
                               SendTicketsInfoService sendTicketsInfoService) {
         this.userDataCache = userDb;
         this.botStateContext = botStateContext;
         this.trainTicketsService = trainTicketsService;
         this.stationCodeService = stationCodeService;
         this.sendTicketsInfoService = sendTicketsInfoService;
+        this.messagesService = messagesService;
     }
 
     @Override
@@ -60,17 +66,17 @@ public class TrainSearchHandler implements InputMessageHandler {
     }
 
     private SendMessage processUsersInput(Message inputMsg) {
-        String replyToUser = "";
         String usersAnswer = inputMsg.getText();
         int userId = inputMsg.getFrom().getId();
         long chatId = inputMsg.getChatId();
+        SendMessage replyToUser = messagesService.getWarningReplyMessage(chatId, "reply.trainSearch.tryAgain");
 
         TrainSearchRequestData requestData = userDataCache.getUserTrainSearchData(userId);
 
         BotState botState = botStateContext.getCurrentState();
 
         if (botState.equals(BotState.ASK_STATION_DEPART)) {
-            replyToUser = "Введите станцию отправления";
+            replyToUser = messagesService.getReplyMessage(chatId, "reply.trainSearch.enterStationDepart");
             botStateContext.setCurrentState(BotState.ASK_STATION_ARRIVAL);
         }
 
@@ -82,21 +88,18 @@ public class TrainSearchHandler implements InputMessageHandler {
             }
 
             requestData.setDepartureStationCode(departureStationCode);
-            userDataCache.saveTrainSearchData(userId, requestData);
-            replyToUser = "Введите станцию назначения";
+            replyToUser = messagesService.getReplyMessage(chatId, "reply.trainSearch.enterStationArrival");
             botStateContext.setCurrentState(BotState.ASK_DATE_DEPART);
         }
 
         if (botState.equals(BotState.ASK_DATE_DEPART)) {
             int arrivalStationCode = stationCodeService.getStationCode(usersAnswer);
             if (arrivalStationCode == -1) {
-                return new SendMessage(chatId,
-                        MessageTemplates.STATION_SEARCH_FAILED.toString());
+                return messagesService.getWarningReplyMessage(chatId, "reply.trainSearch.stationNotFound");
             }
 
             requestData.setArrivalStationCode(arrivalStationCode);
-            userDataCache.saveTrainSearchData(userId, requestData);
-            replyToUser = "Введите дату отправления";
+            replyToUser = messagesService.getReplyMessage(chatId, "reply.trainSearch.enterDateDepart");
             botStateContext.setCurrentState(BotState.DATE_DEPART_RECEIVED);
         }
 
@@ -105,28 +108,28 @@ public class TrainSearchHandler implements InputMessageHandler {
             try {
                 dateDepart = new SimpleDateFormat("dd.MM.yyyy").parse(usersAnswer);
             } catch (ParseException e) {
-                replyToUser = String.format("%sНеверный формат даты, " +
-                        "повторите ввод в формате День.Месяц.Год\nНапример: 31.02.2020", Emojis.NOTIFICATION_MARK_FAILED);
-                return new SendMessage(inputMsg.getChatId(), replyToUser);
+                return messagesService.getWarningReplyMessage(chatId, "reply.trainSearch.wrongTimeFormat");
             }
             requestData.setDateDepart(dateDepart);
-            userDataCache.saveTrainSearchData(userId, requestData);
-            botStateContext.setCurrentState(BotState.TRAINS_SEARCH_STARTED);
-            replyToUser = String.format("%s %s%n", Emojis.SUCCESS_MARK, "Завершен поиск поездов по заданным критериям.");
 
 
             List<Train> trainList = trainTicketsService.getTrainTicketsList(chatId, requestData.getDepartureStationCode(),
                     requestData.getArrivalStationCode(), dateDepart);
+
             if (trainList.isEmpty()) {
-                botStateContext.setCurrentState(BotState.SHOW_MAIN_MENU);
-                return new SendMessage(chatId, MessageTemplates.TRAIN_SEARCH_FOUND_ZERO.toString());
+                return messagesService.getReplyMessage(chatId, "reply.trainSearch.enterDateDepart");
             }
 
-            botStateContext.setCurrentState(BotState.SHOW_MAIN_MENU);
             sendTicketsInfoService.sendTrainTicketsInfo(chatId, trainList);
 
+            botStateContext.setCurrentState(BotState.SHOW_MAIN_MENU);
+
+            replyToUser = messagesService.getTrainSearchFinishedOKMessage(chatId, "reply.trainSearch.finishedOK");
+
         }
-        return new SendMessage(chatId, replyToUser);
+
+        userDataCache.saveTrainSearchData(userId, requestData);
+        return replyToUser;
     }
 
 

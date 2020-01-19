@@ -35,10 +35,15 @@ public class ReplyMessagesService {
     public SendMessage getTrainSubscribedMessage(long chatId, String trainNumber, String dateDepart) {
         return new SendMessage(chatId, String.format(messageSource.getMessage("reply.query.train.subscribed", null, locale),
                 trainNumber, dateDepart));
+    }
 
-    }  public SendMessage getTrainUnsubscribedMessage(long chatId, String trainNumber, String dateDepart) {
+    public SendMessage getTrainUnsubscribedMessage(long chatId, String trainNumber, String dateDepart) {
         return new SendMessage(chatId, String.format(messageSource.getMessage("reply.query.train.unsubscribed", null, locale),
                 trainNumber, dateDepart));
+    }
+
+    public SendMessage getTrainSearchFinishedOKMessage(long chatId, String replyMessage) {
+        return new SendMessage(chatId, String.format("%s %s", Emojis.SUCCESS_MARK, messageSource.getMessage(replyMessage, null, locale)));
     }
 
 
