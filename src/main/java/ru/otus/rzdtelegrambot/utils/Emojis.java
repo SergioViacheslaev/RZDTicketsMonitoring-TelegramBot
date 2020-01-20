@@ -21,7 +21,8 @@ public enum Emojis {
     NOTIFICATION_BELL(EmojiParser.parseToUnicode(":bell:")),
     NOTIFICATION_INFO_MARK(EmojiParser.parseToUnicode(":information_source:")),
     NOTIFICATION_PRICE_UP(EmojiParser.parseToUnicode(":chart_with_upwards_trend:")),
-    NOTIFICATION_PRICE_DOWN(EmojiParser.parseToUnicode(":chart_with_downwards_trend:"));
+    NOTIFICATION_PRICE_DOWN(EmojiParser.parseToUnicode(":chart_with_downwards_trend:")),
+    HELP_MENU_WELCOME(EmojiParser.parseToUnicode(":hatched_chick:"));
 
     private String emojiName;
 

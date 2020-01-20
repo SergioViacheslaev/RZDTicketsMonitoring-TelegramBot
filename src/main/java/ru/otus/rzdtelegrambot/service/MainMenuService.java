@@ -2,7 +2,6 @@ package ru.otus.rzdtelegrambot.service;
 
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
@@ -18,10 +17,10 @@ import java.util.List;
 @Component
 public class MainMenuService {
 
-    public SendMessage getMainMenuMessage(final Message request, String textMessage) {
+    public SendMessage getMainMenuMessage(final long chatId, final String textMessage) {
         final ReplyKeyboardMarkup replyKeyboardMarkup = getMainMenuKeyboard();
         final SendMessage mainMenuMessage =
-                createMessageWithKeyboard(request.getChatId().toString(), textMessage, replyKeyboardMarkup);
+                createMessageWithKeyboard(chatId, textMessage, replyKeyboardMarkup);
 
         return mainMenuMessage;
     }
@@ -51,7 +50,7 @@ public class MainMenuService {
         return replyKeyboardMarkup;
     }
 
-    private SendMessage createMessageWithKeyboard(final String chatId,
+    private SendMessage createMessageWithKeyboard(final long chatId,
                                                   String textMessage,
                                                   final ReplyKeyboardMarkup replyKeyboardMarkup) {
         final SendMessage sendMessage = new SendMessage();

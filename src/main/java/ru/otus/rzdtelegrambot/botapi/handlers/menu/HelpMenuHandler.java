@@ -6,6 +6,8 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 import ru.otus.rzdtelegrambot.botapi.BotState;
 import ru.otus.rzdtelegrambot.botapi.handlers.InputMessageHandler;
 import ru.otus.rzdtelegrambot.service.MainMenuService;
+import ru.otus.rzdtelegrambot.service.ReplyMessagesService;
+import ru.otus.rzdtelegrambot.utils.Emojis;
 
 /**
  * @author Sergei Viacheslaev
@@ -13,15 +15,17 @@ import ru.otus.rzdtelegrambot.service.MainMenuService;
 @Component
 public class HelpMenuHandler implements InputMessageHandler {
     private MainMenuService mainMenuService;
+    private ReplyMessagesService messagesService;
 
-    public HelpMenuHandler(MainMenuService mainMenuService) {
+    public HelpMenuHandler(MainMenuService mainMenuService, ReplyMessagesService messagesService) {
         this.mainMenuService = mainMenuService;
+        this.messagesService = messagesService;
     }
 
     @Override
     public SendMessage handle(Message message) {
-
-        return mainMenuService.getMainMenuMessage(message, "Воспользуйтесь кнопками меню для поиска поездов и подписки.");
+        return mainMenuService.getMainMenuMessage(message.getChatId(),
+                messagesService.getEmojiReplyText(Emojis.HELP_MENU_WELCOME, "reply.helpMenu.welcomeMessage"));
     }
 
     @Override

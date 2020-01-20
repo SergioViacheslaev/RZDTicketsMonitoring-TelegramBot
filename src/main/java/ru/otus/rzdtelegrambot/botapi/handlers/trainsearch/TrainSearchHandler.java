@@ -1,12 +1,10 @@
 package ru.otus.rzdtelegrambot.botapi.handlers.trainsearch;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import ru.otus.rzdtelegrambot.botapi.BotState;
-import ru.otus.rzdtelegrambot.botapi.BotStateContext;
 import ru.otus.rzdtelegrambot.botapi.handlers.InputMessageHandler;
 import ru.otus.rzdtelegrambot.cache.UserDataCache;
 import ru.otus.rzdtelegrambot.model.Train;
@@ -33,18 +31,15 @@ import java.util.List;
 public class TrainSearchHandler implements InputMessageHandler {
 
     private UserDataCache userDataCache;
-    private BotStateContext botStateContext;
     private TrainTicketsGetInfoService trainTicketsService;
     private StationCodeService stationCodeService;
     private SendTicketsInfoService sendTicketsInfoService;
     private ReplyMessagesService messagesService;
 
-    public TrainSearchHandler(UserDataCache userDb, @Lazy BotStateContext botStateContext,
-                              TrainTicketsGetInfoService trainTicketsService, StationCodeService stationCodeService,
-                              ReplyMessagesService messagesService,
+    public TrainSearchHandler(UserDataCache userDataCache, TrainTicketsGetInfoService trainTicketsService,
+                              StationCodeService stationCodeService, ReplyMessagesService messagesService,
                               SendTicketsInfoService sendTicketsInfoService) {
-        this.userDataCache = userDb;
-        this.botStateContext = botStateContext;
+        this.userDataCache = userDataCache;
         this.trainTicketsService = trainTicketsService;
         this.stationCodeService = stationCodeService;
         this.sendTicketsInfoService = sendTicketsInfoService;
@@ -53,8 +48,8 @@ public class TrainSearchHandler implements InputMessageHandler {
 
     @Override
     public SendMessage handle(Message message) {
-        if (botStateContext.getCurrentState().equals(BotState.TRAINS_SEARCH)) {
-            botStateContext.setCurrentState(BotState.ASK_STATION_DEPART);
+        if (userDataCache.getUsersCurrentBotState(message.getFrom().getId()).equals(BotState.TRAINS_SEARCH)) {
+            userDataCache.setUsersCurrentBotState(message.getFrom().getId(), BotState.ASK_STATION_DEPART);
         }
         return processUsersInput(message);
     }
@@ -72,11 +67,11 @@ public class TrainSearchHandler implements InputMessageHandler {
 
         TrainSearchRequestData requestData = userDataCache.getUserTrainSearchData(userId);
 
-        BotState botState = botStateContext.getCurrentState();
+        BotState botState = userDataCache.getUsersCurrentBotState(userId);
 
         if (botState.equals(BotState.ASK_STATION_DEPART)) {
             replyToUser = messagesService.getReplyMessage(chatId, "reply.trainSearch.enterStationDepart");
-            botStateContext.setCurrentState(BotState.ASK_STATION_ARRIVAL);
+            userDataCache.setUsersCurrentBotState(userId, BotState.ASK_STATION_ARRIVAL);
         }
 
         if (botState.equals(BotState.ASK_STATION_ARRIVAL)) {
@@ -87,7 +82,7 @@ public class TrainSearchHandler implements InputMessageHandler {
 
             requestData.setDepartureStationCode(departureStationCode);
             replyToUser = messagesService.getReplyMessage(chatId, "reply.trainSearch.enterStationArrival");
-            botStateContext.setCurrentState(BotState.ASK_DATE_DEPART);
+            userDataCache.setUsersCurrentBotState(userId, BotState.ASK_DATE_DEPART);
         }
 
         if (botState.equals(BotState.ASK_DATE_DEPART)) {
@@ -98,7 +93,7 @@ public class TrainSearchHandler implements InputMessageHandler {
 
             requestData.setArrivalStationCode(arrivalStationCode);
             replyToUser = messagesService.getReplyMessage(chatId, "reply.trainSearch.enterDateDepart");
-            botStateContext.setCurrentState(BotState.DATE_DEPART_RECEIVED);
+            userDataCache.setUsersCurrentBotState(userId, BotState.DATE_DEPART_RECEIVED);
         }
 
         if (botState.equals(BotState.DATE_DEPART_RECEIVED)) {
@@ -120,7 +115,7 @@ public class TrainSearchHandler implements InputMessageHandler {
 
             sendTicketsInfoService.sendTrainTicketsInfo(chatId, trainList);
 
-            botStateContext.setCurrentState(BotState.SHOW_MAIN_MENU);
+            userDataCache.setUsersCurrentBotState(userId, BotState.SHOW_MAIN_MENU);
 
             replyToUser = messagesService.getTrainSearchFinishedOKMessage(chatId, "reply.trainSearch.finishedOK");
 

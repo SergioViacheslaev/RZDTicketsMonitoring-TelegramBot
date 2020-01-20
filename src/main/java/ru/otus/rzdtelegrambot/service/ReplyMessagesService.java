@@ -64,4 +64,13 @@ public class ReplyMessagesService {
         return new SendMessage(chatId, String.format("%s %s%n%s", Emojis.SUCCESS_MARK,
                 messageSource.getMessage(replyMessage, null, locale), stationsNamesMessage.toString()));
     }
+
+    public String getReplyText(String replyText) {
+        return messageSource.getMessage(replyText, null, locale);
+    }
+
+    public String getEmojiReplyText(Emojis emoji, String replyText) {
+        return String.format("%s %s", emoji,
+                messageSource.getMessage(replyText, null, locale));
+    }
 }

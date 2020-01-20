@@ -5,13 +5,12 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import ru.otus.rzdtelegrambot.botapi.BotState;
-import ru.otus.rzdtelegrambot.botapi.BotStateContext;
 import ru.otus.rzdtelegrambot.botapi.RZDTelegramBot;
 import ru.otus.rzdtelegrambot.botapi.handlers.InputMessageHandler;
 import ru.otus.rzdtelegrambot.botapi.handlers.callbackquery.CallbackQueryType;
+import ru.otus.rzdtelegrambot.cache.UserDataCache;
 import ru.otus.rzdtelegrambot.model.Car;
 import ru.otus.rzdtelegrambot.model.UserTicketsSubscription;
-import ru.otus.rzdtelegrambot.service.MainMenuService;
 import ru.otus.rzdtelegrambot.service.ReplyMessagesService;
 import ru.otus.rzdtelegrambot.service.UserTicketsSubscriptionService;
 import ru.otus.rzdtelegrambot.utils.Emojis;
@@ -26,20 +25,17 @@ public class SubscriptionsMenuHandler implements InputMessageHandler {
 
     private UserTicketsSubscriptionService subscribeService;
     private RZDTelegramBot telegramBot;
-    private MainMenuService mainMenuService;
-    private BotStateContext botStateContext;
+    private UserDataCache userDataCache;
     private ReplyMessagesService messagesService;
 
     public SubscriptionsMenuHandler(UserTicketsSubscriptionService subscribeService,
-                                    MainMenuService mainMenuService,
+                                    UserDataCache userDataCache,
                                     ReplyMessagesService messagesService,
-                                    @Lazy BotStateContext botStateContext,
                                     @Lazy RZDTelegramBot telegramBot) {
         this.subscribeService = subscribeService;
         this.messagesService = messagesService;
+        this.userDataCache = userDataCache;
         this.telegramBot = telegramBot;
-        this.mainMenuService = mainMenuService;
-        this.botStateContext = botStateContext;
     }
 
     @Override
@@ -70,7 +66,7 @@ public class SubscriptionsMenuHandler implements InputMessageHandler {
             telegramBot.sendInlineKeyBoardMessage(message.getChatId(), subscriptionInfo, "Отписаться", callbackData);
         }
 
-        botStateContext.setCurrentState(BotState.SHOW_MAIN_MENU);
+        userDataCache.setUsersCurrentBotState(message.getFrom().getId(), BotState.SHOW_MAIN_MENU);
 
         return messagesService.getSuccessReplyMessage(message.getChatId(), "reply.subscriptions.listLoaded");
     }

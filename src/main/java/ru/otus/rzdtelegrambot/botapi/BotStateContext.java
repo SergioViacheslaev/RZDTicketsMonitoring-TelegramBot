@@ -9,14 +9,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/** Stores current state of the Bot.
- *  Defines message handlers for each state.
+/**Defines message handlers for each state.
  *
  * @author Sergei Viacheslaev
  */
 @Component
 public class BotStateContext {
-    private BotState currentState;
     private InputMessageHandler currentMessageHandler;
     private Map<BotState, InputMessageHandler> messageHandlers = new HashMap<>();
 
@@ -24,15 +22,8 @@ public class BotStateContext {
         messageHandlers.forEach(handler -> this.messageHandlers.put(handler.getHandlerName(), handler));
     }
 
-    public BotState getCurrentState() {
-        return currentState;
-    }
 
-    public void setCurrentState(BotState currentState) {
-        this.currentState = currentState;
-    }
-
-    public SendMessage processInputMessage(Message message) {
+    public SendMessage processInputMessage(BotState currentState, Message message) {
 
         currentMessageHandler = findMessageHandler(currentState);
 

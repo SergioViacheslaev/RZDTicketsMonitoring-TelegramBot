@@ -20,11 +20,11 @@ public class UserDataCache {
     private Map<Integer, TrainSearchRequestData> trainSearchUsersData = new HashMap<>();
 
 
-    public void saveUserBotState(int userId, BotState botState) {
+    public void setUsersCurrentBotState(int userId, BotState botState) {
         usersBotStates.put(userId, botState);
     }
 
-    public BotState getUserBotState(int userId) {
+    public BotState getUsersCurrentBotState(int userId) {
         BotState botState = usersBotStates.get(userId);
         if (botState == null) {
             botState = BotState.SHOW_MAIN_MENU;
