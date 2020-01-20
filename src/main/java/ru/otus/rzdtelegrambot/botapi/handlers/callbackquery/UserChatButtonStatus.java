@@ -1,4 +1,4 @@
-package ru.otus.rzdtelegrambot.utils;
+package ru.otus.rzdtelegrambot.botapi.handlers.callbackquery;
 
 
 import lombok.AllArgsConstructor;

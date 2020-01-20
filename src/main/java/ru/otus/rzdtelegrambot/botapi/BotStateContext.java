@@ -9,13 +9,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**Defines message handlers for each state.
+/**
+ * Defines message handlers for each state.
  *
  * @author Sergei Viacheslaev
  */
 @Component
 public class BotStateContext {
-    private InputMessageHandler currentMessageHandler;
     private Map<BotState, InputMessageHandler> messageHandlers = new HashMap<>();
 
     public BotStateContext(List<InputMessageHandler> messageHandlers) {
@@ -25,7 +25,7 @@ public class BotStateContext {
 
     public SendMessage processInputMessage(BotState currentState, Message message) {
 
-        currentMessageHandler = findMessageHandler(currentState);
+        InputMessageHandler currentMessageHandler = findMessageHandler(currentState);
 
         return currentMessageHandler.handle(message);
 

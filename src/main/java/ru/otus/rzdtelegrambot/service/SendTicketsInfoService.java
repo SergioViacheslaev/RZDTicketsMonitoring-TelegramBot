@@ -4,6 +4,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import ru.otus.rzdtelegrambot.botapi.RZDTelegramBot;
 import ru.otus.rzdtelegrambot.botapi.handlers.callbackquery.CallbackQueryType;
+import ru.otus.rzdtelegrambot.cache.UserDataCache;
 import ru.otus.rzdtelegrambot.model.Car;
 import ru.otus.rzdtelegrambot.model.Train;
 import ru.otus.rzdtelegrambot.utils.Emojis;
@@ -20,10 +21,13 @@ import java.util.List;
 public class SendTicketsInfoService {
     private RZDTelegramBot telegramBot;
     private CarsProcessingService carsProcessingService;
+    private UserDataCache userDataCache;
 
     public SendTicketsInfoService(CarsProcessingService carsProcessingService,
+                                  UserDataCache userDataCache,
                                   @Lazy RZDTelegramBot telegramBot) {
         this.carsProcessingService = carsProcessingService;
+        this.userDataCache = userDataCache;
         this.telegramBot = telegramBot;
     }
 
@@ -43,6 +47,9 @@ public class SendTicketsInfoService {
                     Emojis.TRAIN, train.getNumber(), train.getBrand(), train.getStationDepart(), train.getDateDepart(), train.getTimeDepart(),
                     train.getStationArrival(), train.getDateArrival(), train.getTimeArrival(),
                     Emojis.TIME_IN_WAY, train.getTimeInWay(), carsInfo);
+
+
+            userDataCache.saveSearchFoundedTrains(chatId, trainsList);
 
             //Посылаем кнопку "Подписаться" с данными поезда на который подписываемся
             String callbackData = String.format("%s|%s|%s", CallbackQueryType.SUBSCRIBE,

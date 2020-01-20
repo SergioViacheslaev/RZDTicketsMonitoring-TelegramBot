@@ -75,6 +75,7 @@ public class TrainSearchHandler implements InputMessageHandler {
         }
 
         if (botState.equals(BotState.ASK_STATION_ARRIVAL)) {
+
             int departureStationCode = stationCodeService.getStationCode(usersAnswer);
             if (departureStationCode == -1) {
                 return messagesService.getWarningReplyMessage(chatId, "reply.trainSearch.stationNotFound");
@@ -89,6 +90,10 @@ public class TrainSearchHandler implements InputMessageHandler {
             int arrivalStationCode = stationCodeService.getStationCode(usersAnswer);
             if (arrivalStationCode == -1) {
                 return messagesService.getWarningReplyMessage(chatId, "reply.trainSearch.stationNotFound");
+            }
+
+            if (arrivalStationCode == requestData.getDepartureStationCode()) {
+                return messagesService.getWarningReplyMessage(chatId, "reply.trainSearch.stationsEquals");
             }
 
             requestData.setArrivalStationCode(arrivalStationCode);

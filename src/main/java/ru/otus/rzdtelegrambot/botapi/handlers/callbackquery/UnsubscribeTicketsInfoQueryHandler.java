@@ -10,7 +10,6 @@ import ru.otus.rzdtelegrambot.service.CarsProcessingService;
 import ru.otus.rzdtelegrambot.service.ReplyMessagesService;
 import ru.otus.rzdtelegrambot.service.UserTicketsSubscriptionService;
 import ru.otus.rzdtelegrambot.utils.Emojis;
-import ru.otus.rzdtelegrambot.utils.UserChatButtonStatus;
 
 import java.util.Optional;
 
@@ -47,7 +46,7 @@ public class UnsubscribeTicketsInfoQueryHandler implements CallbackQueryHandler 
         UserTicketsSubscription userSubscription;
         final long chatId = callbackQuery.getMessage().getChatId();
 
-        final String subscriptionID = carsProcessingService.parseSubscriptionIDFromQuery(callbackQuery);
+        final String subscriptionID = carsProcessingService.parseSubscriptionIdFromUnsubscribeQuery(callbackQuery);
         Optional<UserTicketsSubscription> optionalUserSubscription = subscriptionService.getUsersSubscriptionById(subscriptionID);
 
         if (optionalUserSubscription.isPresent()) {

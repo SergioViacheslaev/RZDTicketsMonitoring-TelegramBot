@@ -5,15 +5,17 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import ru.otus.rzdtelegrambot.botapi.RZDTelegramBot;
+import ru.otus.rzdtelegrambot.cache.UserDataCache;
 import ru.otus.rzdtelegrambot.model.Car;
+import ru.otus.rzdtelegrambot.model.Train;
 import ru.otus.rzdtelegrambot.model.UserTicketsSubscription;
 import ru.otus.rzdtelegrambot.service.CarsProcessingService;
 import ru.otus.rzdtelegrambot.service.ReplyMessagesService;
 import ru.otus.rzdtelegrambot.service.UserTicketsSubscriptionService;
 import ru.otus.rzdtelegrambot.utils.Emojis;
-import ru.otus.rzdtelegrambot.utils.UserChatButtonStatus;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Обрабатывает запрос "Подписаться" на уведомления по ценам.
@@ -26,16 +28,19 @@ public class SubscribeTicketsInfoQueryHandler implements CallbackQueryHandler {
     private UserTicketsSubscriptionService subscriptionService;
     private CarsProcessingService carsProcessingService;
     private ReplyMessagesService messagesService;
+    private UserDataCache userDataCache;
     private RZDTelegramBot telegramBot;
 
 
     public SubscribeTicketsInfoQueryHandler(UserTicketsSubscriptionService subscribeService,
                                             CarsProcessingService carsProcessingService,
                                             ReplyMessagesService messagesService,
+                                            UserDataCache userDataCache,
                                             @Lazy RZDTelegramBot telegramBot) {
         this.subscriptionService = subscribeService;
         this.carsProcessingService = carsProcessingService;
         this.messagesService = messagesService;
+        this.userDataCache = userDataCache;
         this.telegramBot = telegramBot;
     }
 
@@ -48,12 +53,15 @@ public class SubscribeTicketsInfoQueryHandler implements CallbackQueryHandler {
     @Override
     public SendMessage handleCallbackQuery(CallbackQuery callbackQuery) {
         final long chatId = callbackQuery.getMessage().getChatId();
-        final String trainNumber = carsProcessingService.parseTrainNumberFromQuery(callbackQuery);
-        final String dateDepart = carsProcessingService.parseDateDepartFromQuery(callbackQuery);
+        final String trainNumber = carsProcessingService.parseTrainNumberFromSubscribeQuery(callbackQuery);
+        final String dateDepart = carsProcessingService.parseDateDepartFromSubscribeQuery(callbackQuery);
 
-        UserTicketsSubscription userSubscription = parseQueryData(callbackQuery);
+        Optional<UserTicketsSubscription> userSubscriptionOptional = parseQueryData(callbackQuery);
+        if (userSubscriptionOptional.isEmpty()) {
+            return messagesService.getWarningReplyMessage(chatId, "reply.query.searchAgain");
+        }
 
-        //Если подписка уже есть, то не подписываемся повторно.
+        UserTicketsSubscription userSubscription = userSubscriptionOptional.get();
         if (subscriptionService.hasTicketsSubscription(userSubscription)) {
             return messagesService.getWarningReplyMessage(chatId, "reply.query.train.userHasSubscription");
         }
@@ -68,19 +76,26 @@ public class SubscribeTicketsInfoQueryHandler implements CallbackQueryHandler {
     }
 
 
-    private UserTicketsSubscription parseQueryData(CallbackQuery usersQuery) {
+    private Optional<UserTicketsSubscription> parseQueryData(CallbackQuery usersQuery) {
+        List<Train> foundedTrains = userDataCache.getSearchFoundedTrains(usersQuery.getMessage().getChatId());
         final long chatId = usersQuery.getMessage().getChatId();
-        final String callbackMessage = usersQuery.getMessage().getText();
 
-        final String trainNumber = carsProcessingService.parseTrainNumberFromQuery(usersQuery);
-        final String dateDepart = carsProcessingService.parseDateDepartFromQuery(usersQuery);
+        final String trainNumber = carsProcessingService.parseTrainNumberFromSubscribeQuery(usersQuery);
+        final String dateDepart = carsProcessingService.parseDateDepartFromSubscribeQuery(usersQuery);
 
-        final String trainName = carsProcessingService.parseTrainNameFromMessage(callbackMessage, trainNumber);
-        final String stationDepart = carsProcessingService.parseStationDepartFromMessage(callbackMessage);
-        final String stationArrival = carsProcessingService.parseStationArrivalFromMessage(callbackMessage);
-        final List<Car> availableCars = carsProcessingService.parseCarsFromMessage(callbackMessage);
+        Optional<Train> queriedTrainOptional = foundedTrains.stream().
+                filter(train -> train.getNumber().equals(trainNumber) && train.getDateDepart().equals(dateDepart)).findFirst();
+        if (queriedTrainOptional.isEmpty()) {
+            return Optional.empty();
+        }
 
-        return new UserTicketsSubscription(chatId, trainNumber, trainName, stationDepart, stationArrival, dateDepart, availableCars);
+        Train queriedTrain = queriedTrainOptional.get();
+        final String trainName = queriedTrain.getBrand();
+        final String stationDepart = queriedTrain.getStationDepart();
+        final String stationArrival = queriedTrain.getStationArrival();
+        final List<Car> availableCars = queriedTrain.getAvailableCars();
+
+        return Optional.of(new UserTicketsSubscription(chatId, trainNumber, trainName, stationDepart, stationArrival, dateDepart, availableCars));
     }
 
 

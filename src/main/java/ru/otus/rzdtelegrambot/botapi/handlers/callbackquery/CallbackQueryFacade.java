@@ -28,17 +28,10 @@ public class CallbackQueryFacade {
     public SendMessage processCallbackQuery(CallbackQuery usersQuery) {
         CallbackQueryType usersQueryType = CallbackQueryType.valueOf(usersQuery.getData().split("\\|")[0]);
 
-        SendMessage userReply;
-
         Optional<CallbackQueryHandler> queryHandler = callbackQueryHandlers.stream().
                 filter(callbackQuery -> callbackQuery.getHandlerQueryType().equals(usersQueryType)).findFirst();
 
-        if (queryHandler.isPresent()) {
-            userReply = queryHandler.get().handleCallbackQuery(usersQuery);
-        } else {
-            userReply = messagesService.getWarningReplyMessage(usersQuery.getMessage().getChatId(), "reply.query.failed");
-        }
-
-        return userReply;
+        return queryHandler.map(handler -> handler.handleCallbackQuery(usersQuery)).
+                orElse(messagesService.getWarningReplyMessage(usersQuery.getMessage().getChatId(), "reply.query.failed"));
     }
 }

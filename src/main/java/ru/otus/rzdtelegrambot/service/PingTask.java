@@ -1,4 +1,4 @@
-package ru.otus.rzdtelegrambot.utils;
+package ru.otus.rzdtelegrambot.service;
 
 import lombok.Getter;
 import lombok.Setter;

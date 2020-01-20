@@ -40,7 +40,7 @@ public class TrainTicketsGetInfoService {
     private static final String URI_PARAM_STATION_ARRIVAL_CODE = "STATION_ARRIVAL_CODE";
     private static final String URI_PARAM_DATE_DEPART = "DATE_DEPART";
 
-    private static final int PROCESSING_PAUSE = 2500;
+    private static final int PROCESSING_PAUSE = 3500;
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final SimpleDateFormat dateFormatter = new SimpleDateFormat("dd.MM.yyyy");
     private final RestTemplate restTemplate;
@@ -63,6 +63,7 @@ public class TrainTicketsGetInfoService {
         urlParams.put(URI_PARAM_DATE_DEPART, dateDepartStr);
 
         Map<String, HttpHeaders> ridAndHttpHeaders = sendRidRequest(chatId, urlParams);
+        sleep(PROCESSING_PAUSE);
         if (ridAndHttpHeaders.isEmpty()) {
             return Collections.emptyList();
         }
@@ -78,6 +79,8 @@ public class TrainTicketsGetInfoService {
         HttpHeaders trainInfoRequestHeaders = getDataRequestHeaders(cookies);
 
         String trainInfoResponseBody = sendTrainInfoJsonRequest(ridValue, trainInfoRequestHeaders);
+
+
         trainList = parseResponseBody(trainInfoResponseBody);
         if (trainList.isEmpty()) {
             telegramBot.sendMessage(messagesService.getWarningReplyMessage(chatId, "reply.trainSearch.trainsNotFound"));
@@ -166,7 +169,6 @@ public class TrainTicketsGetInfoService {
                 httpEntity,
                 String.class, ridValue);
 
-        sleep(PROCESSING_PAUSE);
 
         if (!isResponseResultOK(resultResponse)) {
             resultResponse = restTemplate.exchange(trainInfoRequestTemplate,
@@ -174,7 +176,10 @@ public class TrainTicketsGetInfoService {
                     httpEntity,
                     String.class, ridValue);
 
+            sleep(PROCESSING_PAUSE);
         }
+
+
         return resultResponse.getBody();
     }
 
