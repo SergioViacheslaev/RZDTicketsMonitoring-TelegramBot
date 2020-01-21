@@ -16,16 +16,18 @@ import java.util.*;
  * @author Sergei Viacheslaev
  */
 @Service
-public class UserDataCache {
+public class UserDataCache implements DataCache {
     private Map<Integer, BotState> usersBotStates = new HashMap<>();
     private Map<Integer, TrainSearchRequestData> trainSearchUsersData = new HashMap<>();
     private Map<Long, List<Train>> searchFoundedTrains = new HashMap<>();
 
 
+    @Override
     public void setUsersCurrentBotState(int userId, BotState botState) {
         usersBotStates.put(userId, botState);
     }
 
+    @Override
     public BotState getUsersCurrentBotState(int userId) {
         BotState botState = usersBotStates.get(userId);
         if (botState == null) {
@@ -35,10 +37,12 @@ public class UserDataCache {
         return botState;
     }
 
+    @Override
     public void saveTrainSearchData(int userId, TrainSearchRequestData trainSearchData) {
         trainSearchUsersData.put(userId, trainSearchData);
     }
 
+    @Override
     public TrainSearchRequestData getUserTrainSearchData(int userId) {
         TrainSearchRequestData trainSearchData = trainSearchUsersData.get(userId);
         if (trainSearchData == null) {
@@ -48,10 +52,12 @@ public class UserDataCache {
         return trainSearchData;
     }
 
+    @Override
     public void saveSearchFoundedTrains(long chatId, List<Train> foundTrains) {
         searchFoundedTrains.put(chatId, foundTrains);
     }
 
+    @Override
     public List<Train> getSearchFoundedTrains(long chatId) {
         List<Train> foundedTrains = searchFoundedTrains.get(chatId);
 

@@ -6,7 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import ru.otus.rzdtelegrambot.cache.StationsCache;
+import ru.otus.rzdtelegrambot.cache.StationsDataCache;
 import ru.otus.rzdtelegrambot.model.TrainStation;
 import ru.otus.rzdtelegrambot.utils.Emojis;
 
@@ -27,10 +27,10 @@ public class StationBookService {
     @Value("${stationcodeservice.requesttemplate}")
     private String stationSearchTemplate;
     private RestTemplate restTemplate;
-    private StationsCache stationsCache;
+    private StationsDataCache stationsCache;
     private ReplyMessagesService messagesService;
 
-    public StationBookService(RestTemplate restTemplate, StationsCache stationsCache, ReplyMessagesService messagesService) {
+    public StationBookService(RestTemplate restTemplate, StationsDataCache stationsCache, ReplyMessagesService messagesService) {
         this.restTemplate = restTemplate;
         this.stationsCache = stationsCache;
         this.messagesService = messagesService;

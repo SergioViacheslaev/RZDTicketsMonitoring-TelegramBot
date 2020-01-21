@@ -8,12 +8,14 @@ import ru.otus.rzdtelegrambot.botapi.RZDTelegramBot;
 import ru.otus.rzdtelegrambot.model.Car;
 import ru.otus.rzdtelegrambot.model.Train;
 import ru.otus.rzdtelegrambot.model.UserTicketsSubscription;
-import ru.otus.rzdtelegrambot.repository.UserTicketsSubscriptionMongoRepository;
 import ru.otus.rzdtelegrambot.utils.Emojis;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Сервис уведомлений,
@@ -27,20 +29,20 @@ import java.util.*;
 @Service
 public class UserSubscriptionProcessService {
     private final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd.MM.yyyy");
-    private UserTicketsSubscriptionMongoRepository subscriptionsRepository;
+    private UserTicketsSubscriptionService subscriptionService;
     private TrainTicketsGetInfoService trainTicketsGetInfoService;
     private StationCodeService stationCodeService;
     private CarsProcessingService carsProcessingService;
     private ReplyMessagesService messagesService;
     private RZDTelegramBot telegramBot;
 
-    public UserSubscriptionProcessService(UserTicketsSubscriptionMongoRepository subscriptionsRepository,
+    public UserSubscriptionProcessService(UserTicketsSubscriptionService subscriptionService,
                                           TrainTicketsGetInfoService trainTicketsGetInfoService,
                                           StationCodeService stationCodeService,
                                           CarsProcessingService carsProcessingService,
                                           ReplyMessagesService messagesService,
                                           @Lazy RZDTelegramBot telegramBot) {
-        this.subscriptionsRepository = subscriptionsRepository;
+        this.subscriptionService = subscriptionService;
         this.trainTicketsGetInfoService = trainTicketsGetInfoService;
         this.stationCodeService = stationCodeService;
         this.carsProcessingService = carsProcessingService;
@@ -56,7 +58,7 @@ public class UserSubscriptionProcessService {
     @Scheduled(fixedRateString = "${subscriptions.processPeriod}")
     public void processAllUsersSubscriptions() {
         log.info("Выполняю обработку подписок пользователей.");
-        subscriptionsRepository.findAll().forEach(this::processSubscription);
+        subscriptionService.getAllSubscriptions().forEach(this::processSubscription);
         log.info("Завершил обработку подписок пользователей.");
     }
 
@@ -65,14 +67,20 @@ public class UserSubscriptionProcessService {
      * если цена изменилась сохраняет последнюю и уведомляет клиента.
      */
     private void processSubscription(UserTicketsSubscription subscription) {
-        List<Train> actualTrains = getActualTrains(subscription.getChatId(), subscription.getStationDepart(),
-                subscription.getStationArrival(), subscription.getDateDepart());
+        List<Train> actualTrains = getActualTrains(subscription);
+
+        if (actualTrains.stream().map(Train::getNumber).noneMatch(actualTrainNumber -> actualTrainNumber.equals(subscription.getTrainNumber()))) {
+            subscriptionService.deleteUserSubscription(subscription.getId());
+            telegramBot.sendMessage(messagesService.getReplyMessage(subscription.getChatId(), "subscription.trainHasLeft",
+                    Emojis.NOTIFICATION_BELL, subscription.getTrainNumber(), subscription.getTrainName(),
+                    subscription.getDateDepart(), subscription.getTimeDepart()));
+            return;
+        }
 
         actualTrains.forEach(actualTrain -> {
 
             if (actualTrain.getNumber().equals(subscription.getTrainNumber()) &&
                     actualTrain.getDateDepart().equals(subscription.getDateDepart())) {
-
 
                 List<Car> actualCarsWithMinimumPrice = carsProcessingService.filterCarsWithMinimumPrice(actualTrain.getAvailableCars());
 
@@ -81,26 +89,25 @@ public class UserSubscriptionProcessService {
 
                 if (!updatedCarsNotification.isEmpty()) {
                     String priceChangesMessage = updatedCarsNotification.keySet().iterator().next();
-                    List<Car> actualCars = updatedCarsNotification.get(priceChangesMessage);
+                    List<Car> updatedCars = updatedCarsNotification.get(priceChangesMessage);
 
-                    subscription.setSubscribedCars(actualCars);
-                    subscriptionsRepository.save(subscription);
-                    sendUserNotification(subscription, priceChangesMessage, actualCars);
+                    subscription.setSubscribedCars(updatedCars);
+                    subscriptionService.saveUserSubscription(subscription);
+                    sendUserNotification(subscription, priceChangesMessage, updatedCars);
                 }
             }
         });
 
+
     }
 
-    private List<Train> getActualTrains(long chatId, String stationDepart, String stationArrival, String dateDeparture) {
-        int stationDepartCode = stationCodeService.getStationCode(stationDepart);
-        int stationArrivalCode = stationCodeService.getStationCode(stationArrival);
-        Optional<Date> dateDepartOptional = parseDateDeparture(dateDeparture);
-        if (dateDepartOptional.isEmpty()) {
-            return Collections.emptyList();
-        }
+    private List<Train> getActualTrains(UserTicketsSubscription subscription) {
+        int stationDepartCode = stationCodeService.getStationCode(subscription.getDateDepart());
+        int stationArrivalCode = stationCodeService.getStationCode(subscription.getStationArrival());
+        Date dateDeparture = parseDateDeparture(subscription.getDateDepart());
 
-        return trainTicketsGetInfoService.getTrainTicketsList(chatId, stationDepartCode, stationArrivalCode, dateDepartOptional.get());
+        return trainTicketsGetInfoService.getTrainTicketsList(subscription.getChatId(),
+                stationDepartCode, stationArrivalCode, dateDeparture);
     }
 
     /**
@@ -148,10 +155,10 @@ public class UserSubscriptionProcessService {
     }
 
 
-    private Optional<Date> parseDateDeparture(String dateDeparture) {
-        Optional<Date> dateDepart = Optional.empty();
+    private Date parseDateDeparture(String dateDeparture) {
+        Date dateDepart = null;
         try {
-            dateDepart = Optional.ofNullable(DATE_FORMAT.parse(dateDeparture));
+            dateDepart = DATE_FORMAT.parse(dateDeparture);
         } catch (ParseException e) {
             e.printStackTrace();
         }

@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import ru.otus.rzdtelegrambot.cache.StationsCache;
+import ru.otus.rzdtelegrambot.cache.StationsDataCache;
 import ru.otus.rzdtelegrambot.model.TrainStation;
 
 import java.util.Optional;
@@ -28,10 +28,10 @@ public class StationCodeService {
     @Value("${stationcodeservice.requesttemplate}")
     private String stationCodeRequestTemplate;
     private RestTemplate restTemplate;
-    private StationsCache stationsCache;
+    private StationsDataCache stationsCache;
 
 
-    public StationCodeService(RestTemplate restTemplate, StationsCache stationsCache) {
+    public StationCodeService(RestTemplate restTemplate, StationsDataCache stationsCache) {
         this.restTemplate = restTemplate;
         this.stationsCache = stationsCache;
     }

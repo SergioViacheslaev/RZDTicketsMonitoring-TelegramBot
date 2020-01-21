@@ -21,6 +21,10 @@ public class UserTicketsSubscriptionService {
         this.subscriptionsRepository = repository;
     }
 
+    public List<UserTicketsSubscription> getAllSubscriptions() {
+        return subscriptionsRepository.findAll();
+    }
+
     public void saveUserSubscription(UserTicketsSubscription usersSubscription) {
         subscriptionsRepository.save(usersSubscription);
     }
@@ -42,5 +46,6 @@ public class UserTicketsSubscriptionService {
     public List<UserTicketsSubscription> getUsersSubscriptions(long chatId) {
         return subscriptionsRepository.findByChatId(chatId);
     }
+
 
 }

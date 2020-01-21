@@ -101,7 +101,6 @@ public class TrainTicketsGetInfoService {
 
         Optional<String> parsedRID = parseRID(jsonRespBody);
         if (parsedRID.isEmpty()) {
-            telegramBot.sendMessage(messagesService.getWarningReplyMessage(chatId, "reply.query.failed"));
             return Collections.emptyMap();
         }
 
