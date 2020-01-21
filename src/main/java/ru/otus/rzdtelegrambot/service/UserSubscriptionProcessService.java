@@ -102,7 +102,7 @@ public class UserSubscriptionProcessService {
     }
 
     private List<Train> getActualTrains(UserTicketsSubscription subscription) {
-        int stationDepartCode = stationCodeService.getStationCode(subscription.getDateDepart());
+        int stationDepartCode = stationCodeService.getStationCode(subscription.getStationDepart());
         int stationArrivalCode = stationCodeService.getStationCode(subscription.getStationArrival());
         Date dateDeparture = parseDateDeparture(subscription.getDateDepart());
 
