@@ -71,7 +71,7 @@ public class SubscribeTicketsInfoQueryHandler implements CallbackQueryHandler {
         telegramBot.sendChangedInlineButtonText(callbackQuery,
                 String.format("%s %s", Emojis.SUCCESS_SUBSCRIBED, UserChatButtonStatus.SUBSCRIBED), CallbackQueryType.QUERY_PROCESSED.name());
 
-        return messagesService.getReplyMessage(chatId,"reply.query.train.subscribed", trainNumber, dateDepart);
+        return messagesService.getReplyMessage(chatId, "reply.query.train.subscribed", trainNumber, dateDepart);
 
     }
 
@@ -93,9 +93,12 @@ public class SubscribeTicketsInfoQueryHandler implements CallbackQueryHandler {
         final String trainName = queriedTrain.getBrand();
         final String stationDepart = queriedTrain.getStationDepart();
         final String stationArrival = queriedTrain.getStationArrival();
+        final String dateArrival = queriedTrain.getDateArrival();
+        final String timeDepart = queriedTrain.getTimeDepart();
+        final String timeArrival = queriedTrain.getTimeArrival();
         final List<Car> availableCars = queriedTrain.getAvailableCars();
 
-        return Optional.of(new UserTicketsSubscription(chatId, trainNumber, trainName, stationDepart, stationArrival, dateDepart, availableCars));
+        return Optional.of(new UserTicketsSubscription(chatId, trainNumber, trainName, stationDepart, stationArrival, dateDepart, dateArrival, timeDepart, timeArrival, availableCars));
     }
 
 

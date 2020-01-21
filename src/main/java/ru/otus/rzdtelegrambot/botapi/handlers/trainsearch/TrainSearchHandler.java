@@ -111,7 +111,7 @@ public class TrainSearchHandler implements InputMessageHandler {
             List<Train> trainList = trainTicketsService.getTrainTicketsList(chatId, requestData.getDepartureStationCode(),
                     requestData.getArrivalStationCode(), dateDepart);
             if (trainList.isEmpty()) {
-                return messagesService.getReplyMessage(chatId, "reply.trainSearch.enterDateDepart");
+                return messagesService.getReplyMessage(chatId, "reply.trainSearch.trainsNotFound");
             }
 
             sendTicketsInfoService.sendTrainTicketsInfo(chatId, trainList);

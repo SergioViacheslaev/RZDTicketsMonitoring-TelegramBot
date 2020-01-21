@@ -11,12 +11,9 @@ import org.telegram.telegrambots.meta.ApiContext;
 import ru.otus.rzdtelegrambot.botapi.RZDTelegramBot;
 import ru.otus.rzdtelegrambot.botconfig.RZDTelegramBotConfig;
 
-/**
- * @author Sergei Viacheslaev
- */
+
 @Configuration
 public class AppConfig {
-
     private RZDTelegramBotConfig botConfig;
 
     public AppConfig(RZDTelegramBotConfig rzdTelegramBotConfig) {

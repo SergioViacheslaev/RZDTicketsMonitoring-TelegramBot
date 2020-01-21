@@ -81,11 +81,7 @@ public class TrainTicketsGetInfoService {
 
         String trainInfoResponseBody = sendTrainInfoJsonRequest(ridValue, trainInfoRequestHeaders);
 
-
         trainList = parseResponseBody(trainInfoResponseBody);
-        if (trainList.isEmpty()) {
-            telegramBot.sendMessage(messagesService.getWarningReplyMessage(chatId, "reply.trainSearch.trainsNotFound"));
-        }
 
         return trainList;
     }

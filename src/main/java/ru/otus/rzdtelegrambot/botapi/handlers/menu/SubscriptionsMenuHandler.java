@@ -42,6 +42,7 @@ public class SubscriptionsMenuHandler implements InputMessageHandler {
         List<UserTicketsSubscription> usersSubscriptions = subscribeService.getUsersSubscriptions(message.getChatId());
 
         if (usersSubscriptions.isEmpty()) {
+            userDataCache.setUsersCurrentBotState(message.getFrom().getId(), BotState.SHOW_MAIN_MENU);
             return messagesService.getReplyMessage(message.getChatId(), "reply.subscriptions.userHasNoSubscriptions");
         }
 
@@ -55,8 +56,10 @@ public class SubscriptionsMenuHandler implements InputMessageHandler {
             }
 
             String subscriptionInfo = messagesService.getReplyText("subscriptionMenu.trainTicketsInfo",
-                    Emojis.TRAIN, subscription.getTrainNumber(), subscription.getTrainName(), subscription.getStationDepart(), subscription.getStationArrival(),
-                    Emojis.TIME_DEPART, subscription.getDateDepart(), carsInfo);
+                    Emojis.TRAIN, subscription.getTrainNumber(), subscription.getTrainName(),
+                    subscription.getStationDepart(), subscription.getTimeDepart(), subscription.getStationArrival(),
+                    subscription.getTimeArrival(), Emojis.TIME_DEPART, subscription.getDateDepart(),
+                    subscription.getDateArrival(), carsInfo);
 
             //Посылаем кнопку "Отписаться" с ID подписки
             String callbackData = String.format("%s|%s", CallbackQueryType.UNSUBSCRIBE, subscription.getId());

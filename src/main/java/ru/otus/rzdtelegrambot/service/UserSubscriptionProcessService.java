@@ -85,8 +85,7 @@ public class UserSubscriptionProcessService {
 
                     subscription.setSubscribedCars(actualCars);
                     subscriptionsRepository.save(subscription);
-                    sendUserNotification(subscription.getChatId(), priceChangesMessage, subscription.getTrainNumber(),
-                            subscription.getTrainName(), subscription.getDateDepart(), actualCars);
+                    sendUserNotification(subscription, priceChangesMessage, actualCars);
                 }
             }
         });
@@ -133,10 +132,10 @@ public class UserSubscriptionProcessService {
         return notificationMessage.length() == 0 ? Collections.emptyMap() : Collections.singletonMap(notificationMessage.toString(), subscribedCars);
     }
 
-    private void sendUserNotification(long chatId, String priceChangeMessage, String trainNumber, String trainName,
-                                      String dateDepart, List<Car> updatedCars) {
+    private void sendUserNotification(UserTicketsSubscription subscription, String priceChangeMessage, List<Car> updatedCars) {
         StringBuilder notificationMessage = new StringBuilder(messagesService.getReplyText("subscription.trainTicketsPriceChanges",
-                Emojis.NOTIFICATION_BELL, trainNumber, trainName, dateDepart)).append(priceChangeMessage);
+                Emojis.NOTIFICATION_BELL, subscription.getTrainNumber(), subscription.getTrainName(),
+                subscription.getDateDepart(), subscription.getTimeDepart(), subscription.getStationArrival())).append(priceChangeMessage);
 
         notificationMessage.append(messagesService.getReplyText("subscription.lastTicketPrices"));
 
@@ -145,7 +144,7 @@ public class UserSubscriptionProcessService {
                     car.getCarType(), car.getFreeSeats(), car.getMinimalPrice()));
         }
 
-        telegramBot.sendMessage(chatId, notificationMessage.toString());
+        telegramBot.sendMessage(subscription.getChatId(), notificationMessage.toString());
     }
 
 
