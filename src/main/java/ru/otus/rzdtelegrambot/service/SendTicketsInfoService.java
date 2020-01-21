@@ -19,16 +19,23 @@ import java.util.List;
  */
 @Service
 public class SendTicketsInfoService {
+    private final String CARS_TICKETS_MESSAGE;
+    private final String TRAIN_INFO;
+
     private RZDTelegramBot telegramBot;
     private CarsProcessingService carsProcessingService;
     private UserDataCache userDataCache;
 
     public SendTicketsInfoService(CarsProcessingService carsProcessingService,
                                   UserDataCache userDataCache,
+                                  ReplyMessagesService messagesService,
                                   @Lazy RZDTelegramBot telegramBot) {
         this.carsProcessingService = carsProcessingService;
         this.userDataCache = userDataCache;
         this.telegramBot = telegramBot;
+
+        CARS_TICKETS_MESSAGE = messagesService.getReplyText("subscription.carsTicketsInfo");
+        TRAIN_INFO = messagesService.getReplyText("reply.trainSearch.trainInfo");
     }
 
 
@@ -36,28 +43,24 @@ public class SendTicketsInfoService {
         for (Train train : trainsList) {
             StringBuilder carsInfo = new StringBuilder();
             List<Car> carsWithMinimalPrice = carsProcessingService.filterCarsWithMinimumPrice(train.getAvailableCars());
+            train.setAvailableCars(carsWithMinimalPrice);
 
             for (Car car : carsWithMinimalPrice) {
-                carsInfo.append(String.format("%s: свободных мест %s от %d ₽.%n",
+                carsInfo.append(String.format(CARS_TICKETS_MESSAGE,
                         car.getCarType(), car.getFreeSeats(), car.getMinimalPrice()));
             }
 
-            String trainTicketsInfoMessage = String.format("%s №%s %s%nОтправление: %s, %s в %s%n" +
-                            "Прибытие: %s, %s в %s%n%sВремя в пути: %s%n%s%n",
+            String trainTicketsInfoMessage = String.format(TRAIN_INFO,
                     Emojis.TRAIN, train.getNumber(), train.getBrand(), train.getStationDepart(), train.getDateDepart(), train.getTimeDepart(),
                     train.getStationArrival(), train.getDateArrival(), train.getTimeArrival(),
                     Emojis.TIME_IN_WAY, train.getTimeInWay(), carsInfo);
 
-
-            userDataCache.saveSearchFoundedTrains(chatId, trainsList);
-
-            //Посылаем кнопку "Подписаться" с данными поезда на который подписываемся
             String callbackData = String.format("%s|%s|%s", CallbackQueryType.SUBSCRIBE,
                     train.getNumber(), train.getDateDepart());
 
             telegramBot.sendInlineKeyBoardMessage(chatId, trainTicketsInfoMessage, "Подписаться", callbackData);
-
         }
+        userDataCache.saveSearchFoundedTrains(chatId, trainsList);
     }
 
 

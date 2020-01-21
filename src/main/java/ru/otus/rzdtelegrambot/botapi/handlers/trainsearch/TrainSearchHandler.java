@@ -64,11 +64,9 @@ public class TrainSearchHandler implements InputMessageHandler {
         int userId = inputMsg.getFrom().getId();
         long chatId = inputMsg.getChatId();
         SendMessage replyToUser = messagesService.getWarningReplyMessage(chatId, "reply.trainSearch.tryAgain");
-
         TrainSearchRequestData requestData = userDataCache.getUserTrainSearchData(userId);
 
         BotState botState = userDataCache.getUsersCurrentBotState(userId);
-
         if (botState.equals(BotState.ASK_STATION_DEPART)) {
             replyToUser = messagesService.getReplyMessage(chatId, "reply.trainSearch.enterStationDepart");
             userDataCache.setUsersCurrentBotState(userId, BotState.ASK_STATION_ARRIVAL);
@@ -110,22 +108,17 @@ public class TrainSearchHandler implements InputMessageHandler {
             }
             requestData.setDateDepart(dateDepart);
 
-
             List<Train> trainList = trainTicketsService.getTrainTicketsList(chatId, requestData.getDepartureStationCode(),
                     requestData.getArrivalStationCode(), dateDepart);
-
             if (trainList.isEmpty()) {
                 return messagesService.getReplyMessage(chatId, "reply.trainSearch.enterDateDepart");
             }
 
             sendTicketsInfoService.sendTrainTicketsInfo(chatId, trainList);
-
             userDataCache.setUsersCurrentBotState(userId, BotState.SHOW_MAIN_MENU);
-
-            replyToUser = messagesService.getTrainSearchFinishedOKMessage(chatId, "reply.trainSearch.finishedOK");
+            replyToUser = messagesService.getSuccessReplyMessage(chatId, "reply.trainSearch.finishedOK");
 
         }
-
         userDataCache.saveTrainSearchData(userId, requestData);
         return replyToUser;
     }

@@ -39,6 +39,7 @@ public class TrainTicketsGetInfoService {
     private static final String URI_PARAM_STATION_DEPART_CODE = "STATION_DEPART_CODE";
     private static final String URI_PARAM_STATION_ARRIVAL_CODE = "STATION_ARRIVAL_CODE";
     private static final String URI_PARAM_DATE_DEPART = "DATE_DEPART";
+    private static final String TRAIN_DATE_IS_OUT_OF_DATE_MESSAGE = "находится за пределами периода";
 
     private static final int PROCESSING_PAUSE = 3500;
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -184,7 +185,7 @@ public class TrainTicketsGetInfoService {
     }
 
     private boolean isResponseBodyHasNoTrains(String jsonRespBody) {
-        return jsonRespBody == null || jsonRespBody.contains("находится за пределами периода");
+        return jsonRespBody == null || jsonRespBody.contains(TRAIN_DATE_IS_OUT_OF_DATE_MESSAGE);
     }
 
     private void sleep(int i) {

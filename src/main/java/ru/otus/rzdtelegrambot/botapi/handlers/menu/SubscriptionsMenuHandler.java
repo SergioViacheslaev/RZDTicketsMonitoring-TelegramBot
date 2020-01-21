@@ -22,6 +22,8 @@ import java.util.List;
  */
 @Component
 public class SubscriptionsMenuHandler implements InputMessageHandler {
+    private final String CARS_TICKETS_MESSAGE;
+    private final String TRAIN_TICKETS_INFO;
 
     private UserTicketsSubscriptionService subscribeService;
     private RZDTelegramBot telegramBot;
@@ -36,6 +38,9 @@ public class SubscriptionsMenuHandler implements InputMessageHandler {
         this.messagesService = messagesService;
         this.userDataCache = userDataCache;
         this.telegramBot = telegramBot;
+
+        CARS_TICKETS_MESSAGE = messagesService.getReplyText("subscription.carsTicketsInfo");
+        TRAIN_TICKETS_INFO = messagesService.getReplyText("subscriptionMenu.trainTicketsInfo");
     }
 
     @Override
@@ -51,18 +56,16 @@ public class SubscriptionsMenuHandler implements InputMessageHandler {
             List<Car> cars = subscription.getSubscribedCars();
 
             for (Car car : cars) {
-                carsInfo.append(String.format("%s: цены от %d ₽.%n",
-                        car.getCarType(), car.getMinimalPrice()));
+                carsInfo.append(String.format(CARS_TICKETS_MESSAGE,
+                        car.getCarType(), car.getFreeSeats(), car.getMinimalPrice()));
             }
 
-            String subscriptionInfo = String.format("%s №%s %s%nОтправление: %s%nПрибытие: %s%n%sДата поездки: %s%n%s%n",
+            String subscriptionInfo = String.format(TRAIN_TICKETS_INFO,
                     Emojis.TRAIN, subscription.getTrainNumber(), subscription.getTrainName(), subscription.getStationDepart(), subscription.getStationArrival(),
                     Emojis.TIME_DEPART, subscription.getDateDepart(), carsInfo);
 
-
             //Посылаем кнопку "Отписаться" с ID подписки
             String callbackData = String.format("%s|%s", CallbackQueryType.UNSUBSCRIBE, subscription.getId());
-
             telegramBot.sendInlineKeyBoardMessage(message.getChatId(), subscriptionInfo, "Отписаться", callbackData);
         }
 

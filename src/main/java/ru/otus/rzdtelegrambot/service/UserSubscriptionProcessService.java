@@ -29,6 +29,12 @@ import java.util.Map;
 @Slf4j
 @Service
 public class UserSubscriptionProcessService {
+    private final String PRICE_UP_MESSAGE;
+    private final String PRICE_DOWN_MESSAGE;
+    private final String PRICE_CHANGES_MESSAGE;
+    private final String PRICE_LAST_UPDATES_MESSAGE;
+    private final String CARS_TICKETS_MESSAGE;
+
     private final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd.MM.yyyy");
     private UserTicketsSubscriptionMongoRepository subscriptionsRepository;
     private TrainTicketsGetInfoService trainTicketsGetInfoService;
@@ -40,12 +46,19 @@ public class UserSubscriptionProcessService {
                                           TrainTicketsGetInfoService trainTicketsGetInfoService,
                                           StationCodeService stationCodeService,
                                           CarsProcessingService carsProcessingService,
+                                          ReplyMessagesService messagesService,
                                           @Lazy RZDTelegramBot telegramBot) {
         this.subscriptionsRepository = subscriptionsRepository;
         this.trainTicketsGetInfoService = trainTicketsGetInfoService;
         this.stationCodeService = stationCodeService;
         this.carsProcessingService = carsProcessingService;
         this.telegramBot = telegramBot;
+
+        PRICE_UP_MESSAGE = messagesService.getReplyText("subscription.PriceUp");
+        PRICE_DOWN_MESSAGE = messagesService.getReplyText("subscription.PriceDown");
+        PRICE_CHANGES_MESSAGE = messagesService.getReplyText("subscription.trainTicketsPriceChanges");
+        PRICE_LAST_UPDATES_MESSAGE = messagesService.getReplyText("subscription.lastTicketPrices");
+        CARS_TICKETS_MESSAGE = messagesService.getReplyText("subscription.carsTicketsInfo");
     }
 
 
@@ -114,11 +127,11 @@ public class UserSubscriptionProcessService {
                 if (actualCar.getCarType().equals(subscribedCar.getCarType())) {
 
                     if (actualCar.getMinimalPrice() > subscribedCar.getMinimalPrice()) {
-                        notificationMessage.append(String.format("%sВозросла цена на вагоны %s, %s -> %s ₽.%n", Emojis.NOTIFICATION_PRICE_UP,
+                        notificationMessage.append(String.format(PRICE_UP_MESSAGE, Emojis.NOTIFICATION_PRICE_UP,
                                 actualCar.getCarType(), subscribedCar.getMinimalPrice(), actualCar.getMinimalPrice()));
                         subscribedCar.setMinimalPrice(actualCar.getMinimalPrice());
                     } else if (actualCar.getMinimalPrice() < subscribedCar.getMinimalPrice()) {
-                        notificationMessage.append(String.format("%sПонизилась цена на вагоны %s, %s -> %s ₽.%n", Emojis.NOTIFICATION_PRICE_DOWN,
+                        notificationMessage.append(String.format(PRICE_DOWN_MESSAGE, Emojis.NOTIFICATION_PRICE_DOWN,
                                 actualCar.getCarType(), subscribedCar.getMinimalPrice(), actualCar.getMinimalPrice()));
                         subscribedCar.setMinimalPrice(actualCar.getMinimalPrice());
                     }
@@ -133,13 +146,13 @@ public class UserSubscriptionProcessService {
     private void sendUserNotification(long chatId, String priceChangeMessage, String trainNumber, String trainName,
                                       String dateDepart, List<Car> updatedCars) {
 
-        StringBuilder notificationMessage = new StringBuilder(String.format("%s Изменились цены на поезд №%s '%s', отправлением %s.%n%n",
+        StringBuilder notificationMessage = new StringBuilder(String.format(PRICE_CHANGES_MESSAGE,
                 Emojis.NOTIFICATION_BELL, trainNumber, trainName, dateDepart)).append(priceChangeMessage);
 
-        notificationMessage.append("Последние данные по билетам:\n");
+        notificationMessage.append(PRICE_LAST_UPDATES_MESSAGE);
 
         for (Car car : updatedCars) {
-            notificationMessage.append(String.format("%s: свободных мест %s от %d ₽.%n",
+            notificationMessage.append(String.format(CARS_TICKETS_MESSAGE,
                     car.getCarType(), car.getFreeSeats(), car.getMinimalPrice()));
         }
 

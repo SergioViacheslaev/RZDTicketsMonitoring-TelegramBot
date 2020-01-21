@@ -8,6 +8,7 @@ import org.springframework.web.client.RestTemplate;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import ru.otus.rzdtelegrambot.cache.StationsCache;
 import ru.otus.rzdtelegrambot.model.TrainStation;
+import ru.otus.rzdtelegrambot.utils.Emojis;
 
 import java.util.Collections;
 import java.util.List;
@@ -40,7 +41,7 @@ public class StationBookService {
 
         Optional<String> optionalStationName = stationsCache.getStationName(searchedStationName);
         if (optionalStationName.isPresent()) {
-            return messagesService.getStationFoundMessage(chatId, "reply.stationBook.stationFound", optionalStationName.get());
+            return messagesService.getReplyMessage(chatId, "reply.stationBook.stationFound", Emojis.SUCCESS_MARK, optionalStationName.get());
         }
 
         List<TrainStation> trainStations = sendStationSearchRequest(searchedStationName);
@@ -52,7 +53,10 @@ public class StationBookService {
             return messagesService.getReplyMessage(chatId, "reply.stationBookMenu.stationNotFound");
         }
 
-        return messagesService.getStationsFoundMessage(chatId, "reply.stationBook.stationsFound", foundedStationNames);
+        StringBuilder stationsList = new StringBuilder();
+        foundedStationNames.forEach(stationName -> stationsList.append(stationName).append("\n"));
+
+        return messagesService.getReplyMessage(chatId, "reply.stationBook.stationsFound", Emojis.SUCCESS_MARK, stationsList.toString());
 
     }
 

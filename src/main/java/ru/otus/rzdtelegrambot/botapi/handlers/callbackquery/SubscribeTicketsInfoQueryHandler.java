@@ -71,7 +71,7 @@ public class SubscribeTicketsInfoQueryHandler implements CallbackQueryHandler {
         telegramBot.sendChangedInlineButtonText(callbackQuery,
                 String.format("%s %s", Emojis.SUCCESS_SUBSCRIBED, UserChatButtonStatus.SUBSCRIBED), CallbackQueryType.QUERY_PROCESSED.name());
 
-        return messagesService.getTrainSubscribedMessage(chatId, trainNumber, dateDepart);
+        return messagesService.getReplyMessage(chatId,"reply.query.train.subscribed", trainNumber, dateDepart);
 
     }
 

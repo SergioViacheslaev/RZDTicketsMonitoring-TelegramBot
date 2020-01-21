@@ -61,7 +61,7 @@ public class UnsubscribeTicketsInfoQueryHandler implements CallbackQueryHandler 
                 String.format("%s %s", Emojis.SUCCESS_UNSUBSCRIBED, UserChatButtonStatus.UNSUBSCRIBED),
                 CallbackQueryType.QUERY_PROCESSED.name());
 
-        return messagesService.getTrainUnsubscribedMessage(chatId, userSubscription.getTrainNumber(), userSubscription.getDateDepart());
+        return messagesService.getReplyMessage(chatId, "reply.query.train.unsubscribed", userSubscription.getTrainNumber(), userSubscription.getDateDepart());
     }
 
 
