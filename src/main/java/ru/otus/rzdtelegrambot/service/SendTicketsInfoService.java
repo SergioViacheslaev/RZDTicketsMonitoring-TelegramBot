@@ -19,12 +19,10 @@ import java.util.List;
  */
 @Service
 public class SendTicketsInfoService {
-    private final String CARS_TICKETS_MESSAGE;
-    private final String TRAIN_INFO;
-
     private RZDTelegramBot telegramBot;
     private CarsProcessingService carsProcessingService;
     private UserDataCache userDataCache;
+    private ReplyMessagesService messagesService;
 
     public SendTicketsInfoService(CarsProcessingService carsProcessingService,
                                   UserDataCache userDataCache,
@@ -32,10 +30,8 @@ public class SendTicketsInfoService {
                                   @Lazy RZDTelegramBot telegramBot) {
         this.carsProcessingService = carsProcessingService;
         this.userDataCache = userDataCache;
+        this.messagesService = messagesService;
         this.telegramBot = telegramBot;
-
-        CARS_TICKETS_MESSAGE = messagesService.getReplyText("subscription.carsTicketsInfo");
-        TRAIN_INFO = messagesService.getReplyText("reply.trainSearch.trainInfo");
     }
 
 
@@ -46,11 +42,11 @@ public class SendTicketsInfoService {
             train.setAvailableCars(carsWithMinimalPrice);
 
             for (Car car : carsWithMinimalPrice) {
-                carsInfo.append(String.format(CARS_TICKETS_MESSAGE,
+                carsInfo.append(messagesService.getReplyText("subscription.carsTicketsInfo",
                         car.getCarType(), car.getFreeSeats(), car.getMinimalPrice()));
             }
 
-            String trainTicketsInfoMessage = String.format(TRAIN_INFO,
+            String trainTicketsInfoMessage = messagesService.getReplyText("reply.trainSearch.trainInfo",
                     Emojis.TRAIN, train.getNumber(), train.getBrand(), train.getStationDepart(), train.getDateDepart(), train.getTimeDepart(),
                     train.getStationArrival(), train.getDateArrival(), train.getTimeArrival(),
                     Emojis.TIME_IN_WAY, train.getTimeInWay(), carsInfo);

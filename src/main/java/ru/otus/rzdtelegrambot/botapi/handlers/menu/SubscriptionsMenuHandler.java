@@ -22,9 +22,6 @@ import java.util.List;
  */
 @Component
 public class SubscriptionsMenuHandler implements InputMessageHandler {
-    private final String CARS_TICKETS_MESSAGE;
-    private final String TRAIN_TICKETS_INFO;
-
     private UserTicketsSubscriptionService subscribeService;
     private RZDTelegramBot telegramBot;
     private UserDataCache userDataCache;
@@ -38,9 +35,6 @@ public class SubscriptionsMenuHandler implements InputMessageHandler {
         this.messagesService = messagesService;
         this.userDataCache = userDataCache;
         this.telegramBot = telegramBot;
-
-        CARS_TICKETS_MESSAGE = messagesService.getReplyText("subscription.carsTicketsInfo");
-        TRAIN_TICKETS_INFO = messagesService.getReplyText("subscriptionMenu.trainTicketsInfo");
     }
 
     @Override
@@ -56,11 +50,11 @@ public class SubscriptionsMenuHandler implements InputMessageHandler {
             List<Car> cars = subscription.getSubscribedCars();
 
             for (Car car : cars) {
-                carsInfo.append(String.format(CARS_TICKETS_MESSAGE,
+                carsInfo.append(messagesService.getReplyText("subscription.carsTicketsInfo",
                         car.getCarType(), car.getFreeSeats(), car.getMinimalPrice()));
             }
 
-            String subscriptionInfo = String.format(TRAIN_TICKETS_INFO,
+            String subscriptionInfo = messagesService.getReplyText("subscriptionMenu.trainTicketsInfo",
                     Emojis.TRAIN, subscription.getTrainNumber(), subscription.getTrainName(), subscription.getStationDepart(), subscription.getStationArrival(),
                     Emojis.TIME_DEPART, subscription.getDateDepart(), carsInfo);
 

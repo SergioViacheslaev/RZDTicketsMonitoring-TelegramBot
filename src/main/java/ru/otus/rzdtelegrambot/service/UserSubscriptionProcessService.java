@@ -13,10 +13,7 @@ import ru.otus.rzdtelegrambot.utils.Emojis;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Сервис уведомлений,
@@ -29,17 +26,12 @@ import java.util.Map;
 @Slf4j
 @Service
 public class UserSubscriptionProcessService {
-    private final String PRICE_UP_MESSAGE;
-    private final String PRICE_DOWN_MESSAGE;
-    private final String PRICE_CHANGES_MESSAGE;
-    private final String PRICE_LAST_UPDATES_MESSAGE;
-    private final String CARS_TICKETS_MESSAGE;
-
     private final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd.MM.yyyy");
     private UserTicketsSubscriptionMongoRepository subscriptionsRepository;
     private TrainTicketsGetInfoService trainTicketsGetInfoService;
     private StationCodeService stationCodeService;
     private CarsProcessingService carsProcessingService;
+    private ReplyMessagesService messagesService;
     private RZDTelegramBot telegramBot;
 
     public UserSubscriptionProcessService(UserTicketsSubscriptionMongoRepository subscriptionsRepository,
@@ -52,13 +44,8 @@ public class UserSubscriptionProcessService {
         this.trainTicketsGetInfoService = trainTicketsGetInfoService;
         this.stationCodeService = stationCodeService;
         this.carsProcessingService = carsProcessingService;
+        this.messagesService = messagesService;
         this.telegramBot = telegramBot;
-
-        PRICE_UP_MESSAGE = messagesService.getReplyText("subscription.PriceUp");
-        PRICE_DOWN_MESSAGE = messagesService.getReplyText("subscription.PriceDown");
-        PRICE_CHANGES_MESSAGE = messagesService.getReplyText("subscription.trainTicketsPriceChanges");
-        PRICE_LAST_UPDATES_MESSAGE = messagesService.getReplyText("subscription.lastTicketPrices");
-        CARS_TICKETS_MESSAGE = messagesService.getReplyText("subscription.carsTicketsInfo");
     }
 
 
@@ -109,9 +96,12 @@ public class UserSubscriptionProcessService {
     private List<Train> getActualTrains(long chatId, String stationDepart, String stationArrival, String dateDeparture) {
         int stationDepartCode = stationCodeService.getStationCode(stationDepart);
         int stationArrivalCode = stationCodeService.getStationCode(stationArrival);
-        Date dateDepart = parseDateDeparture(dateDeparture);
+        Optional<Date> dateDepartOptional = parseDateDeparture(dateDeparture);
+        if (dateDepartOptional.isEmpty()) {
+            return Collections.emptyList();
+        }
 
-        return trainTicketsGetInfoService.getTrainTicketsList(chatId, stationDepartCode, stationArrivalCode, dateDepart);
+        return trainTicketsGetInfoService.getTrainTicketsList(chatId, stationDepartCode, stationArrivalCode, dateDepartOptional.get());
     }
 
     /**
@@ -127,11 +117,11 @@ public class UserSubscriptionProcessService {
                 if (actualCar.getCarType().equals(subscribedCar.getCarType())) {
 
                     if (actualCar.getMinimalPrice() > subscribedCar.getMinimalPrice()) {
-                        notificationMessage.append(String.format(PRICE_UP_MESSAGE, Emojis.NOTIFICATION_PRICE_UP,
+                        notificationMessage.append(messagesService.getReplyText("subscription.PriceUp", Emojis.NOTIFICATION_PRICE_UP,
                                 actualCar.getCarType(), subscribedCar.getMinimalPrice(), actualCar.getMinimalPrice()));
                         subscribedCar.setMinimalPrice(actualCar.getMinimalPrice());
                     } else if (actualCar.getMinimalPrice() < subscribedCar.getMinimalPrice()) {
-                        notificationMessage.append(String.format(PRICE_DOWN_MESSAGE, Emojis.NOTIFICATION_PRICE_DOWN,
+                        notificationMessage.append(messagesService.getReplyText("subscription.PriceDown", Emojis.NOTIFICATION_PRICE_DOWN,
                                 actualCar.getCarType(), subscribedCar.getMinimalPrice(), actualCar.getMinimalPrice()));
                         subscribedCar.setMinimalPrice(actualCar.getMinimalPrice());
                     }
@@ -145,14 +135,13 @@ public class UserSubscriptionProcessService {
 
     private void sendUserNotification(long chatId, String priceChangeMessage, String trainNumber, String trainName,
                                       String dateDepart, List<Car> updatedCars) {
-
-        StringBuilder notificationMessage = new StringBuilder(String.format(PRICE_CHANGES_MESSAGE,
+        StringBuilder notificationMessage = new StringBuilder(messagesService.getReplyText("subscription.trainTicketsPriceChanges",
                 Emojis.NOTIFICATION_BELL, trainNumber, trainName, dateDepart)).append(priceChangeMessage);
 
-        notificationMessage.append(PRICE_LAST_UPDATES_MESSAGE);
+        notificationMessage.append(messagesService.getReplyText("subscription.lastTicketPrices"));
 
         for (Car car : updatedCars) {
-            notificationMessage.append(String.format(CARS_TICKETS_MESSAGE,
+            notificationMessage.append(messagesService.getReplyText("subscription.carsTicketsInfo",
                     car.getCarType(), car.getFreeSeats(), car.getMinimalPrice()));
         }
 
@@ -160,10 +149,10 @@ public class UserSubscriptionProcessService {
     }
 
 
-    private Date parseDateDeparture(String dateDeparture) {
-        Date dateDepart = null;
+    private Optional<Date> parseDateDeparture(String dateDeparture) {
+        Optional<Date> dateDepart = Optional.empty();
         try {
-            dateDepart = DATE_FORMAT.parse(dateDeparture);
+            dateDepart = Optional.ofNullable(DATE_FORMAT.parse(dateDeparture));
         } catch (ParseException e) {
             e.printStackTrace();
         }
