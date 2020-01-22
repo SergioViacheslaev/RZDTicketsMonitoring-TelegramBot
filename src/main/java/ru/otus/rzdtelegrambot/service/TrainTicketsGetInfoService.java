@@ -78,7 +78,6 @@ public class TrainTicketsGetInfoService {
             return Collections.emptyList();
         }
         HttpHeaders trainInfoRequestHeaders = getDataRequestHeaders(cookies);
-
         String trainInfoResponseBody = sendTrainInfoJsonRequest(ridValue, trainInfoRequestHeaders);
 
         trainList = parseResponseBody(trainInfoResponseBody);
@@ -174,7 +173,6 @@ public class TrainTicketsGetInfoService {
 
             sleep(PROCESSING_PAUSE);
         }
-
 
         return resultResponse.getBody();
     }

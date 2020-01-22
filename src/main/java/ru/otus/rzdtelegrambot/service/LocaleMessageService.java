@@ -6,7 +6,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.Locale;
 
-/**
+/**Работает с файлом шаблоном "ответных сообщений" messages.
+ *
  * @author Sergei Viacheslaev
  */
 @Service

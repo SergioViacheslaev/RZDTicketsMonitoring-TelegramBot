@@ -9,9 +9,7 @@ import ru.otus.rzdtelegrambot.service.MainMenuService;
 import ru.otus.rzdtelegrambot.service.ReplyMessagesService;
 import ru.otus.rzdtelegrambot.utils.Emojis;
 
-/**
- * @author Sergei Viacheslaev
- */
+
 @Component
 public class HelpMenuHandler implements InputMessageHandler {
     private MainMenuService mainMenuService;

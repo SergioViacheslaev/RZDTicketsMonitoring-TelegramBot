@@ -8,11 +8,6 @@ import ru.otus.rzdtelegrambot.botapi.handlers.InputMessageHandler;
 import ru.otus.rzdtelegrambot.service.MainMenuService;
 import ru.otus.rzdtelegrambot.service.ReplyMessagesService;
 
-/**
- * Отправка сообщения с клавиатурой и текстом
- *
- * @author Sergei Viacheslaev
- */
 @Component
 public class MainMenuHandler implements InputMessageHandler {
     private ReplyMessagesService messagesService;

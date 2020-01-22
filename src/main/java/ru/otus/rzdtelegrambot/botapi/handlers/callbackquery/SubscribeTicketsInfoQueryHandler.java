@@ -9,7 +9,7 @@ import ru.otus.rzdtelegrambot.cache.UserDataCache;
 import ru.otus.rzdtelegrambot.model.Car;
 import ru.otus.rzdtelegrambot.model.Train;
 import ru.otus.rzdtelegrambot.model.UserTicketsSubscription;
-import ru.otus.rzdtelegrambot.service.CarsProcessingService;
+import ru.otus.rzdtelegrambot.service.ParseQueryDataService;
 import ru.otus.rzdtelegrambot.service.ReplyMessagesService;
 import ru.otus.rzdtelegrambot.service.UserTicketsSubscriptionService;
 import ru.otus.rzdtelegrambot.utils.Emojis;
@@ -26,19 +26,19 @@ import java.util.Optional;
 public class SubscribeTicketsInfoQueryHandler implements CallbackQueryHandler {
     private static final CallbackQueryType HANDLER_QUERY_TYPE = CallbackQueryType.SUBSCRIBE;
     private UserTicketsSubscriptionService subscriptionService;
-    private CarsProcessingService carsProcessingService;
+    private ParseQueryDataService parseService;
     private ReplyMessagesService messagesService;
     private UserDataCache userDataCache;
     private RZDTelegramBot telegramBot;
 
 
     public SubscribeTicketsInfoQueryHandler(UserTicketsSubscriptionService subscribeService,
-                                            CarsProcessingService carsProcessingService,
+                                            ParseQueryDataService parseService,
                                             ReplyMessagesService messagesService,
                                             UserDataCache userDataCache,
                                             @Lazy RZDTelegramBot telegramBot) {
         this.subscriptionService = subscribeService;
-        this.carsProcessingService = carsProcessingService;
+        this.parseService = parseService;
         this.messagesService = messagesService;
         this.userDataCache = userDataCache;
         this.telegramBot = telegramBot;
@@ -53,8 +53,8 @@ public class SubscribeTicketsInfoQueryHandler implements CallbackQueryHandler {
     @Override
     public SendMessage handleCallbackQuery(CallbackQuery callbackQuery) {
         final long chatId = callbackQuery.getMessage().getChatId();
-        final String trainNumber = carsProcessingService.parseTrainNumberFromSubscribeQuery(callbackQuery);
-        final String dateDepart = carsProcessingService.parseDateDepartFromSubscribeQuery(callbackQuery);
+        final String trainNumber = parseService.parseTrainNumberFromSubscribeQuery(callbackQuery);
+        final String dateDepart = parseService.parseDateDepartFromSubscribeQuery(callbackQuery);
 
         Optional<UserTicketsSubscription> userSubscriptionOptional = parseQueryData(callbackQuery);
         if (userSubscriptionOptional.isEmpty()) {
@@ -80,11 +80,13 @@ public class SubscribeTicketsInfoQueryHandler implements CallbackQueryHandler {
         List<Train> foundedTrains = userDataCache.getSearchFoundedTrains(usersQuery.getMessage().getChatId());
         final long chatId = usersQuery.getMessage().getChatId();
 
-        final String trainNumber = carsProcessingService.parseTrainNumberFromSubscribeQuery(usersQuery);
-        final String dateDepart = carsProcessingService.parseDateDepartFromSubscribeQuery(usersQuery);
+        final String trainNumber = parseService.parseTrainNumberFromSubscribeQuery(usersQuery);
+        final String dateDepart = parseService.parseDateDepartFromSubscribeQuery(usersQuery);
 
         Optional<Train> queriedTrainOptional = foundedTrains.stream().
-                filter(train -> train.getNumber().equals(trainNumber) && train.getDateDepart().equals(dateDepart)).findFirst();
+                filter(train -> train.getNumber().equals(trainNumber) && train.getDateDepart().equals(dateDepart)).
+                findFirst();
+
         if (queriedTrainOptional.isEmpty()) {
             return Optional.empty();
         }

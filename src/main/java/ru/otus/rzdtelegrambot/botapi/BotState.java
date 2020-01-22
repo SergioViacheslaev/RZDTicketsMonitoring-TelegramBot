@@ -21,5 +21,4 @@ public enum BotState {
     ASK_STATION_NAMEPART,
     STATION_NAMEPART_RECEIVED,
     SHOW_HELP_MENU;
-
 }

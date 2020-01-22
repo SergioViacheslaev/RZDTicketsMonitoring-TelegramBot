@@ -1,6 +1,5 @@
 package ru.otus.rzdtelegrambot.botapi.handlers.callbackquery;
 
-
 import lombok.AllArgsConstructor;
 
 /**Статус кнопки клавиатуры пользователя.

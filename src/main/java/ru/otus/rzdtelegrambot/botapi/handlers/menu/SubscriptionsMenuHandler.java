@@ -17,9 +17,6 @@ import ru.otus.rzdtelegrambot.utils.Emojis;
 
 import java.util.List;
 
-/**
- * @author Sergei Viacheslaev
- */
 @Component
 public class SubscriptionsMenuHandler implements InputMessageHandler {
     private UserTicketsSubscriptionService subscribeService;
@@ -62,8 +59,8 @@ public class SubscriptionsMenuHandler implements InputMessageHandler {
                     subscription.getDateArrival(), carsInfo);
 
             //Посылаем кнопку "Отписаться" с ID подписки
-            String callbackData = String.format("%s|%s", CallbackQueryType.UNSUBSCRIBE, subscription.getId());
-            telegramBot.sendInlineKeyBoardMessage(message.getChatId(), subscriptionInfo, "Отписаться", callbackData);
+            String unsubscribeData = String.format("%s|%s", CallbackQueryType.UNSUBSCRIBE, subscription.getId());
+            telegramBot.sendInlineKeyBoardMessage(message.getChatId(), subscriptionInfo, "Отписаться", unsubscribeData);
         }
 
         userDataCache.setUsersCurrentBotState(message.getFrom().getId(), BotState.SHOW_MAIN_MENU);

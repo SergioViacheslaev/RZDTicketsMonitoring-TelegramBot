@@ -5,7 +5,8 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import ru.otus.rzdtelegrambot.utils.Emojis;
 
 
-/**
+/**Формирует готовые ответные сообщения в чат.
+ *
  * @author Sergei Viacheslaev
  */
 @Service
@@ -33,7 +34,6 @@ public class ReplyMessagesService {
     public SendMessage getWarningReplyMessage(long chatId, String replyMessage) {
         return new SendMessage(chatId, getEmojiReplyText(replyMessage, Emojis.NOTIFICATION_MARK_FAILED));
     }
-
 
     public String getReplyText(String replyText) {
         return localeMessageService.getMessage(replyText);

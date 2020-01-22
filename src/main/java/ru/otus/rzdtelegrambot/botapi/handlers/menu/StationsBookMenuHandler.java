@@ -9,9 +9,7 @@ import ru.otus.rzdtelegrambot.cache.UserDataCache;
 import ru.otus.rzdtelegrambot.service.ReplyMessagesService;
 import ru.otus.rzdtelegrambot.service.StationBookService;
 
-/**
- * @author Sergei Viacheslaev
- */
+
 @Component
 public class StationsBookMenuHandler implements InputMessageHandler {
     private ReplyMessagesService messagesService;

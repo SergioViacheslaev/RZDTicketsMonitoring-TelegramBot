@@ -29,7 +29,6 @@ import java.util.List;
 @Slf4j
 @Component
 public class TrainSearchHandler implements InputMessageHandler {
-
     private UserDataCache userDataCache;
     private TrainTicketsGetInfoService trainTicketsService;
     private StationCodeService stationCodeService;

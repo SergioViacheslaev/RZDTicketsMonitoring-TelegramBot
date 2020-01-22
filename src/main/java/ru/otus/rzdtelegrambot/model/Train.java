@@ -49,5 +49,4 @@ public class Train {
     @JsonProperty(value = "timeInWay")
     private String timeInWay;
 
-
 }

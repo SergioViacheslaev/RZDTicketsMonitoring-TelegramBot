@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Сохраняет, удаляет, ищет подписки пользователя,
+ * Сохраняет, удаляет, ищет подписки пользователя.
  *
  * @author Sergei Viacheslaev
  */

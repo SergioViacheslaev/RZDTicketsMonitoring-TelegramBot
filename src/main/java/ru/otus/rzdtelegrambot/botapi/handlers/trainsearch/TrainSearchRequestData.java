@@ -6,9 +6,6 @@ import lombok.experimental.FieldDefaults;
 
 import java.util.Date;
 
-/**
- * @author Sergei Viacheslaev
- */
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class TrainSearchRequestData {

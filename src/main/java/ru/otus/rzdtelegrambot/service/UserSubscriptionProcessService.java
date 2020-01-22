@@ -16,6 +16,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 
 /**
  * Сервис уведомлений,
@@ -69,9 +70,9 @@ public class UserSubscriptionProcessService {
     private void processSubscription(UserTicketsSubscription subscription) {
         List<Train> actualTrains = getActualTrains(subscription);
 
-        if (actualTrains.stream().map(Train::getNumber).noneMatch(actualTrainNumber -> actualTrainNumber.equals(subscription.getTrainNumber()))) {
+        if (isTrainHasDeparted(actualTrains, subscription)) {
             subscriptionService.deleteUserSubscription(subscription.getId());
-            telegramBot.sendMessage(messagesService.getReplyMessage(subscription.getChatId(), "subscription.trainHasLeft",
+            telegramBot.sendMessage(messagesService.getReplyMessage(subscription.getChatId(), "subscription.trainHasDeparted",
                     Emojis.NOTIFICATION_BELL, subscription.getTrainNumber(), subscription.getTrainName(),
                     subscription.getDateDepart(), subscription.getTimeDepart()));
             return;
@@ -108,6 +109,10 @@ public class UserSubscriptionProcessService {
 
         return trainTicketsGetInfoService.getTrainTicketsList(subscription.getChatId(),
                 stationDepartCode, stationArrivalCode, dateDeparture);
+    }
+
+    private boolean isTrainHasDeparted(List<Train> actualTrains, UserTicketsSubscription subscription) {
+        return actualTrains.stream().map(Train::getNumber).noneMatch(Predicate.isEqual(subscription.getTrainNumber()));
     }
 
     /**

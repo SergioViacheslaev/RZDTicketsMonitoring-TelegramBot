@@ -6,6 +6,7 @@ import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
+import org.telegram.telegrambots.bots.DefaultBotOptions;
 
 /**
  * @author Sergei Viacheslaev
@@ -21,8 +22,8 @@ public class RZDTelegramBotConfig {
     String userName;
     String botToken;
 
-//    DefaultBotOptions.ProxyType proxyType;
-//    String proxyHost;
-//    int proxyPort;
+    DefaultBotOptions.ProxyType proxyType;
+    String proxyHost;
+    int proxyPort;
 }
 

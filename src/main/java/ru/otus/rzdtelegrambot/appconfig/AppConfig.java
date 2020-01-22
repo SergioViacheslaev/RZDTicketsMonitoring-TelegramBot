@@ -9,6 +9,7 @@ import org.springframework.web.client.RestTemplate;
 import org.telegram.telegrambots.bots.DefaultBotOptions;
 import org.telegram.telegrambots.meta.ApiContext;
 import ru.otus.rzdtelegrambot.botapi.RZDTelegramBot;
+import ru.otus.rzdtelegrambot.botapi.TelegramFacade;
 import ru.otus.rzdtelegrambot.botconfig.RZDTelegramBotConfig;
 
 
@@ -36,15 +37,15 @@ public class AppConfig {
     }
 
     @Bean
-    public RZDTelegramBot RZDTelegramBot() {
+    public RZDTelegramBot RZDTelegramBot(TelegramFacade telegramFacade) {
         DefaultBotOptions options = ApiContext
                 .getInstance(DefaultBotOptions.class);
 
-//        options.setProxyHost(botConfig.getProxyHost());
-//        options.setProxyPort(botConfig.getProxyPort());
-//        options.setProxyType(botConfig.getProxyType());
+        options.setProxyHost(botConfig.getProxyHost());
+        options.setProxyPort(botConfig.getProxyPort());
+        options.setProxyType(botConfig.getProxyType());
 
-        RZDTelegramBot rzdTelegramBot = new RZDTelegramBot(options);
+        RZDTelegramBot rzdTelegramBot = new RZDTelegramBot(options, telegramFacade);
         rzdTelegramBot.setBotUsername(botConfig.getUserName());
         rzdTelegramBot.setBotToken(botConfig.getBotToken());
         rzdTelegramBot.setBotPath(botConfig.getWebHookPath());

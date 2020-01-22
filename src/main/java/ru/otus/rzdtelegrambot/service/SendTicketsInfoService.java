@@ -51,10 +51,10 @@ public class SendTicketsInfoService {
                     train.getStationArrival(), train.getDateArrival(), train.getTimeArrival(),
                     Emojis.TIME_IN_WAY, train.getTimeInWay(), carsInfo);
 
-            String callbackData = String.format("%s|%s|%s", CallbackQueryType.SUBSCRIBE,
+            String trainsInfoData = String.format("%s|%s|%s", CallbackQueryType.SUBSCRIBE,
                     train.getNumber(), train.getDateDepart());
 
-            telegramBot.sendInlineKeyBoardMessage(chatId, trainTicketsInfoMessage, "Подписаться", callbackData);
+            telegramBot.sendInlineKeyBoardMessage(chatId, trainTicketsInfoMessage, "Подписаться", trainsInfoData);
         }
         userDataCache.saveSearchFoundedTrains(chatId, trainsList);
     }

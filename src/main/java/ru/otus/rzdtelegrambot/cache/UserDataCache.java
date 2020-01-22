@@ -8,10 +8,11 @@ import ru.otus.rzdtelegrambot.model.Train;
 import java.util.*;
 
 /**
- * In-memory cache to store:
- * 1.user_id and user's bot state
- * 2.used_id and TrainSearchData
- * 3.chat_id and List of founded trains.
+ * In-memory cache.
+ *
+ * usersBotStates: user_id and user's bot state
+ * trainSearchUsersData: used_id and TrainSearchData
+ * searchFoundedTrains: chat_id and List of founded trains.
  *
  * @author Sergei Viacheslaev
  */
@@ -20,7 +21,6 @@ public class UserDataCache implements DataCache {
     private Map<Integer, BotState> usersBotStates = new HashMap<>();
     private Map<Integer, TrainSearchRequestData> trainSearchUsersData = new HashMap<>();
     private Map<Long, List<Train>> searchFoundedTrains = new HashMap<>();
-
 
     @Override
     public void setUsersCurrentBotState(int userId, BotState botState) {
