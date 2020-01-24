@@ -1,25 +1,16 @@
 package ru.otus.rzdtelegrambot;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.telegram.telegrambots.ApiContextInitializer;
-import ru.otus.rzdtelegrambot.botapi.RZDTelegramBotInitializer;
 
 @SpringBootApplication
-public class RZDTelegrambotApplication implements CommandLineRunner {
-
-    @Autowired
-    private RZDTelegramBotInitializer rzdTelegramBotInitializer;
-
+@EnableScheduling
+public class RZDTelegrambotApplication {
     public static void main(String[] args) {
-        RZDTelegramBotInitializer.initTelegramBotApiContext();
-        SpringApplication.run(RZDTelegrambotApplication.class, args);
-    }
+        ApiContextInitializer.init();
 
-    @Override
-    public void run(String... args) throws Exception {
-        rzdTelegramBotInitializer.initBot();
+        SpringApplication.run(RZDTelegrambotApplication.class, args);
     }
 }
