@@ -41,7 +41,6 @@ public class TrainTicketsGetInfoService {
     private static final String URI_PARAM_DATE_DEPART = "DATE_DEPART";
     private static final String TRAIN_DATE_IS_OUT_OF_DATE_MESSAGE = "находится за пределами периода";
 
-    private static final int PROCESSING_PAUSE = 3500;
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final SimpleDateFormat dateFormatter = new SimpleDateFormat("dd.MM.yyyy");
     private final RestTemplate restTemplate;
@@ -64,7 +63,6 @@ public class TrainTicketsGetInfoService {
         urlParams.put(URI_PARAM_DATE_DEPART, dateDepartStr);
 
         Map<String, HttpHeaders> ridAndHttpHeaders = sendRidRequest(chatId, urlParams);
-        sleep(PROCESSING_PAUSE);
         if (ridAndHttpHeaders.isEmpty()) {
             return Collections.emptyList();
         }
@@ -108,11 +106,11 @@ public class TrainTicketsGetInfoService {
 
 
     //Срабатывает если RZD не ответил на RID сразу
-    private boolean isResponseResultOK(ResponseEntity<String> resultResponse) {
+    private boolean isResponseResultRidDuplicate(ResponseEntity<String> resultResponse) {
         if (resultResponse.getBody() == null) {
-            return false;
+            return true;
         }
-        return resultResponse.getBody().contains("OK");
+        return resultResponse.getBody().contains("\"result\": \"RID\"");
     }
 
     private List<Train> parseResponseBody(String responseBody) {
@@ -165,13 +163,11 @@ public class TrainTicketsGetInfoService {
                 String.class, ridValue);
 
 
-        if (!isResponseResultOK(resultResponse)) {
+        while(isResponseResultRidDuplicate(resultResponse)) {
             resultResponse = restTemplate.exchange(trainInfoRequestTemplate,
                     HttpMethod.GET,
                     httpEntity,
                     String.class, ridValue);
-
-            sleep(PROCESSING_PAUSE);
         }
 
         return resultResponse.getBody();
@@ -179,14 +175,6 @@ public class TrainTicketsGetInfoService {
 
     private boolean isResponseBodyHasNoTrains(String jsonRespBody) {
         return jsonRespBody == null || jsonRespBody.contains(TRAIN_DATE_IS_OUT_OF_DATE_MESSAGE);
-    }
-
-    private void sleep(int i) {
-        try {
-            Thread.sleep(i);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
     }
 
 }
