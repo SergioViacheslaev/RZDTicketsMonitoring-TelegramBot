@@ -41,9 +41,9 @@ public class AppConfig {
         DefaultBotOptions options = ApiContext
                 .getInstance(DefaultBotOptions.class);
 
-        options.setProxyHost(botConfig.getProxyHost());
-        options.setProxyPort(botConfig.getProxyPort());
-        options.setProxyType(botConfig.getProxyType());
+//        options.setProxyHost(botConfig.getProxyHost());
+//        options.setProxyPort(botConfig.getProxyPort());
+//        options.setProxyType(botConfig.getProxyType());
 
         RZDTelegramBot rzdTelegramBot = new RZDTelegramBot(options, telegramFacade);
         rzdTelegramBot.setBotUsername(botConfig.getUserName());
