@@ -105,16 +105,16 @@ public class TrainTicketsGetInfoService {
     }
 
 
-    //Срабатывает если RZD не ответил на RID сразу
+    //Срабатывает если RZD ответил снова RID, а не данными по поезду
     private boolean isResponseResultRidDuplicate(ResponseEntity<String> resultResponse) {
         if (resultResponse.getBody() == null) {
             return true;
         }
-        return resultResponse.getBody().contains("\"result\": \"RID\"");
+        return resultResponse.getBody().contains("\"result\":\"RID");
     }
 
     private List<Train> parseResponseBody(String responseBody) {
-        List<Train> trainList = new ArrayList<>();
+        List<Train> trainList = null;
         try {
             JsonNode trainsNode = objectMapper.readTree(responseBody).path("tp").findPath("list");
             trainList = Arrays.asList(objectMapper.readValue(trainsNode.toString(), Train[].class));
@@ -122,14 +122,14 @@ public class TrainTicketsGetInfoService {
             e.printStackTrace();
         }
 
-        return trainList;
+        return Objects.isNull(trainList) ? Collections.emptyList() : trainList;
     }
 
 
     private Optional<String> parseRID(String jsonRespBody) {
         String rid = null;
         try {
-            JsonNode jsonNode = objectMapper.readTree(jsonRespBody);
+            JsonNode jsonNode = objectMapper.readTree(jsonRespBody.trim());
             JsonNode ridNode = jsonNode.get("RID");
             if (ridNode != null) {
                 rid = ridNode.asText();
@@ -162,8 +162,7 @@ public class TrainTicketsGetInfoService {
                 httpEntity,
                 String.class, ridValue);
 
-
-        while(isResponseResultRidDuplicate(resultResponse)) {
+        while (isResponseResultRidDuplicate(resultResponse)) {
             resultResponse = restTemplate.exchange(trainInfoRequestTemplate,
                     HttpMethod.GET,
                     httpEntity,
