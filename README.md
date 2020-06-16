@@ -22,4 +22,4 @@
 
 ![](https://user-images.githubusercontent.com/49530516/73189195-0f0ffe80-4135-11ea-82fd-5866babddffc.jpg)
 
-[Powered by vk.com/my_journeys](https://vk.com/topic-137810837_44636716)
+### Powered by [vk.com/my_journeys](https://vk.com/topic-137810837_44636716)
