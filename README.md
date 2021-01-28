@@ -21,5 +21,3 @@
 [Презентация проекта](https://github.com/SergioViacheslaev/RZDTicketsMonitoring-TelegramBot/raw/master/Java%20%D0%BF%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D0%BD%D0%B0%D1%8F%20%D1%80%D0%B0%D0%B1%D0%BE%D1%82%D0%B0%20OTUS_%D0%92%D1%8F%D1%87%D0%B5%D1%81%D0%BB%D0%B0%D0%B5%D0%B2%20%D0%A1%D0%B5%D1%80%D0%B3%D0%B5%D0%B9.odp)
 
 ![](https://user-images.githubusercontent.com/49530516/73189195-0f0ffe80-4135-11ea-82fd-5866babddffc.jpg)
-
-### Powered by [vk.com/my_journeys](https://vk.com/topic-137810837_44636716)
