@@ -51,7 +51,6 @@ public class UserSubscriptionProcessService {
         this.telegramBot = telegramBot;
     }
 
-
     /**
      * Периодически смотрит за обновлением цен
      * по всей базе подписок.
@@ -73,8 +72,8 @@ public class UserSubscriptionProcessService {
         if (isTrainHasDeparted(actualTrains, subscription)) {
             subscriptionService.deleteUserSubscription(subscription.getId());
             telegramBot.sendMessage(messagesService.getReplyMessage(subscription.getChatId(), "subscription.trainHasDeparted",
-                    Emojis.NOTIFICATION_BELL, subscription.getTrainNumber(), subscription.getTrainName(),
-                    subscription.getDateDepart(), subscription.getTimeDepart()));
+                                                                    Emojis.NOTIFICATION_BELL, subscription.getTrainNumber(), subscription.getTrainName(),
+                                                                    subscription.getDateDepart(), subscription.getTimeDepart()));
             return;
         }
 
@@ -86,7 +85,7 @@ public class UserSubscriptionProcessService {
                 List<Car> actualCarsWithMinimumPrice = carsProcessingService.filterCarsWithMinimumPrice(actualTrain.getAvailableCars());
 
                 Map<String, List<Car>> updatedCarsNotification = processCarsLists(subscription.getSubscribedCars(),
-                        actualCarsWithMinimumPrice);
+                                                                                  actualCarsWithMinimumPrice);
 
                 if (!updatedCarsNotification.isEmpty()) {
                     String priceChangesMessage = updatedCarsNotification.keySet().iterator().next();
@@ -99,7 +98,6 @@ public class UserSubscriptionProcessService {
             }
         });
 
-
     }
 
     private List<Train> getActualTrains(UserTicketsSubscription subscription) {
@@ -108,7 +106,7 @@ public class UserSubscriptionProcessService {
         Date dateDeparture = parseDateDeparture(subscription.getDateDepart());
 
         return trainTicketsGetInfoService.getTrainTicketsList(subscription.getChatId(),
-                stationDepartCode, stationArrivalCode, dateDeparture);
+                                                              stationDepartCode, stationArrivalCode, dateDeparture);
     }
 
     private boolean isTrainHasDeparted(List<Train> actualTrains, UserTicketsSubscription subscription) {
@@ -129,11 +127,11 @@ public class UserSubscriptionProcessService {
 
                     if (actualCar.getMinimalPrice() > subscribedCar.getMinimalPrice()) {
                         notificationMessage.append(messagesService.getReplyText("subscription.PriceUp", Emojis.NOTIFICATION_PRICE_UP,
-                                actualCar.getCarType(), subscribedCar.getMinimalPrice(), actualCar.getMinimalPrice()));
+                                                                                actualCar.getCarType(), subscribedCar.getMinimalPrice(), actualCar.getMinimalPrice()));
                         subscribedCar.setMinimalPrice(actualCar.getMinimalPrice());
                     } else if (actualCar.getMinimalPrice() < subscribedCar.getMinimalPrice()) {
                         notificationMessage.append(messagesService.getReplyText("subscription.PriceDown", Emojis.NOTIFICATION_PRICE_DOWN,
-                                actualCar.getCarType(), subscribedCar.getMinimalPrice(), actualCar.getMinimalPrice()));
+                                                                                actualCar.getCarType(), subscribedCar.getMinimalPrice(), actualCar.getMinimalPrice()));
                         subscribedCar.setMinimalPrice(actualCar.getMinimalPrice());
                     }
                     subscribedCar.setFreeSeats(actualCar.getFreeSeats());
@@ -146,29 +144,31 @@ public class UserSubscriptionProcessService {
 
     private void sendUserNotification(UserTicketsSubscription subscription, String priceChangeMessage, List<Car> updatedCars) {
         StringBuilder notificationMessage = new StringBuilder(messagesService.getReplyText("subscription.trainTicketsPriceChanges",
-                Emojis.NOTIFICATION_BELL, subscription.getTrainNumber(), subscription.getTrainName(),
-                subscription.getDateDepart(), subscription.getTimeDepart(), subscription.getStationArrival())).append(priceChangeMessage);
+                                                                                           Emojis.NOTIFICATION_BELL,
+                                                                                           subscription.getTrainNumber(),
+                                                                                           subscription.getTrainName(),
+                                                                                           subscription.getDateDepart(),
+                                                                                           subscription.getTimeDepart(),
+                                                                                           subscription.getStationArrival())).append(priceChangeMessage);
 
         notificationMessage.append(messagesService.getReplyText("subscription.lastTicketPrices"));
 
         for (Car car : updatedCars) {
             notificationMessage.append(messagesService.getReplyText("subscription.carsTicketsInfo",
-                    car.getCarType(), car.getFreeSeats(), car.getMinimalPrice()));
+                                                                    car.getCarType(), car.getFreeSeats(), car.getMinimalPrice()));
         }
 
         telegramBot.sendMessage(subscription.getChatId(), notificationMessage.toString());
     }
-
 
     private Date parseDateDeparture(String dateDeparture) {
         Date dateDepart = null;
         try {
             dateDepart = DATE_FORMAT.parse(dateDeparture);
         } catch (ParseException e) {
-            e.printStackTrace();
+            log.error("Error parsing date departure ", e);
         }
         return dateDepart;
     }
-
 
 }

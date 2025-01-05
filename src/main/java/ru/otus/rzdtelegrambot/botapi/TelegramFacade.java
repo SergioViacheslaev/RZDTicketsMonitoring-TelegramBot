@@ -1,5 +1,6 @@
 package ru.otus.rzdtelegrambot.botapi;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -11,34 +12,27 @@ import ru.otus.rzdtelegrambot.cache.UserDataCache;
 /**
  * @author Sergei Viacheslaev
  */
-@Service
 @Slf4j
+@Service
+@RequiredArgsConstructor
 public class TelegramFacade {
-    private UserDataCache userDataCache;
-    private BotStateContext botStateContext;
-    private CallbackQueryFacade callbackQueryFacade;
-
-    public TelegramFacade(UserDataCache userDataCache, BotStateContext botStateContext,
-                          CallbackQueryFacade callbackQueryFacade) {
-        this.userDataCache = userDataCache;
-        this.botStateContext = botStateContext;
-        this.callbackQueryFacade = callbackQueryFacade;
-    }
+    private final UserDataCache userDataCache;
+    private final BotStateContext botStateContext;
+    private final CallbackQueryFacade callbackQueryFacade;
 
     public SendMessage handleUpdate(Update update) {
-        SendMessage replyMessage = null;
+        SendMessage replyMessage = new SendMessage();
 
         if (update.hasCallbackQuery()) {
             log.info("New callbackQuery from User: {} with data: {}", update.getCallbackQuery().getFrom().getUserName(),
-                    update.getCallbackQuery().getData());
+                     update.getCallbackQuery().getData());
             return callbackQueryFacade.processCallbackQuery(update.getCallbackQuery());
         }
-
 
         Message message = update.getMessage();
         if (message != null && message.hasText()) {
             log.info("New message from User:{}, chatId: {},  with text: {}",
-                    message.getFrom().getUserName(), message.getChatId(), message.getText());
+                     message.getFrom().getUserName(), message.getChatId(), message.getText());
             replyMessage = handleInputMessage(message);
         }
 
@@ -70,11 +64,9 @@ public class TelegramFacade {
         }
 
         userDataCache.setUsersCurrentBotState(userId, botState);
-
         replyMessage = botStateContext.processInputMessage(botState, message);
 
         return replyMessage;
     }
-
 
 }

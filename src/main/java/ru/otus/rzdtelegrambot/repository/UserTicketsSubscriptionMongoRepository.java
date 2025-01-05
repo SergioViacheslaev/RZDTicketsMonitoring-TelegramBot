@@ -6,9 +6,6 @@ import ru.otus.rzdtelegrambot.model.UserTicketsSubscription;
 
 import java.util.List;
 
-/**
- * @author Sergei Viacheslaev
- */
 @Repository
 public interface UserTicketsSubscriptionMongoRepository extends MongoRepository<UserTicketsSubscription, String> {
     List<UserTicketsSubscription> findByChatId(long chatId);

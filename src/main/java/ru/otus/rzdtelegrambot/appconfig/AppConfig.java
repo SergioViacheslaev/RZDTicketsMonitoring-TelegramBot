@@ -1,5 +1,6 @@
 package ru.otus.rzdtelegrambot.appconfig;
 
+import lombok.AllArgsConstructor;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
@@ -14,12 +15,10 @@ import ru.otus.rzdtelegrambot.botconfig.RZDTelegramBotConfig;
 
 
 @Configuration
+@AllArgsConstructor
 public class AppConfig {
-    private RZDTelegramBotConfig botConfig;
 
-    public AppConfig(RZDTelegramBotConfig rzdTelegramBotConfig) {
-        this.botConfig = rzdTelegramBotConfig;
-    }
+    private final RZDTelegramBotConfig botConfig;
 
     @Bean
     public RestTemplate restTemplate(RestTemplateBuilder builder) {

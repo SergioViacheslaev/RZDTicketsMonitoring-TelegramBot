@@ -21,9 +21,9 @@ import java.util.Optional;
 @Component
 public class UnsubscribeTicketsInfoQueryHandler implements CallbackQueryHandler {
     private static final CallbackQueryType HANDLER_QUERY_TYPE = CallbackQueryType.UNSUBSCRIBE;
-    private UserTicketsSubscriptionService subscriptionService;
-    private ParseQueryDataService parseService;
-    private ReplyMessagesService messagesService;
+    private final UserTicketsSubscriptionService subscriptionService;
+    private final ParseQueryDataService parseService;
+    private final ReplyMessagesService messagesService;
     private RZDTelegramBot telegramBot;
 
     public UnsubscribeTicketsInfoQueryHandler(UserTicketsSubscriptionService subscriptionService,

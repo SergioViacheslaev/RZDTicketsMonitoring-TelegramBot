@@ -1,5 +1,6 @@
 package ru.otus.rzdtelegrambot.service;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.otus.rzdtelegrambot.model.UserTicketsSubscription;
 import ru.otus.rzdtelegrambot.repository.UserTicketsSubscriptionMongoRepository;
@@ -13,13 +14,10 @@ import java.util.Optional;
  * @author Sergei Viacheslaev
  */
 @Service
+@RequiredArgsConstructor
 public class UserTicketsSubscriptionService {
 
-    private UserTicketsSubscriptionMongoRepository subscriptionsRepository;
-
-    public UserTicketsSubscriptionService(UserTicketsSubscriptionMongoRepository repository) {
-        this.subscriptionsRepository = repository;
-    }
+    private final UserTicketsSubscriptionMongoRepository subscriptionsRepository;
 
     public List<UserTicketsSubscription> getAllSubscriptions() {
         return subscriptionsRepository.findAll();
@@ -33,10 +31,9 @@ public class UserTicketsSubscriptionService {
         subscriptionsRepository.deleteById(subscriptionID);
     }
 
-
     public boolean hasTicketsSubscription(UserTicketsSubscription userSubscription) {
-        return subscriptionsRepository.findByChatIdAndTrainNumberAndDateDepart(userSubscription.getChatId(),
-                userSubscription.getTrainNumber(), userSubscription.getDateDepart()).size() > 0;
+        return !subscriptionsRepository.findByChatIdAndTrainNumberAndDateDepart(userSubscription.getChatId(),
+                                                                                userSubscription.getTrainNumber(), userSubscription.getDateDepart()).isEmpty();
     }
 
     public Optional<UserTicketsSubscription> getUsersSubscriptionById(String subscriptionID) {
@@ -46,6 +43,5 @@ public class UserTicketsSubscriptionService {
     public List<UserTicketsSubscription> getUsersSubscriptions(long chatId) {
         return subscriptionsRepository.findByChatId(chatId);
     }
-
 
 }

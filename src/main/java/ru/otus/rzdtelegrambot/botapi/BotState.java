@@ -1,10 +1,10 @@
 package ru.otus.rzdtelegrambot.botapi;
 
-/**Возможные состояния бота
+/**
+ * Возможные состояния бота
  *
  * @author Sergei Viacheslaev
  */
-
 public enum BotState {
     TRAINS_SEARCH,
     TRAINS_SEARCH_STARTED,

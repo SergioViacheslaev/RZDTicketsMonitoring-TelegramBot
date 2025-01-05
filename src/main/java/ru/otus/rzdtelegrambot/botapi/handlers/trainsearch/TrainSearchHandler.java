@@ -1,5 +1,6 @@
 package ru.otus.rzdtelegrambot.botapi.handlers.trainsearch;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -18,7 +19,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
-
 /**
  * Формирует  запрос на поиск поездов,
  * сохраняет и обрабатывает ввод пользователя.
@@ -28,22 +28,13 @@ import java.util.List;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class TrainSearchHandler implements InputMessageHandler {
-    private UserDataCache userDataCache;
-    private TrainTicketsGetInfoService trainTicketsService;
-    private StationCodeService stationCodeService;
-    private SendTicketsInfoService sendTicketsInfoService;
-    private ReplyMessagesService messagesService;
-
-    public TrainSearchHandler(UserDataCache userDataCache, TrainTicketsGetInfoService trainTicketsService,
-                              StationCodeService stationCodeService, ReplyMessagesService messagesService,
-                              SendTicketsInfoService sendTicketsInfoService) {
-        this.userDataCache = userDataCache;
-        this.trainTicketsService = trainTicketsService;
-        this.stationCodeService = stationCodeService;
-        this.sendTicketsInfoService = sendTicketsInfoService;
-        this.messagesService = messagesService;
-    }
+    private final UserDataCache userDataCache;
+    private final TrainTicketsGetInfoService trainTicketsService;
+    private final StationCodeService stationCodeService;
+    private final SendTicketsInfoService sendTicketsInfoService;
+    private final ReplyMessagesService messagesService;
 
     @Override
     public SendMessage handle(Message message) {
@@ -108,7 +99,7 @@ public class TrainSearchHandler implements InputMessageHandler {
             requestData.setDateDepart(dateDepart);
 
             List<Train> trainList = trainTicketsService.getTrainTicketsList(chatId, requestData.getDepartureStationCode(),
-                    requestData.getArrivalStationCode(), dateDepart);
+                                                                            requestData.getArrivalStationCode(), dateDepart);
             if (trainList.isEmpty()) {
                 return messagesService.getReplyMessage(chatId, "reply.trainSearch.trainsNotFound");
             }
@@ -121,7 +112,6 @@ public class TrainSearchHandler implements InputMessageHandler {
         userDataCache.saveTrainSearchData(userId, requestData);
         return replyToUser;
     }
-
 
 }
 

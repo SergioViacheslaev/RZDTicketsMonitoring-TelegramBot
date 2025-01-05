@@ -37,7 +37,6 @@ public class PingTask {
             log.error("Ping FAILED");
             e.printStackTrace();
         }
-
     }
 
 }

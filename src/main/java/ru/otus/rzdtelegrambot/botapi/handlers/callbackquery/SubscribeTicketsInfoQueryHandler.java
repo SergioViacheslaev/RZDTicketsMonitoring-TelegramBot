@@ -25,12 +25,11 @@ import java.util.Optional;
 @Component
 public class SubscribeTicketsInfoQueryHandler implements CallbackQueryHandler {
     private static final CallbackQueryType HANDLER_QUERY_TYPE = CallbackQueryType.SUBSCRIBE;
-    private UserTicketsSubscriptionService subscriptionService;
-    private ParseQueryDataService parseService;
-    private ReplyMessagesService messagesService;
-    private UserDataCache userDataCache;
+    private final UserTicketsSubscriptionService subscriptionService;
+    private final ParseQueryDataService parseService;
+    private final ReplyMessagesService messagesService;
+    private final UserDataCache userDataCache;
     private RZDTelegramBot telegramBot;
-
 
     public SubscribeTicketsInfoQueryHandler(UserTicketsSubscriptionService subscribeService,
                                             ParseQueryDataService parseService,
@@ -43,7 +42,6 @@ public class SubscribeTicketsInfoQueryHandler implements CallbackQueryHandler {
         this.userDataCache = userDataCache;
         this.telegramBot = telegramBot;
     }
-
 
     @Override
     public CallbackQueryType getHandlerQueryType() {
@@ -67,14 +65,12 @@ public class SubscribeTicketsInfoQueryHandler implements CallbackQueryHandler {
         }
 
         subscriptionService.saveUserSubscription(userSubscription);
-
         telegramBot.sendChangedInlineButtonText(callbackQuery,
-                String.format("%s %s", Emojis.SUCCESS_SUBSCRIBED, UserChatButtonStatus.SUBSCRIBED), CallbackQueryType.QUERY_PROCESSED.name());
+                                                String.format("%s %s", Emojis.SUCCESS_SUBSCRIBED, UserChatButtonStatus.SUBSCRIBED), CallbackQueryType.QUERY_PROCESSED.name());
 
         return messagesService.getReplyMessage(chatId, "reply.query.train.subscribed", trainNumber, dateDepart);
 
     }
-
 
     private Optional<UserTicketsSubscription> parseQueryData(CallbackQuery usersQuery) {
         List<Train> foundedTrains = userDataCache.getSearchFoundedTrains(usersQuery.getMessage().getChatId());
@@ -84,9 +80,8 @@ public class SubscribeTicketsInfoQueryHandler implements CallbackQueryHandler {
         final String dateDepart = parseService.parseDateDepartFromSubscribeQuery(usersQuery);
 
         Optional<Train> queriedTrainOptional = foundedTrains.stream().
-                filter(train -> train.getNumber().equals(trainNumber) && train.getDateDepart().equals(dateDepart)).
-                findFirst();
-
+                                                            filter(train -> train.getNumber().equals(trainNumber) && train.getDateDepart().equals(dateDepart)).
+                                                            findFirst();
         if (queriedTrainOptional.isEmpty()) {
             return Optional.empty();
         }
@@ -100,8 +95,16 @@ public class SubscribeTicketsInfoQueryHandler implements CallbackQueryHandler {
         final String timeArrival = queriedTrain.getTimeArrival();
         final List<Car> availableCars = queriedTrain.getAvailableCars();
 
-        return Optional.of(new UserTicketsSubscription(chatId, trainNumber, trainName, stationDepart, stationArrival, dateDepart, dateArrival, timeDepart, timeArrival, availableCars));
+        return Optional.of(new UserTicketsSubscription(chatId,
+                                                       trainNumber,
+                                                       trainName,
+                                                       stationDepart,
+                                                       stationArrival,
+                                                       dateDepart,
+                                                       dateArrival,
+                                                       timeDepart,
+                                                       timeArrival,
+                                                       availableCars));
     }
-
 
 }

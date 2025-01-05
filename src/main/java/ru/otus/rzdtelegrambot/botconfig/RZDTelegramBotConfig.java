@@ -8,15 +8,11 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.DefaultBotOptions;
 
-/**
- * @author Sergei Viacheslaev
- */
-
 @Component
-@ConfigurationProperties(prefix = "telegrambot")
 @Getter
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@ConfigurationProperties(prefix = "telegrambot")
 public class RZDTelegramBotConfig {
     String webHookPath;
     String userName;

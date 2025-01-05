@@ -141,7 +141,6 @@ public class TrainTicketsGetInfoService {
         return Optional.ofNullable(rid);
     }
 
-
     private HttpHeaders getDataRequestHeaders(List<String> cookies) {
         String jSessionId = cookies.get(cookies.size() - 1);
         jSessionId = jSessionId.substring(jSessionId.indexOf("=") + 1, jSessionId.indexOf(";"));
@@ -153,7 +152,6 @@ public class TrainTicketsGetInfoService {
 
         return requestHeaders;
     }
-
 
     private String sendTrainInfoJsonRequest(String ridValue, HttpHeaders dataRequestHeaders) {
         HttpEntity<String> httpEntity = new HttpEntity<>(dataRequestHeaders);

@@ -1,20 +1,18 @@
 package ru.otus.rzdtelegrambot.botapi.handlers.callbackquery;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 
-/**Статус кнопки клавиатуры пользователя.
+/**
+ * Статус кнопки клавиатуры пользователя.
  *
  * @author Sergei Viacheslaev
  */
-@AllArgsConstructor
+@ToString
+@RequiredArgsConstructor
 public enum UserChatButtonStatus {
     SUBSCRIBED("Подписался"), UNSUBSCRIBED("Отписался");
 
-    private String buttonStatus;
-
-    @Override
-    public String toString() {
-        return buttonStatus;
-    }
+    private final String buttonStatus;
 }
 

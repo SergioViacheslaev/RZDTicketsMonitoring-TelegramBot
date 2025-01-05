@@ -5,11 +5,15 @@ import ru.otus.rzdtelegrambot.botapi.BotState;
 import ru.otus.rzdtelegrambot.botapi.handlers.trainsearch.TrainSearchRequestData;
 import ru.otus.rzdtelegrambot.model.Train;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * In-memory cache.
- *
+ * <p>
  * usersBotStates: user_id and user's bot state
  * trainSearchUsersData: used_id and TrainSearchData
  * searchFoundedTrains: chat_id and List of founded trains.

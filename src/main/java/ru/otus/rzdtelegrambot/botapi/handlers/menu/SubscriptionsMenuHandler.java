@@ -49,20 +49,18 @@ public class SubscriptionsMenuHandler implements InputMessageHandler {
 
             for (Car car : cars) {
                 carsInfo.append(messagesService.getReplyText("subscription.carsTicketsInfo",
-                        car.getCarType(), car.getFreeSeats(), car.getMinimalPrice()));
+                                                             car.getCarType(), car.getFreeSeats(), car.getMinimalPrice()));
             }
 
             String subscriptionInfo = messagesService.getReplyText("subscriptionMenu.trainTicketsInfo",
-                    Emojis.TRAIN, subscription.getTrainNumber(), subscription.getTrainName(),
-                    subscription.getStationDepart(), subscription.getTimeDepart(), subscription.getStationArrival(),
-                    subscription.getTimeArrival(), Emojis.TIME_DEPART, subscription.getDateDepart(),
-                    subscription.getDateArrival(), carsInfo);
+                                                                   Emojis.TRAIN, subscription.getTrainNumber(), subscription.getTrainName(),
+                                                                   subscription.getStationDepart(), subscription.getTimeDepart(), subscription.getStationArrival(),
+                                                                   subscription.getTimeArrival(), Emojis.TIME_DEPART, subscription.getDateDepart(),
+                                                                   subscription.getDateArrival(), carsInfo);
 
-            //Посылаем кнопку "Отписаться" с ID подписки
             String unsubscribeData = String.format("%s|%s", CallbackQueryType.UNSUBSCRIBE, subscription.getId());
             telegramBot.sendInlineKeyBoardMessage(message.getChatId(), subscriptionInfo, "Отписаться", unsubscribeData);
         }
-
         userDataCache.setUsersCurrentBotState(message.getFrom().getId(), BotState.SHOW_MAIN_MENU);
 
         return messagesService.getSuccessReplyMessage(message.getChatId(), "reply.subscriptions.listLoaded");
@@ -72,6 +70,5 @@ public class SubscriptionsMenuHandler implements InputMessageHandler {
     public BotState getHandlerName() {
         return BotState.SHOW_SUBSCRIPTIONS_MENU;
     }
-
 
 }

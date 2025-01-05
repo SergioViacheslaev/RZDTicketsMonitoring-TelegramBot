@@ -7,11 +7,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-/**
- * @author Sergei Viacheslaev
- */
-@Component
 @Getter
+@Component
 public class StationsDataCache implements StationsCache {
     private Map<String, Integer> stationCodeCache = new HashMap<>();
 
@@ -27,7 +24,6 @@ public class StationsDataCache implements StationsCache {
 
     @Override
     public void addStationToCache(String stationName, int stationCode) {
-        stationCodeCache.put(stationName,stationCode);
+        stationCodeCache.put(stationName, stationCode);
     }
-
 }

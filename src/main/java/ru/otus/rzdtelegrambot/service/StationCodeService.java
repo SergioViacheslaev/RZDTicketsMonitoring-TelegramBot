@@ -30,7 +30,6 @@ public class StationCodeService {
     private RestTemplate restTemplate;
     private StationsDataCache stationsCache;
 
-
     public StationCodeService(RestTemplate restTemplate, StationsDataCache stationsCache) {
         this.restTemplate = restTemplate;
         this.stationsCache = stationsCache;

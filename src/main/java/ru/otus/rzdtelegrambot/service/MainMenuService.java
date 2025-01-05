@@ -26,7 +26,6 @@ public class MainMenuService {
     }
 
     private ReplyKeyboardMarkup getMainMenuKeyboard() {
-
         final ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
         replyKeyboardMarkup.setSelective(true);
         replyKeyboardMarkup.setResizeKeyboard(true);

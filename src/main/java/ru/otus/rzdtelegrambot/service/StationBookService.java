@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-
 /**
  * Поиск станции в справочнике станций
  *
@@ -47,7 +46,9 @@ public class StationBookService {
         List<TrainStation> trainStations = sendStationSearchRequest(searchedStationName);
 
         List<String> foundedStationNames = trainStations.stream().
-                map(TrainStation::getStationName).filter(stationName -> stationName.contains(searchedStationName)).collect(Collectors.toList());
+                                                        map(TrainStation::getStationName)
+                                                        .filter(stationName -> stationName.contains(searchedStationName))
+                                                        .collect(Collectors.toList());
 
         if (foundedStationNames.isEmpty()) {
             return messagesService.getReplyMessage(chatId, "reply.stationBookMenu.stationNotFound");
@@ -57,7 +58,6 @@ public class StationBookService {
         foundedStationNames.forEach(stationName -> stationsList.append(stationName).append("\n"));
 
         return messagesService.getReplyMessage(chatId, "reply.stationBook.stationsFound", Emojis.SUCCESS_MARK, stationsList.toString());
-
     }
 
     private List<TrainStation> sendStationSearchRequest(String stationNamePart) {

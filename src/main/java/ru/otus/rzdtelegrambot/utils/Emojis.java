@@ -3,8 +3,8 @@ package ru.otus.rzdtelegrambot.utils;
 import com.vdurmont.emoji.EmojiParser;
 import lombok.AllArgsConstructor;
 
-
-/**Смайлики
+/**
+ * Смайлики
  *
  * @author Sergei Viacheslaev
  */

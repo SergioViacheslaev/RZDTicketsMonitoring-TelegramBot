@@ -5,12 +5,12 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.telegram.telegrambots.ApiContextInitializer;
 
-@SpringBootApplication
 @EnableScheduling
+@SpringBootApplication
 public class RZDTelegrambotApplication {
+
     public static void main(String[] args) {
         ApiContextInitializer.init();
-
         SpringApplication.run(RZDTelegrambotApplication.class, args);
     }
 }
